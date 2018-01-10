@@ -1,0 +1,4 @@
+cron:
+- description: "test scheduler job"
+  url: /tasks/schedule
+  schedule: every 5 minutes
