@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='TestScheduleConfigMessage.proto',
   package='android.test.lab',
-  serialized_pb='\n\x1fTestScheduleConfigMessage.proto\x12\x10\x61ndroid.test.lab\"t\n\x15ScheduleConfigMessage\x12\x17\n\x0fmanifest_branch\x18\x01 \x01(\x0c\x12\x42\n\x0c\x62uild_target\x18\x0b \x03(\x0b\x32,.android.test.lab.BuildScheduleConfigMessage\"n\n\x1a\x42uildScheduleConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\x42\n\rtest_schedule\x18\x0b \x03(\x0b\x32+.android.test.lab.TestScheduleConfigMessage\"\x7f\n\x19TestScheduleConfigMessage\x12\x11\n\ttest_name\x18\x01 \x01(\x0c\x12\x0e\n\x06period\x18\x02 \x01(\x05\x12\x10\n\x08priority\x18\x03 \x01(\x0c\x12\x0e\n\x06\x64\x65vice\x18\x04 \x01(\x0c\x12\x0e\n\x06shards\x18\x05 \x01(\x05\x12\r\n\x05param\x18\x0b \x01(\x0c')
+  serialized_pb='\n\x1fTestScheduleConfigMessage.proto\x12\x10\x61ndroid.test.lab\"\x8c\x01\n\x15ScheduleConfigMessage\x12\x17\n\x0fmanifest_branch\x18\x01 \x01(\x0c\x12\x16\n\x0epab_account_id\x18\x02 \x01(\x0c\x12\x42\n\x0c\x62uild_target\x18\x0b \x03(\x0b\x32,.android.test.lab.BuildScheduleConfigMessage\"n\n\x1a\x42uildScheduleConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\x42\n\rtest_schedule\x18\x0b \x03(\x0b\x32+.android.test.lab.TestScheduleConfigMessage\"\xc9\x01\n\x19TestScheduleConfigMessage\x12\x11\n\ttest_name\x18\x01 \x01(\x0c\x12\x0e\n\x06period\x18\x02 \x01(\x05\x12\x10\n\x08priority\x18\x03 \x01(\x0c\x12\x0e\n\x06\x64\x65vice\x18\x04 \x01(\x0c\x12\x0e\n\x06shards\x18\x05 \x01(\x05\x12\r\n\x05param\x18\x0b \x01(\x0c\x12\x12\n\ngsi_branch\x18\x15 \x01(\x0c\x12\x18\n\x10gsi_build_target\x18\x16 \x01(\x0c\x12\x1a\n\x12gsi_pab_account_id\x18\x17 \x01(\x0c')
 
 
 
@@ -33,7 +33,14 @@ _SCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='build_target', full_name='android.test.lab.ScheduleConfigMessage.build_target', index=1,
+      name='pab_account_id', full_name='android.test.lab.ScheduleConfigMessage.pab_account_id', index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='build_target', full_name='android.test.lab.ScheduleConfigMessage.build_target', index=2,
       number=11, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -48,8 +55,8 @@ _SCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=53,
-  serialized_end=169,
+  serialized_start=54,
+  serialized_end=194,
 )
 
 
@@ -83,8 +90,8 @@ _BUILDSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=171,
-  serialized_end=281,
+  serialized_start=196,
+  serialized_end=306,
 )
 
 
@@ -137,6 +144,27 @@ _TESTSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='gsi_branch', full_name='android.test.lab.TestScheduleConfigMessage.gsi_branch', index=6,
+      number=21, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='gsi_build_target', full_name='android.test.lab.TestScheduleConfigMessage.gsi_build_target', index=7,
+      number=22, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='gsi_pab_account_id', full_name='android.test.lab.TestScheduleConfigMessage.gsi_pab_account_id', index=8,
+      number=23, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -146,8 +174,8 @@ _TESTSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=283,
-  serialized_end=410,
+  serialized_start=309,
+  serialized_end=510,
 )
 
 _SCHEDULECONFIGMESSAGE.fields_by_name['build_target'].message_type = _BUILDSCHEDULECONFIGMESSAGE
