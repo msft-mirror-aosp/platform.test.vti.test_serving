@@ -21,6 +21,9 @@ message ScheduleConfigMessage {
   // Manifest branch name.
   optional bytes manifest_branch = 1;
 
+  // PAB account ID.
+  optional bytes pab_account_id = 2;
+
   // For the IP address.
   repeated BuildScheduleConfigMessage build_target = 11;
 }
@@ -49,4 +52,13 @@ message TestScheduleConfigMessage {
   optional int32 shards = 5;
 
   optional bytes param = 11;
+
+  // if GSI (General System Image) is used, GSI manifest branch name.
+  optional bytes gsi_branch = 21;
+
+  // if GSI (General System Image) is used, GSI build target name.
+  optional bytes gsi_build_target = 22;
+
+  // if GSI (General System Image) is used, GSI PAB account ID.
+  optional bytes gsi_pab_account_id = 23;
 }
