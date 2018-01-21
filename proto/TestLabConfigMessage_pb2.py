@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='TestLabConfigMessage.proto',
   package='android.test.lab',
-  serialized_pb='\n\x1aTestLabConfigMessage.proto\x12\x10\x61ndroid.test.lab\"b\n\x10LabConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\r\n\x05owner\x18\x02 \x01(\x0c\x12\x31\n\x04host\x18\x0b \x03(\x0b\x32#.android.test.lab.HostConfigMessage\"A\n\x11HostConfigMessage\x12\x10\n\x08hostname\x18\x01 \x01(\x0c\x12\n\n\x02ip\x18\x02 \x01(\x0c\x12\x0e\n\x06script\x18\x03 \x01(\x0c')
+  serialized_pb='\n\x1aTestLabConfigMessage.proto\x12\x10\x61ndroid.test.lab\"b\n\x10LabConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\r\n\x05owner\x18\x02 \x01(\x0c\x12\x31\n\x04host\x18\x0b \x03(\x0b\x32#.android.test.lab.HostConfigMessage\"\x8e\x01\n\x11HostConfigMessage\x12\x10\n\x08hostname\x18\x01 \x01(\x0c\x12\n\n\x02ip\x18\x02 \x01(\x0c\x12\x0e\n\x06script\x18\x03 \x01(\x0c\x12\x14\n\x0csetup_script\x18\x04 \x01(\x0c\x12\x35\n\x06\x64\x65vice\x18\x0b \x03(\x0b\x32%.android.test.lab.DeviceConfigMessage\"E\n\x13\x44\x65viceConfigMessage\x12\x0e\n\x06serial\x18\x01 \x01(\x0c\x12\r\n\x05index\x18\x02 \x01(\x05\x12\x0f\n\x07product\x18\x0b \x01(\x0c')
 
 
 
@@ -88,6 +88,20 @@ _HOSTCONFIGMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='setup_script', full_name='android.test.lab.HostConfigMessage.setup_script', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='device', full_name='android.test.lab.HostConfigMessage.device', index=4,
+      number=11, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -97,13 +111,57 @@ _HOSTCONFIGMESSAGE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=148,
-  serialized_end=213,
+  serialized_start=149,
+  serialized_end=291,
+)
+
+
+_DEVICECONFIGMESSAGE = _descriptor.Descriptor(
+  name='DeviceConfigMessage',
+  full_name='android.test.lab.DeviceConfigMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='serial', full_name='android.test.lab.DeviceConfigMessage.serial', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='index', full_name='android.test.lab.DeviceConfigMessage.index', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='product', full_name='android.test.lab.DeviceConfigMessage.product', index=2,
+      number=11, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=293,
+  serialized_end=362,
 )
 
 _LABCONFIGMESSAGE.fields_by_name['host'].message_type = _HOSTCONFIGMESSAGE
+_HOSTCONFIGMESSAGE.fields_by_name['device'].message_type = _DEVICECONFIGMESSAGE
 DESCRIPTOR.message_types_by_name['LabConfigMessage'] = _LABCONFIGMESSAGE
 DESCRIPTOR.message_types_by_name['HostConfigMessage'] = _HOSTCONFIGMESSAGE
+DESCRIPTOR.message_types_by_name['DeviceConfigMessage'] = _DEVICECONFIGMESSAGE
 
 class LabConfigMessage(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
@@ -116,6 +174,12 @@ class HostConfigMessage(_message.Message):
   DESCRIPTOR = _HOSTCONFIGMESSAGE
 
   # @@protoc_insertion_point(class_scope:android.test.lab.HostConfigMessage)
+
+class DeviceConfigMessage(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _DEVICECONFIGMESSAGE
+
+  # @@protoc_insertion_point(class_scope:android.test.lab.DeviceConfigMessage)
 
 
 # @@protoc_insertion_point(module_scope)

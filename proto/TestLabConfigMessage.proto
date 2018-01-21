@@ -26,9 +26,27 @@ message LabConfigMessage {
   repeated HostConfigMessage host = 11;
 }
 
+// To specify the basic information about a host computer.
 message HostConfigMessage {
   optional bytes hostname = 1;
   optional bytes ip = 2;
-  // setup script
+
+  // host management scripts
   optional bytes script = 3;
+  optional bytes setup_script = 4;
+
+  repeated DeviceConfigMessage device = 11;
 }
+
+// To specify information about a DUT (Device Under Test).
+message DeviceConfigMessage {
+  // device serial number (retrieved by fastboot or adb).
+  optional bytes serial = 1;
+
+  // optional - device index for a host starting from 0 to 13 (max).
+  optional int32 index = 2;
+
+  // device product type (e.g., taimen or walleye).
+  optional bytes product = 11;
+}
+
