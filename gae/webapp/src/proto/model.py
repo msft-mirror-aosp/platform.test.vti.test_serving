@@ -96,6 +96,7 @@ class DeviceModel(ndb.Model):
     product = ndb.StringProperty(indexed=False)
     serial = ndb.StringProperty(indexed=False)
     status = ndb.IntegerProperty(indexed=False)
+    scheduling_status = ndb.IntegerProperty(indexed=False)
     timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
 
 
@@ -104,6 +105,7 @@ class DeviceInfoMessage(messages.Message):
     serial = messages.StringField(1)
     product = messages.StringField(2)
     status = messages.IntegerField(3)
+    scheduling_status = messages.IntegerField(4)
 
 
 class HostInfoMessage(messages.Message):
