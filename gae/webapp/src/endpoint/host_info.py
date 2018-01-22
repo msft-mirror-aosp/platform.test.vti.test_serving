@@ -60,6 +60,7 @@ class HostInfoApi(remote.Service):
                     existing_device.hostname = request.hostname
                     existing_device.product = request_device.product
                     existing_device.status = request_device.status
+                    existing_device.scheduling_status = 0
                     existing_device.timestamp = datetime.datetime.now()
                     existing_device.put()
                     break
@@ -71,6 +72,7 @@ class HostInfoApi(remote.Service):
                 device.serial = request_device.serial
                 device.product = request_device.product
                 device.status = request_device.status
+                device.scheduling_status = 0
                 device.timestamp = datetime.datetime.now()
                 device.put()
 
