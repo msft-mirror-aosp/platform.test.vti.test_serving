@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 import webapp2
 
 from google.appengine.api import users
@@ -44,6 +45,7 @@ class DevicePage(webapp2.RequestHandler):
 
         template_values = {
             "user": user,
+            "now": datetime.datetime.now(),
             "devices": devices,
             "labs": labs,
             "url": url,
