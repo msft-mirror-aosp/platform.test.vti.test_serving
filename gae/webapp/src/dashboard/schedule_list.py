@@ -41,6 +41,11 @@ class SchedulePage(webapp2.RequestHandler):
             url = users.create_login_url(self.request.uri)
             url_linktext = "Login"
 
+        if schedules:
+            schedules = sorted(
+                schedules, key=lambda x: (x.manifest_branch, x.build_target),
+                reverse=False)
+
         template_values = {
             "user": user,
             "schedules": schedules,
