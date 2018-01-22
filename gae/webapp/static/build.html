@@ -56,35 +56,25 @@
     </div>
     <div class="container">
       <h1>Build List</h1>
-      <p>Shortcuts: <a href=#>8.0 (oc)</a> <a href=#>8.1 (oc-mr1)</a> <a href=#>9.0 (pi)</a></p>
+      <p>Shortcuts:
+      <a href=/build>All</a>,
+      <a href=/build?branch=O>8.0 (O)</a>,
+      <a href=/build?branch=O-MR1>8.1 (O-MR1)</a>,
+      <a href=/build?branch=P>9.0 (P)</a></p>
       <table>
-      <tr>
-        <td>
-          Test Build
-        <td>
-          Device Build
-        <td>
-          GSI Build
+      {% for manifest_branch, builds in all_builds.items() %}
+      <tr valign="top">
+        <td><h2>Branch: {{manifest_branch}}</h2></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
       </tr>
       <tr>
         <td>
-          <select>
-            <option value="all">all</option>
-            <option value="git_oc-vts-dev">git_oc-vts-dev</option>
-            <option value="git_oc-mr1-dev">git_oc-mr1-dev</option>
-          </select>
+          <b>Test Build</b>
         <td>
-          <select>
-            <option value="all">all</option>
-            <option value="git_oc-dev">git_oc-dev</option>
-            <option value="git_oc-mr1-dev">git_oc-mr1-dev</option>
-          </select>
+          <b>Device Build</b>
         <td>
-          <select>
-            <option value="all">all</option>
-            <option value="git_oc-treble-dev">git_oc-treble-dev</option>
-            <option value="git_oc-mr1-treble-dev">git_oc-mr1-treble-dev</option>
-          </select>
+          <b>GSI Build</b>
       </tr>
       <tr valign="top">
         <td>
@@ -94,12 +84,9 @@
             <td>Branch
             <td>ID
             <td>Target
-            <td>Build Type
-            <td>Artifact Type
-            <td>Retrieved
           </tr>
           {% set index = 1 %}
-          {% for build in test_builds %}
+          {% for build in builds["test"] %}
           <tr>
             <td>
               {{ index }}
@@ -107,15 +94,11 @@
             <td>
               {{ build.manifest_branch }}
             <td>
-              {{ build.build_id }}
+              <span title="Retrieved at {{ build.timestamp }}">
+              {{ build.build_id }}</span>
             <td>
-              {{ build.build_target }}
-            <td>
-              {{ build.build_type }}
-            <td>
-              {{ build.artifact_type }}
-            <td>
-              {{ build.timestamp }}
+              <span title="build_type: {{ build.build_type }}">
+              {{ build.build_target }}</span>
           </tr>
           {% endfor %}
           </table>
@@ -127,11 +110,9 @@
             <td>ID
             <td>Target
             <td>Build Type
-            <td>Artifact Type
-            <td>Retrieved
           </tr>
           {% set index = 1 %}
-          {% for build in device_builds %}
+          {% for build in builds["device"] %}
           <tr>
             <td>
               {{ index }}
@@ -139,15 +120,12 @@
             <td>
               {{ build.manifest_branch }}
             <td>
-              {{ build.build_id }}
+              <span title="Retrieved at {{ build.timestamp }}">
+              {{ build.build_id }}</span>
             <td>
               {{ build.build_target }}
             <td>
               {{ build.build_type }}
-            <td>
-              {{ build.artifact_type }}
-            <td>
-              {{ build.timestamp }}
           </tr>
           {% endfor %}
           </table>
@@ -158,12 +136,9 @@
             <td>Branch
             <td>ID
             <td>Target
-            <td>Build Type
-            <td>Artifact Type
-            <td>Retrieved
           </tr>
           {% set index = 1 %}
-          {% for build in gsi_builds %}
+          {% for build in builds["gsi"] %}
           <tr>
             <td>
               {{ index }}
@@ -171,19 +146,16 @@
             <td>
               {{ build.manifest_branch }}
             <td>
-              {{ build.build_id }}
+              <span title="Retrieved at {{ build.timestamp }}">
+              {{ build.build_id }}</span>
             <td>
-              {{ build.build_target }}
-            <td>
-              {{ build.build_type }}
-            <td>
-              {{ build.artifact_type }}
-            <td>
-              {{ build.timestamp }}
+              <span title="build_type: {{ build.build_type }}">
+              {{ build.build_target }}</span>
           </tr>
           {% endfor %}
           </table>
       </tr>
+      {% endfor %}
       </table>
       <hr>
     </div>
