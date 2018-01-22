@@ -19,10 +19,9 @@ import endpoints
 
 from webapp.src.endpoint import build_info
 from webapp.src.endpoint import host_info
+from webapp.src.endpoint import job_queue
 from webapp.src.endpoint import lab_info
 from webapp.src.endpoint import schedule_info
-from webapp.src.endpoint import job_queue
-
 
 api = endpoints.api_server([
     build_info.BuildInfoApi,
