@@ -16,6 +16,15 @@ syntax = "proto2";
 
 package android.test.lab;
 
+// Type of a command.
+enum BuildStorageType {
+  UNKNOWN_BUILD_STORAGE_TYPE = 0;
+  // To get a list of available HAL modules.
+  BUILD_STORAGE_TYPE_PAB = 1;
+  // To set the host information (e.g., callback server port).
+  BUILD_STORAGE_TYPE_GCS = 2;
+}
+
 // To specify the whole test execution schedule of a manifest branch.
 message ScheduleConfigMessage {
   // Manifest branch name.
@@ -23,6 +32,9 @@ message ScheduleConfigMessage {
 
   // PAB account ID.
   optional bytes pab_account_id = 2;
+
+  // PAB account ID (e.g., PAB or GCS)
+  optional BuildStorageType build_storage_type = 3 [default = BUILD_STORAGE_TYPE_PAB];
 
   // For the IP address.
   repeated BuildScheduleConfigMessage build_target = 11;
@@ -61,4 +73,13 @@ message TestScheduleConfigMessage {
 
   // if GSI (General System Image) is used, GSI PAB account ID.
   optional bytes gsi_pab_account_id = 23;
+
+  // Test package's manifest branch name.
+  optional bytes test_branch = 31;
+
+  // Test package's build target name.
+  optional bytes test_build_target = 32;
+
+  // PAB account ID for test package.
+  optional bytes test_pab_account_id = 33;
 }
