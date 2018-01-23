@@ -57,6 +57,7 @@
     <div class="container">
       <h1>Device List</h1>
       <!-- [START greetings] -->
+      Now: {{ now }}
       <table border=1>
       <tr>
         <td>#
@@ -64,6 +65,7 @@
         <td>Product
         <td>Serial
         <td>Status
+        <td>Scheduling Status
         <td>Timestamp
       </tr>
       {% set index = 1 %}
@@ -85,6 +87,10 @@
               3: "ready",
               4: "use",
               5: "error"}[device.status] | default("status key error") }}
+        <td>
+          {{ {0: "free",
+              1: "reserved",
+              2: "use"}[device.scheduling_status] | default("status key error") }}
         <td>
           {{ device.timestamp }}
       </tr>

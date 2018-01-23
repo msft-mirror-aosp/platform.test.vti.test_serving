@@ -6,6 +6,7 @@ indexes:
   - name: product
   - name: serial
   - name: status
+  - name: scheduling_status
     direction: asc
 
 - kind: Build
