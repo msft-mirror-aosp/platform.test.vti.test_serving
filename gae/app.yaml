@@ -8,6 +8,11 @@ env_variables:
   ENDPOINTS_SERVICE_VERSION: 2017-12-28r24
 # [END env_vars]
 
+# [START builtins]
+builtins:
+- deferred: on
+# [END builtins]
+
 # [START handlers]
 handlers:
 # The endpoints handler must be mapped to /_ah/api.
@@ -23,6 +28,10 @@ handlers:
 
 - url: /.*
   script: webapp.src.webapp_main.app
+
+- url: /_ah/queue/deferred
+  script: google.appengine.ext.deferred.deferred.application
+  login: admin
 # [END handlers]
 
 # [START libraries]
