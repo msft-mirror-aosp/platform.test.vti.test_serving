@@ -44,9 +44,9 @@ def ReadBuildInfo(target_branch=""):
     if builds:
         for build in builds:
             if build.manifest_branch.startswith("git_oc-mr1"):
-                m_brach = "O-MR1"
+                m_branch = "O-MR1"
             elif build.manifest_branch.startswith("git_oc-"):
-                m_brach = "O"
+                m_branch = "O"
             else:
                 m_branch = "P"
 
