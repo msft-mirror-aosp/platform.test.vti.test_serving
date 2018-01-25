@@ -47,6 +47,8 @@ def ReadBuildInfo(target_branch=""):
                 m_branch = "O-MR1"
             elif build.manifest_branch.startswith("git_oc-"):
                 m_branch = "O"
+            elif build.manifest_branch.startswith("gcs"):
+                m_branch = "GCS"
             else:
                 m_branch = "P"
 
