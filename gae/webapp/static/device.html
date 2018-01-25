@@ -86,7 +86,8 @@
               2: "online",
               3: "ready",
               4: "use",
-              5: "error"}[device.status] | default("status key error") }}
+              5: "error",
+              6: "no-response"}[device.status] | default("status key error") }}
         <td>
           {{ {0: "free",
               1: "reserved",

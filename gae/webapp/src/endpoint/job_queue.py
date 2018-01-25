@@ -21,6 +21,7 @@ from protorpc import remote
 from google.appengine.ext import deferred
 
 from webapp.src.proto import model
+from webapp.src.scheduler import device_status
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
 
@@ -46,6 +47,7 @@ def SetJobStatusToReady(key):
             if job.status == "LEASED":
                 job.status = "READY"
                 job.put()
+                device_status.RefreshDevicesScheduleingStatus(job)
             _timestamp_last_heartbeat.pop(key.id())
 
 
@@ -80,7 +82,7 @@ class JobQueueApi(remote.Service):
         job_message.period = 0
 
         for job in existing_jobs:
-            if job.hostname == request.hostname and job.build_id != "":
+            if job.hostname == request.hostname and job.build_id != "" and job.status == "READY":
                 job.status = "LEASED"
                 job_message.hostname = job.hostname
                 job_message.priority = job.priority
@@ -95,6 +97,7 @@ class JobQueueApi(remote.Service):
                 job_message.status = job.status
                 job_message.period = job.period
                 job.put()
+                device_status.RefreshDevicesScheduleingStatus(job)
 
                 return model.JobLeaseResponse(
                     return_code=model.ReturnCodeMessage.SUCCESS,
@@ -154,6 +157,7 @@ class JobQueueApi(remote.Service):
         """
         job.status = status
         job_key = job.put()
+        device_status.RefreshDevicesScheduleingStatus(job)
         _timestamp_last_heartbeat[job_key.id()] = datetime.datetime.now()
         deferred.defer(
             SetJobStatusToReady,

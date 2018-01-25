@@ -282,5 +282,4 @@ class PeriodicScheduler(webapp2.RequestHandler):
             if len(available_devices[host]) >= schedule.shards:
                 return host, available_devices[host][:schedule.shards]
 
-
         return None, []
