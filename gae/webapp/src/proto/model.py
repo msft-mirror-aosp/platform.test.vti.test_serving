@@ -72,7 +72,15 @@ class LabModel(ndb.Model):
     owner = ndb.StringProperty(indexed=False)
     hostname = ndb.StringProperty(indexed=False)
     ip = ndb.StringProperty(indexed=False)
+    # devices is a comma-separated list of serial=product pairs
+    devices = ndb.StringProperty(indexed=False)
     timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
+
+
+class LabDeviceInfoMessage(messages.Message):
+    """A message for representing an individual lab host's device entry."""
+    serial = messages.StringField(1, repeated=False)
+    product = messages.StringField(2, repeated=False)
 
 
 class LabHostInfoMessage(messages.Message):
@@ -80,6 +88,8 @@ class LabHostInfoMessage(messages.Message):
     hostname = messages.StringField(1, repeated=False)
     ip = messages.StringField(2, repeated=False)
     script = messages.StringField(3)
+    device = messages.MessageField(
+        LabDeviceInfoMessage, 4, repeated=True)
 
 
 class LabInfoMessage(messages.Message):
