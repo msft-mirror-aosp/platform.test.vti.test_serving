@@ -22,8 +22,8 @@ from protorpc import remote
 from google.appengine.api import users
 from google.appengine.ext import deferred
 
+from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
-from webapp.src.scheduler import device_status
 
 HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.HostInfoMessage)
 
@@ -41,7 +41,7 @@ def DeviceErrorOnTimeout(key):
     device = key.get()
     if (current_time -
             device.timestamp).seconds >= _DEVICE_RESPONSE_TIMEOUT_IN_SECS:
-        device.status = device_status.DEVICE_STATUS_DICT["no-response"]
+        device.status = Status.DEVICE_STATUS_DICT["no-response"]
         device.put()
 
 
@@ -91,8 +91,8 @@ class HostInfoApi(remote.Service):
                 device.serial = request_device.serial
                 device.product = request_device.product
                 device.status = request_device.status
-                device.scheduling_status = device_status.DEVICE_SCHEDULING_STATUS_DICT[
-                    "free"]
+                device.scheduling_status = \
+                    Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
                 device.timestamp = datetime.datetime.now()
                 device_key = device.put()
                 deferred.defer(
