@@ -66,6 +66,12 @@ class LabInfoApi(remote.Service):
             lab.hostname = host.hostname
             lab.ip = host.ip
             lab.script = host.script
+            devices = []
+            if host.device:
+                for device in host.device:
+                    devices += "%s=%s" % (device.serial, device.product)
+            if devices:
+                lab.devices = ",".join(devices)
             lab.timestamp = datetime.datetime.now()
             lab.put()
 

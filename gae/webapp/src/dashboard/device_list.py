@@ -43,6 +43,11 @@ class DevicePage(webapp2.RequestHandler):
             url = users.create_login_url(self.request.uri)
             url_linktext = "Login"
 
+        if devices:
+            devices = sorted(
+                devices, key=lambda x: (x.hostname, x.product, x.status),
+                reverse=False)
+
         template_values = {
             "user": user,
             "now": datetime.datetime.now(),

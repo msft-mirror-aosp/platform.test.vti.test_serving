@@ -41,6 +41,7 @@ indexes:
   - name: hostname
   - name: ip
   - name: script
+  - name: devices
     direction: asc
 
 - kind: Job
