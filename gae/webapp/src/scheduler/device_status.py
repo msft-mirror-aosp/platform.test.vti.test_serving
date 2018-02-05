@@ -13,34 +13,7 @@
 # limitations under the License.
 
 from webapp.src.proto import model
-
-# Status dict updated from HC.
-DEVICE_STATUS_DICT = {
-    # default state, currently not in use.
-    "unknown": 0,
-    # for devices detected via "fastboot devices" shell command.
-    "fastboot": 1,
-    # for devices detected via "adb devices" shell command.
-    "online": 2,
-    # currently not in use.
-    "ready": 3,
-    # currently not in use.
-    "use": 4,
-    # for devices in error state.
-    "error": 5,
-    # for devices which timed out (not detected either via fastboot or adb).
-    "no-response": 6
-}
-
-# Scheduling status dict based on the status of each jobs in job queue.
-DEVICE_SCHEDULING_STATUS_DICT = {
-    # for devices detected but not scheduled.
-    "free": 0,
-    # for devices scheduled but not running.
-    "reserved": 1,
-    # for devices scheduled for currently leased job(s).
-    "use": 2
-}
+from webapp.src import vtslab_status as Status
 
 
 def RefreshDevicesScheduleingStatus(job):
@@ -57,11 +30,12 @@ def RefreshDevicesScheduleingStatus(job):
 
     for device in devices:
         if device.serial in job.serial:
-            if job.status == "LEASED":
-                status = DEVICE_SCHEDULING_STATUS_DICT["use"]
-            elif job.status == "READY":
-                status = DEVICE_SCHEDULING_STATUS_DICT["reserved"]
+            if job.status == Status.JOB_STATUS_DICT["leased"]:
+                status = Status.DEVICE_SCHEDULING_STATUS_DICT["use"]
+            elif job.status == Status.JOB_STATUS_DICT["ready"]:
+                status = Status.DEVICE_SCHEDULING_STATUS_DICT["reserved"]
             else:
-                status = DEVICE_SCHEDULING_STATUS_DICT["free"]
+                status = Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
             device.scheduling_status = status
             device.put()
+
