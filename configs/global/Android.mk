@@ -21,6 +21,7 @@ include $(CLEAR_VARS)
 vti-global-config-prod-zip := $(HOST_OUT)/vti-global-config/vti-global-config-prod.zip
 vti-global-config-test-zip := $(HOST_OUT)/vti-global-config/vti-global-config-test.zip
 
+.PHONY: $(vti-global-config-prod-zip)
 $(vti-global-config-prod-zip): $(SOONG_ZIP)
 	@echo "build vti config package: $@"
 	$(hide) mkdir -p $(dir $@)
@@ -31,6 +32,7 @@ $(vti-global-config-prod-zip): $(SOONG_ZIP)
 	    -C vendor/google_vts/configs/global -l $@.list.vendor
 	$(hide) rm -f $@.list $@.list.vendor
 
+.PHONY: $(vti-global-config-test-zip)
 $(vti-global-config-test-zip): $(SOONG_ZIP)
 	@echo "build vti config package: $@"
 	$(hide) mkdir -p $(dir $@)
