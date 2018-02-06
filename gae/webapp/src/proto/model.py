@@ -137,7 +137,7 @@ class JobModel(ndb.Model):
     shards = ndb.IntegerProperty(indexed=False)
     param = ndb.StringProperty(indexed=False, repeated=True)
     build_id = ndb.StringProperty(indexed=False)
-    status = ndb.StringProperty(indexed=False)
+    status = ndb.IntegerProperty(indexed=False)
     period = ndb.IntegerProperty(indexed=False)
     timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
 
@@ -154,7 +154,7 @@ class JobMessage(messages.Message):
     shards = messages.IntegerField(8)
     param = messages.StringField(9, repeated=True)
     build_id = messages.StringField(10)
-    status = messages.StringField(11)
+    status = messages.IntegerField(11)
     period = messages.IntegerField(12)
 
 

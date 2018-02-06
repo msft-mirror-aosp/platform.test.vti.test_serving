@@ -22,6 +22,7 @@ from google.appengine.ext import deferred
 
 from webapp.src.proto import model
 from webapp.src.scheduler import device_status
+from webapp.src import vtslab_status as Status
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
 
@@ -44,8 +45,8 @@ def SetJobStatusToReady(key):
         if (current_time - _timestamp_last_heartbeat[key.id()]
             ).seconds >= _LEASED_JOB_RESPONSE_TIMEOUT_IN_SECS:
             job = key.get()
-            if job.status == "LEASED":
-                job.status = "READY"
+            if job.status == Status.JOB_STATUS_DICT["leased"]:
+                job.status = Status.JOB_STATUS_DICT["ready"]
                 job.put()
                 device_status.RefreshDevicesScheduleingStatus(job)
             _timestamp_last_heartbeat.pop(key.id())
@@ -78,12 +79,12 @@ class JobQueueApi(remote.Service):
         job_message.shards = 0
         job_message.param = [""]
         job_message.build_id = ""
-        job_message.status = ""
+        job_message.status = 0
         job_message.period = 0
 
         for job in existing_jobs:
-            if job.hostname == request.hostname and job.build_id != "" and job.status == "READY":
-                job.status = "LEASED"
+            if (job.hostname == request.hostname and job.build_id != ""
+                    and job.status == Status.JOB_STATUS_DICT["ready"]):
                 job_message.hostname = job.hostname
                 job_message.priority = job.priority
                 job_message.test_name = job.test_name
@@ -137,7 +138,7 @@ class JobQueueApi(remote.Service):
                 job_message.status = job.status
                 job_message.period = job.period
                 job_messages.append(job_message)
-                if job.status != "LEASED":
+                if job.status != Status.JOB_STATUS_DICT["leased"]:
                     return model.JobLeaseResponse(
                         return_code=model.ReturnCodeMessage.FAIL,
                         jobs=job_messages)

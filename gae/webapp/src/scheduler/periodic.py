@@ -18,6 +18,7 @@
 import datetime
 import webapp2
 
+from webapp.src import vtslab_status as Status
 from webapp.src.dashboard import build_list
 from webapp.src.proto import model
 
@@ -46,7 +47,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
         """..."""
         for device in devices:
             if device.serial in target_device_serials:
-                device.scheduling_status = 1
+                device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
+                    "reserved"]
                 device.put()
 
     def FindBuildId(self, new_job, builds):
@@ -54,30 +56,27 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
         if builds:
             self.LogPrintln("-- Find build ID")
-        
+
             for device_build in builds:
                 if device_build.artifact_type != "device":
                     continue
-        
-                if (not hasattr(device_build, "build_target") or
-                    not hasattr(device_build, "build_type") or
-                    not hasattr(device_build, "manifest_branch") or
-                    not hasattr(device_build, "build_id")):
+
+                if (not hasattr(device_build, "build_target")
+                        or not hasattr(device_build, "build_type")
+                        or not hasattr(device_build, "manifest_branch")
+                        or not hasattr(device_build, "build_id")):
                     self.LogPrintln(
-                        "-- some field(s) missing ERROR %s"  % device_build)
+                        "-- some field(s) missing ERROR %s" % device_build)
                     continue
-        
+
                 candidate_device = "-".join(
-                    [device_build.build_target,
-                     device_build.build_type])
-                self.LogPrintln(
-                    "-- check candidate_device %s (%s)" % (
-                        candidate_device,
-                        new_job.build_target[0]))
-                if (device_build.manifest_branch == new_job.manifest_branch and
-                    new_job.build_target[0] == candidate_device):
-                    if (not build_id or
-                        StrGT(device_build.build_id, build_id)):
+                    [device_build.build_target, device_build.build_type])
+                self.LogPrintln("-- check candidate_device %s (%s)" %
+                                (candidate_device, new_job.build_target[0]))
+                if (device_build.manifest_branch == new_job.manifest_branch
+                        and new_job.build_target[0] == candidate_device):
+                    if (not build_id
+                            or StrGT(device_build.build_id, build_id)):
                         build_id = device_build.build_id
         return build_id
 
@@ -128,39 +127,52 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.param = schedule.param
                         # assume device build
                         #_, device_builds, _ = build_list.ReadBuildInfo()
-                        
+
                         new_job.build_id = ""
                         new_job.build_id = self.FindBuildId(new_job, builds)
                         org_build_target = new_job.build_target[0]
                         if not new_job.build_id:
                             if new_job.build_target[0].startswith("aosp_"):
-                                new_job.build_target[0] = new_job.build_target[0].replace("aosp_", "")
-                                new_job.build_id = self.FindBuildId(new_job, builds)
+                                new_job.build_target[0] = new_job.build_target[
+                                    0].replace("aosp_", "")
+                                new_job.build_id = self.FindBuildId(
+                                    new_job, builds)
                             else:
-                                new_job.build_target[0] = "aosp_" + new_job.build_target[0]
-                                new_job.build_id = self.FindBuildId(new_job, builds)
+                                new_job.build_target[
+                                    0] = "aosp_" + new_job.build_target[0]
+                                new_job.build_id = self.FindBuildId(
+                                    new_job, builds)
 
                         new_job.build_target[0] = org_build_target
                         if not new_job.build_id:
                             if new_job.build_target[0].endswith("-user"):
-                                new_job.build_target[0] = new_job.build_target[0].replace("-user", "-userdebug")
-                                new_job.build_id = self.FindBuildId(new_job, builds)
-                            elif new_job.build_target[0].endswith("-userdebug"):
-                                new_job.build_target[0] = new_job.build_target[0].replace("-userdebug", "-user")
-                                new_job.build_id = self.FindBuildId(new_job, builds)
+                                new_job.build_target[0] = new_job.build_target[
+                                    0].replace("-user", "-userdebug")
+                                new_job.build_id = self.FindBuildId(
+                                    new_job, builds)
+                            elif new_job.build_target[0].endswith(
+                                    "-userdebug"):
+                                new_job.build_target[0] = new_job.build_target[
+                                    0].replace("-userdebug", "-user")
+                                new_job.build_id = self.FindBuildId(
+                                    new_job, builds)
 
                         if not new_job.build_id:
                             if new_job.build_target[0].startswith("aosp_"):
-                                new_job.build_target[0] = new_job.build_target[0].replace("aosp_", "")
-                                new_job.build_id = self.FindBuildId(new_job, builds)
+                                new_job.build_target[0] = new_job.build_target[
+                                    0].replace("aosp_", "")
+                                new_job.build_id = self.FindBuildId(
+                                    new_job, builds)
                             else:
-                                new_job.build_target[0] = "aosp_" + new_job.build_target[0]
-                                new_job.build_id = self.FindBuildId(new_job, builds)
+                                new_job.build_target[
+                                    0] = "aosp_" + new_job.build_target[0]
+                                new_job.build_id = self.FindBuildId(
+                                    new_job, builds)
 
                         if new_job.build_id:
                             self.ReserveDevices(devices, target_device_serials)
                             # TODO remove only until full builds are available.
-                            new_job.status = "READY"
+                            new_job.status = Status.JOB_STATUS_DICT["ready"]
                             new_job.timestamp = datetime.datetime.now()
                             new_job.put()
                             self.LogPrintln("NEW JOB")
@@ -201,13 +213,13 @@ class PeriodicScheduler(webapp2.RequestHandler):
             return True
 
         def IsScheduleAndJobTheSame(schedule, job):
-            return (job.manifest_branch == schedule.manifest_branch and
-                job.build_target == schedule.build_target and
-                job.test_name == schedule.test_name and
-                job.period == schedule.period and
-                job.device == schedule.device and
-                job.shards == schedule.shards and
-                job.param == schedule.param)
+            return (job.manifest_branch == schedule.manifest_branch
+                    and job.build_target == schedule.build_target
+                    and job.test_name == schedule.test_name
+                    and job.period == schedule.period
+                    and job.device == schedule.device
+                    and job.shards == schedule.shards
+                    and job.param == schedule.param)
 
         latest_timestamp = None
         for job in jobs:
@@ -217,7 +229,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                     latest_timestamp = job.timestamp
                 elif latest_timestamp < job.timestamp:
                     latest_timestamp = job.timestamp
-        
+
         if latest_timestamp is None:
             return True
 
@@ -246,8 +258,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
             return None, None
 
         target_lab, target_product_type = schedule.device.split("/")
-        self.LogPrintln("- Seeking product %s in lab %s" % (
-                            target_product_type, target_lab))
+        self.LogPrintln("- Seeking product %s in lab %s" %
+                        (target_product_type, target_lab))
         self.LogIndent()
 
         available_devices = {}
@@ -256,17 +268,20 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 if lab.name != target_lab:
                     continue
                 self.LogPrintln("- target lab found")
-                self.LogPrintln("- target device %s %s" % (
-                                    lab.hostname, target_product_type))
+                self.LogPrintln("- target device %s %s" %
+                                (lab.hostname, target_product_type))
                 self.LogIndent()
                 for device in devices:
-                    #self.LogPrintln("- check device %s %s %s" % (
-                    #                    device.hostname, device.status,
-                    #                    device.product))
-                    if (device.hostname == lab.hostname and
-                        (device.status in [1, 2, 3]) and
-                        (device.scheduling_status in [0]) and
-                        device.product == target_product_type):
+                    self.LogPrintln("- check device %s %s %s" % (
+                                       device.hostname, device.status,
+                                       device.product))
+                    if (device.hostname == lab.hostname and (device.status in [
+                        Status.DEVICE_STATUS_DICT["fastboot"],
+                        Status.DEVICE_STATUS_DICT["online"],
+                        Status.DEVICE_STATUS_DICT["ready"]
+                    ]) and (device.scheduling_status in [
+                        Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
+                    ]) and device.product == target_product_type):
                         self.LogPrintln("- a device found %s" % device.serial)
                         if device.hostname not in available_devices:
                             available_devices[device.hostname] = []
@@ -276,9 +291,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
         self.LogUnindent()
 
         for host in available_devices:
-            self.LogPrintln("- len(devices) %s > shards %s ?" % (
-                                len(available_devices[host]),
-                                schedule.shards))
+            self.LogPrintln("- len(devices) %s > shards %s ?" %
+                            (len(available_devices[host]), schedule.shards))
             if len(available_devices[host]) >= schedule.shards:
                 return host, available_devices[host][:schedule.shards]
 
