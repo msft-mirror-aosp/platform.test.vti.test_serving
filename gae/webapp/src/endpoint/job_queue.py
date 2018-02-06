@@ -64,11 +64,13 @@ class JobQueueApi(remote.Service):
         name='get')
     def get(self, request):
         """Gets the job(s) based on the condition specified in `request`."""
-        job_query = model.JobModel.query()
+        job_query = model.JobModel.query(
+            model.JobModel.hostname == request.hostname,
+            model.JobModel.status == Status.JOB_STATUS_DICT["ready"]
+        )
         existing_jobs = job_query.fetch()
 
         job_message = model.JobMessage()
-
         job_message.hostname = ""
         job_message.priority = ""
         job_message.test_name = ""
@@ -82,36 +84,37 @@ class JobQueueApi(remote.Service):
         job_message.status = 0
         job_message.period = 0
 
-        for job in existing_jobs:
-            if (job.hostname == request.hostname and job.build_id != ""
-                    and job.status == Status.JOB_STATUS_DICT["ready"]):
-                job_message.hostname = job.hostname
-                job_message.priority = job.priority
-                job_message.test_name = job.test_name
-                job_message.device = job.device
-                job_message.serial = job.serial
-                job_message.manifest_branch = job.manifest_branch
-                job_message.build_target = job.build_target
-                job_message.shards = job.shards
-                job_message.param = job.param
-                job_message.build_id = job.build_id
-                job_message.status = job.status
-                job_message.period = job.period
-                job_message.gsi_branch = job.gsi_branch
-                job_message.gsi_build_target = job.gsi_build_target
-                job_message.gsi_pab_account_id = job.gsi_pab_account_id
-                job_message.test_branch = job.test_branch
-                job_message.test_build_target = job.test_build_target
-                job_message.test_pab_account_id = job.test_pab_account_id
-                job.put()
-                device_status.RefreshDevicesScheduleingStatus(job)
+        if existing_jobs:
+            sorted_job = sorted(existing_jobs, key=lambda x: x.timestamp,
+                                reverse=False)
+            job = sorted_job[0]
+            job_message.hostname = job.hostname
+            job_message.priority = job.priority
+            job_message.test_name = job.test_name
+            job_message.device = job.device
+            job_message.serial = job.serial
+            job_message.manifest_branch = job.manifest_branch
+            job_message.build_target = job.build_target
+            job_message.shards = job.shards
+            job_message.param = job.param
+            job_message.build_id = job.build_id
+            job_message.status = job.status
+            job_message.period = job.period
+            job_message.gsi_branch = job.gsi_branch
+            job_message.gsi_build_target = job.gsi_build_target
+            job_message.gsi_pab_account_id = job.gsi_pab_account_id
+            job_message.test_branch = job.test_branch
+            job_message.test_build_target = job.test_build_target
+            job_message.test_pab_account_id = job.test_pab_account_id
+            job.put()
+            device_status.RefreshDevicesScheduleingStatus(job)
 
-                return model.JobLeaseResponse(
-                    return_code=model.ReturnCodeMessage.SUCCESS,
-                    jobs=[job_message])
-
-        return model.JobLeaseResponse(
-            return_code=model.ReturnCodeMessage.FAIL, jobs=[job_message])
+            return model.JobLeaseResponse(
+                return_code=model.ReturnCodeMessage.SUCCESS,
+                jobs=[job_message])
+        else:
+            return model.JobLeaseResponse(
+                return_code=model.ReturnCodeMessage.FAIL, jobs=[job_message])
 
     @endpoints.method(
         JOB_QUEUE_RESOURCE,
@@ -121,37 +124,45 @@ class JobQueueApi(remote.Service):
         name='heartbeat')
     def heartbeat(self, request):
         """Processes the heartbeat signal from HC which leased queued job(s)."""
-        job_query = model.JobModel.query()
+        # minify jobs by query and confirm with serial from fetched jobs
+        job_query = model.JobModel.query(
+            model.JobModel.hostname == request.hostname,
+            model.JobModel.manifest_branch == request.manifest_branch,
+            model.JobModel.build_target == request.build_target,
+            model.JobModel.test_name == request.test_name,
+            model.JobModel.status == Status.JOB_STATUS_DICT["leased"]
+        )
         existing_jobs = job_query.fetch()
+        same_jobs = [
+            x for x in existing_jobs if set(x.serial) == set(request.serial)
+        ]
 
         job_message = model.JobMessage()
         job_messages = []
 
-        for job in existing_jobs:
-            if (job.serial == request.serial
-                    and job.build_target == request.build_target
-                    and job.manifest_branch == request.manifest_branch):
-                job_message.hostname = job.hostname
-                job_message.priority = job.priority
-                job_message.test_name = job.test_name
-                job_message.device = job.device
-                job_message.serial = job.serial
-                job_message.manifest_branch = job.manifest_branch
-                job_message.build_target = job.build_target
-                job_message.shards = job.shards
-                job_message.param = job.param
-                job_message.build_id = job.build_id
-                job_message.status = job.status
-                job_message.period = job.period
-                job_messages.append(job_message)
-                if job.status != Status.JOB_STATUS_DICT["leased"]:
-                    return model.JobLeaseResponse(
-                        return_code=model.ReturnCodeMessage.FAIL,
-                        jobs=job_messages)
+        if same_jobs:
+            job = same_jobs[0]
+            job_message.hostname = job.hostname
+            job_message.priority = job.priority
+            job_message.test_name = job.test_name
+            job_message.device = job.device
+            job_message.serial = job.serial
+            job_message.manifest_branch = job.manifest_branch
+            job_message.build_target = job.build_target
+            job_message.shards = job.shards
+            job_message.param = job.param
+            job_message.build_id = job.build_id
+            job_message.status = job.status
+            job_message.period = job.period
+            job_messages.append(job_message)
+            if job.status == Status.JOB_STATUS_DICT["leased"]:
                 self.SetJobStatus(job, request.status)
+                return model.JobLeaseResponse(
+                    return_code=model.ReturnCodeMessage.SUCCESS,
+                    jobs=job_messages)
 
         return model.JobLeaseResponse(
-            return_code=model.ReturnCodeMessage.SUCCESS, jobs=job_messages)
+            return_code=model.ReturnCodeMessage.FAIL, jobs=job_messages)
 
     def SetJobStatus(self, job, status):
         """Sets the job's status to 'status'.
