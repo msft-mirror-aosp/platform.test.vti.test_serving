@@ -56,6 +56,7 @@
   },
   "host": "vtslab-schedule-prod.appspot.com",
   "info": {
+    "description": "Endpoint API for schedule_info.",
     "title": "schedule_info",
     "version": "v1"
   },
