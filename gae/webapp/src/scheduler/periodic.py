@@ -124,6 +124,16 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.build_target.extend(schedule.build_target)
                         new_job.shards = schedule.shards
                         new_job.param = schedule.param
+                        new_job.gsi_branch = schedule.gsi_branch
+                        new_job.gsi_build_target = schedule.gsi_build_target
+                        new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
+                        new_job.test_branch = schedule.test_branch
+                        new_job.test_build_target = schedule.test_build_target
+                        new_job.test_pab_account_id = \
+                            schedule.test_pab_account_id
+
+                        # assume device build
+                        #_, device_builds, _ = build_list.ReadBuildInfo()
 
                         new_job.build_id = ""
                         new_job.build_id = self.FindBuildId(new_job, builds)
@@ -178,7 +188,9 @@ class PeriodicScheduler(webapp2.RequestHandler):
                     and job.period == schedule.period
                     and job.device == schedule.device
                     and job.shards == schedule.shards
-                    and job.param == schedule.param)
+                    and job.param == schedule.param
+                    and job.gsi_branch == schedule.gsi_branch
+                    and job.test_branch == schedule.test_branch)
 
         latest_timestamp = None
         for job in jobs:

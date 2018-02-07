@@ -97,6 +97,12 @@ class JobQueueApi(remote.Service):
                 job_message.build_id = job.build_id
                 job_message.status = job.status
                 job_message.period = job.period
+                job_message.gsi_branch = job.gsi_branch
+                job_message.gsi_build_target = job.gsi_build_target
+                job_message.gsi_pab_account_id = job.gsi_pab_account_id
+                job_message.test_branch = job.test_branch
+                job_message.test_build_target = job.test_build_target
+                job_message.test_pab_account_id = job.test_pab_account_id
                 job.put()
                 device_status.RefreshDevicesScheduleingStatus(job)
 
