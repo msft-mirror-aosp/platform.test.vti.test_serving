@@ -44,7 +44,13 @@ class PeriodicScheduler(webapp2.RequestHandler):
     log_message = []
 
     def ReserveDevices(self, devices, target_device_serials):
-        """..."""
+        """Reserves devices.
+
+        Args:
+            devices: a list of DeviceModel, available devices.
+            target_device_serials: a list of strings, containing target device
+                                   serial numbers.
+        """
         for device in devices:
             if device.serial in target_device_serials:
                 device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
@@ -52,6 +58,16 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 device.put()
 
     def FindBuildId(self, new_job, builds):
+        """Finds build ID for a new job.
+
+        Args:
+            new_job: JobModel, a new job.
+            builds: a list of BuildModel, containing available build
+                    information.
+
+        Return:
+            string, build ID found.
+        """
         build_id = ""
 
         if builds:
@@ -195,7 +211,6 @@ class PeriodicScheduler(webapp2.RequestHandler):
         latest_timestamp = None
         for job in jobs:
             if IsScheduleAndJobTheSame(schedule, job):
-                #if ((job.status == "COMPLETE" or job.status == "LEASED") and
                 if latest_timestamp is None:
                     latest_timestamp = job.timestamp
                 elif latest_timestamp < job.timestamp:
@@ -222,7 +237,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
         Returns:
             hostname,
-            a list of selected devices  (see whether devices will be selected later when the job is picked up.)
+            a list of selected devices  (see whether devices will be selected
+            later when the job is picked up.)
         """
         if "/" not in schedule.device:
             # device malformed
