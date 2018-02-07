@@ -88,9 +88,9 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 and x.manifest_branch == new_job.manifest_branch
             ]
             for device_build in filtered_list:
-                candidate_device = "-".join(
+                candidate_build_target = "-".join(
                     [device_build.build_target, device_build.build_type])
-                if new_job.build_target[0] == candidate_device:
+                if new_job.build_target[0] == candidate_build_target:
                     build_id = device_build.build_id
                     break
         return build_id
