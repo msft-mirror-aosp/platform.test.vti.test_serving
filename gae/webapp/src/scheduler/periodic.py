@@ -79,13 +79,15 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 key=lambda x: int(x.build_id),
                 reverse=True)
             filtered_list = [
-                x for x in sorted_list
-                if x.artifact_type == "device" and all(
-                    hasattr(x, attrs) for attrs in [
-                        "build_target", "build_type", "manifest_branch",
-                        "build_id"
-                    ]) and x.build_target and x.build_type
-                and x.manifest_branch == new_job.manifest_branch
+                x for x in sorted_list if (
+                    all(
+                        hasattr(x, attrs) for attrs in [
+                            "build_target", "build_type", "manifest_branch",
+                            "build_id"
+                        ])
+                    and x.build_target
+                    and x.build_type
+                    and x.manifest_branch == new_job.manifest_branch)
             ]
             for device_build in filtered_list:
                 candidate_build_target = "-".join(
