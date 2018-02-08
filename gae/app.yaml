@@ -5,7 +5,7 @@ threadsafe: true
 # [START env_vars]
 env_variables:
   ENDPOINTS_SERVICE_NAME: vtslab-schedule-prod.appspot.com
-  ENDPOINTS_SERVICE_VERSION: 2017-12-28r24
+  ENDPOINTS_SERVICE_VERSION: 2018-02-01r2
 # [END env_vars]
 
 # [START builtins]

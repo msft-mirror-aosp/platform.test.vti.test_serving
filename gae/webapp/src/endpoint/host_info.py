@@ -29,6 +29,8 @@ HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.HostInfoMessage)
 
 # The default timeout for devices in sec.
 _DEVICE_RESPONSE_TIMEOUT_IN_SECS = 300
+# Product type name for null device.
+_NULL_DEVICE_PRODUCT_TYPE = "null"
 
 
 def DeviceErrorOnTimeout(key):
@@ -43,6 +45,36 @@ def DeviceErrorOnTimeout(key):
             device.timestamp).seconds >= _DEVICE_RESPONSE_TIMEOUT_IN_SECS:
         device.status = Status.DEVICE_STATUS_DICT["no-response"]
         device.put()
+
+
+def AddNullDevices(hostname, null_device_count):
+    """Adds null devices to DeviceModel data store.
+
+    Args:
+        hostname: string, the host name.
+        null_device_count: integer, the number of null devices.
+    """
+    device_query = model.DeviceModel.query()
+    existing_devices = device_query.fetch()
+
+    device = model.DeviceModel()
+    existing_null_device_count = 0
+    for existing_device in existing_devices:
+        if (existing_device.hostname == hostname and
+            existing_device.product == _NULL_DEVICE_PRODUCT_TYPE):
+            existing_null_device_count += 1
+
+    if existing_null_device_count < null_device_count:
+        for _ in range(null_device_count - existing_null_device_count):
+            device = model.DeviceModel()
+            device.hostname = hostname
+            device.serial = "n/a"
+            device.product = _NULL_DEVICE_PRODUCT_TYPE
+            device.status = device_status.DEVICE_STATUS_DICT["ready"]
+            device.scheduling_status = device_status.DEVICE_SCHEDULING_STATUS_DICT[
+                "free"]
+            device.timestamp = datetime.datetime.now()
+            device.put()
 
 
 @endpoints.api(name='host_info', version='v1')
