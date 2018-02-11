@@ -75,7 +75,7 @@ class JobQueueApi(remote.Service):
         job_message.device = ""
         job_message.serial = [""]
         job_message.manifest_branch = ""
-        job_message.build_target = [""]
+        job_message.build_target = ""
         job_message.shards = 0
         job_message.param = [""]
         job_message.build_id = ""

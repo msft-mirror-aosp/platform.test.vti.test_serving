@@ -92,7 +92,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
             for device_build in filtered_list:
                 candidate_build_target = "-".join(
                     [device_build.build_target, device_build.build_type])
-                if new_job.build_target[0] == candidate_build_target:
+                if new_job.build_target == candidate_build_target:
                     build_id = device_build.build_id
                     break
         return build_id
@@ -139,7 +139,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.period = schedule.period
                         new_job.serial.extend(target_device_serials)
                         new_job.manifest_branch = schedule.manifest_branch
-                        new_job.build_target.extend(schedule.build_target)
+                        new_job.build_target = schedule.build_target
                         new_job.shards = schedule.shards
                         new_job.param = schedule.param
                         new_job.gsi_branch = schedule.gsi_branch

@@ -44,7 +44,7 @@ class BuildInfoMessage(messages.Message):
 class ScheduleModel(ndb.Model):
     """A model for representing an individual schedule entry."""
     manifest_branch = ndb.StringProperty()
-    build_target = ndb.StringProperty(repeated=True)  # type:name
+    build_target = ndb.StringProperty()  # type:name
     test_name = ndb.StringProperty()
     period = ndb.IntegerProperty()
     priority = ndb.StringProperty()
@@ -145,7 +145,7 @@ class JobModel(ndb.Model):
     device = ndb.StringProperty()
     serial = ndb.StringProperty(repeated=True)
     manifest_branch = ndb.StringProperty()
-    build_target = ndb.StringProperty(repeated=True)
+    build_target = ndb.StringProperty()
     shards = ndb.IntegerProperty()
     param = ndb.StringProperty(repeated=True)
     build_id = ndb.StringProperty()
@@ -168,7 +168,7 @@ class JobMessage(messages.Message):
     device = messages.StringField(4)
     serial = messages.StringField(5, repeated=True)
     manifest_branch = messages.StringField(6)
-    build_target = messages.StringField(7, repeated=True)
+    build_target = messages.StringField(7)
     shards = messages.IntegerField(8)
     param = messages.StringField(9, repeated=True)
     build_id = messages.StringField(10)
