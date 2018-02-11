@@ -44,7 +44,8 @@ class BuildInfoApi(remote.Service):
         found = False
         for existing_build in existing_builds:
             if (request.build_id == existing_build.build_id and
-                request.build_target == existing_build.build_target):
+                request.build_target == existing_build.build_target and
+                request.build_type == existing_build.build_type):
                 found = True
                 break
 
