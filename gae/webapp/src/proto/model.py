@@ -51,6 +51,12 @@ class ScheduleModel(ndb.Model):
     device = ndb.StringProperty(indexed=False)
     shards = ndb.IntegerProperty(indexed=False)
     param = ndb.StringProperty(indexed=False, repeated=True)
+    gsi_branch = ndb.StringProperty(indexed=False)
+    gsi_build_target = ndb.StringProperty(indexed=False)
+    gsi_pab_account_id = ndb.StringProperty(indexed=False)
+    test_branch = ndb.StringProperty(indexed=False)
+    test_build_target = ndb.StringProperty(indexed=False)
+    test_pab_account_id = ndb.StringProperty(indexed=False)
     timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
 
 
@@ -64,6 +70,12 @@ class ScheduleInfoMessage(messages.Message):
     device = messages.StringField(6)
     shards = messages.IntegerField(7)
     param = messages.StringField(8, repeated=True)
+    gsi_branch = messages.StringField(9)
+    gsi_build_target = messages.StringField(10)
+    gsi_pab_account_id = messages.StringField(11)
+    test_branch = messages.StringField(12)
+    test_build_target = messages.StringField(13)
+    test_pab_account_id = messages.StringField(14)
 
 
 class LabModel(ndb.Model):
@@ -139,6 +151,12 @@ class JobModel(ndb.Model):
     build_id = ndb.StringProperty(indexed=False)
     status = ndb.IntegerProperty(indexed=False)
     period = ndb.IntegerProperty(indexed=False)
+    gsi_branch = ndb.StringProperty(indexed=False)
+    gsi_build_target = ndb.StringProperty(indexed=False)
+    gsi_pab_account_id = ndb.StringProperty(indexed=False)
+    test_branch = ndb.StringProperty(indexed=False)
+    test_build_target = ndb.StringProperty(indexed=False)
+    test_pab_account_id = ndb.StringProperty(indexed=False)
     timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
 
 
@@ -156,6 +174,12 @@ class JobMessage(messages.Message):
     build_id = messages.StringField(10)
     status = messages.IntegerField(11)
     period = messages.IntegerField(12)
+    gsi_branch = messages.StringField(13)
+    gsi_build_target = messages.StringField(14)
+    gsi_pab_account_id = messages.StringField(15)
+    test_branch = messages.StringField(16)
+    test_build_target = messages.StringField(17)
+    test_pab_account_id = messages.StringField(18)
 
 
 class ReturnCodeMessage(messages.Enum):

@@ -69,6 +69,12 @@ class ScheduleInfoApi(remote.Service):
         schedule.device = request.device
         schedule.shards = request.shards
         schedule.param = request.param
+        schedule.gsi_branch = request.gsi_branch
+        schedule.gsi_build_target = request.gsi_build_target
+        schedule.gsi_pab_account_id = request.gsi_pab_account_id
+        schedule.test_branch = request.test_branch
+        schedule.test_build_target = request.test_build_target
+        schedule.test_pab_account_id = request.test_pab_account_id
         schedule.timestamp = datetime.datetime.now()
         schedule.put()
 

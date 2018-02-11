@@ -31,6 +31,12 @@ indexes:
   - name: device
   - name: shards
   - name: param
+  - name: gsi_branch
+  - name: gsi_build_target
+  - name: gsi_pab_account_id
+  - name: test_branch
+  - name: test_build_target
+  - name: test_pab_account_id
     direction: asc
 
 - kind: Lab
@@ -59,4 +65,10 @@ indexes:
   - name: param
   - name: build_id
   - name: status
+  - name: gsi_branch
+  - name: gsi_build_target
+  - name: gsi_pab_account_id
+  - name: test_branch
+  - name: test_build_target
+  - name: test_pab_account_id
     direction: asc

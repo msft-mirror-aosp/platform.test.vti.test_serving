@@ -27,6 +27,15 @@
         "device": {
           "type": "string"
         },
+        "gsi_branch": {
+          "type": "string"
+        },
+        "gsi_build_target": {
+          "type": "string"
+        },
+        "gsi_pab_account_id": {
+          "type": "string"
+        },
         "manifest_branch": {
           "type": "string"
         },
@@ -48,6 +57,15 @@
           "type": "string"
         },
         "test_name": {
+          "type": "string"
+        },
+        "test_branch": {
+          "type": "string"
+        },
+        "test_build_target": {
+          "type": "string"
+        },
+        "test_pab_account_id": {
           "type": "string"
         }
       },

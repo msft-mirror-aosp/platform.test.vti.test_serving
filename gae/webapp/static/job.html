@@ -81,6 +81,8 @@
         <td>priority
         <td>serial
         <td>build_id
+        <td>GSI
+        <td>test suite
         <td>status
         <td>timestamp
       </tr>
@@ -115,10 +117,15 @@
         <td>
           {{ job.build_id }}
         <td>
-          {{ {0: "ready",
-              1: "leased",
-              2: "complete",
-              3: "infra-err"}[job.status] | default("status key error") }}
+          {{ job.gsi_branch }} /
+          {{ job.gsi_build_target }} /
+          {{ job.gsi_pab_account_id }}
+        <td>
+          {{ job.test_branch }} /
+          {{ job.test_build_target }} /
+          {{ job.test_pab_account_id }}
+        <td>
+          {{ job.status }}
         <td>
           {{ job.timestamp }}
       </tr>

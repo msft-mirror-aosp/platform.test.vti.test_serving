@@ -44,7 +44,13 @@ class PeriodicScheduler(webapp2.RequestHandler):
     log_message = []
 
     def ReserveDevices(self, devices, target_device_serials):
-        """..."""
+        """Reserves devices.
+
+        Args:
+            devices: a list of DeviceModel, available devices.
+            target_device_serials: a list of strings, containing target device
+                                   serial numbers.
+        """
         for device in devices:
             if device.serial in target_device_serials:
                 device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
@@ -52,6 +58,16 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 device.put()
 
     def FindBuildId(self, new_job, builds):
+        """Finds build ID for a new job.
+
+        Args:
+            new_job: JobModel, a new job.
+            builds: a list of BuildModel, containing available build
+                    information.
+
+        Return:
+            string, build ID found.
+        """
         build_id = ""
 
         if builds:
@@ -63,18 +79,20 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 key=lambda x: int(x.build_id),
                 reverse=True)
             filtered_list = [
-                x for x in sorted_list
-                if x.artifact_type == "device" and all(
-                    hasattr(x, attrs) for attrs in [
-                        "build_target", "build_type", "manifest_branch",
-                        "build_id"
-                    ]) and x.build_target and x.build_type
-                and x.manifest_branch == new_job.manifest_branch
+                x for x in sorted_list if (
+                    all(
+                        hasattr(x, attrs) for attrs in [
+                            "build_target", "build_type", "manifest_branch",
+                            "build_id"
+                        ])
+                    and x.build_target
+                    and x.build_type
+                    and x.manifest_branch == new_job.manifest_branch)
             ]
             for device_build in filtered_list:
-                candidate_device = "-".join(
+                candidate_build_target = "-".join(
                     [device_build.build_target, device_build.build_type])
-                if new_job.build_target[0] == candidate_device:
+                if new_job.build_target[0] == candidate_build_target:
                     build_id = device_build.build_id
                     break
         return build_id
@@ -124,6 +142,16 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.build_target.extend(schedule.build_target)
                         new_job.shards = schedule.shards
                         new_job.param = schedule.param
+                        new_job.gsi_branch = schedule.gsi_branch
+                        new_job.gsi_build_target = schedule.gsi_build_target
+                        new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
+                        new_job.test_branch = schedule.test_branch
+                        new_job.test_build_target = schedule.test_build_target
+                        new_job.test_pab_account_id = \
+                            schedule.test_pab_account_id
+
+                        # assume device build
+                        #_, device_builds, _ = build_list.ReadBuildInfo()
 
                         new_job.build_id = ""
                         new_job.build_id = self.FindBuildId(new_job, builds)
@@ -178,12 +206,13 @@ class PeriodicScheduler(webapp2.RequestHandler):
                     and job.period == schedule.period
                     and job.device == schedule.device
                     and job.shards == schedule.shards
-                    and job.param == schedule.param)
+                    and job.param == schedule.param
+                    and job.gsi_branch == schedule.gsi_branch
+                    and job.test_branch == schedule.test_branch)
 
         latest_timestamp = None
         for job in jobs:
             if IsScheduleAndJobTheSame(schedule, job):
-                #if ((job.status == "COMPLETE" or job.status == "LEASED") and
                 if latest_timestamp is None:
                     latest_timestamp = job.timestamp
                 elif latest_timestamp < job.timestamp:
@@ -210,7 +239,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
         Returns:
             hostname,
-            a list of selected devices  (see whether devices will be selected later when the job is picked up.)
+            a list of selected devices  (see whether devices will be selected
+            later when the job is picked up.)
         """
         if "/" not in schedule.device:
             # device malformed
