@@ -70,8 +70,8 @@ def AddNullDevices(hostname, null_device_count):
             device.hostname = hostname
             device.serial = "n/a"
             device.product = _NULL_DEVICE_PRODUCT_TYPE
-            device.status = device_status.DEVICE_STATUS_DICT["ready"]
-            device.scheduling_status = device_status.DEVICE_SCHEDULING_STATUS_DICT[
+            device.status = Status.DEVICE_STATUS_DICT["ready"]
+            device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
                 "free"]
             device.timestamp = datetime.datetime.now()
             device.put()
