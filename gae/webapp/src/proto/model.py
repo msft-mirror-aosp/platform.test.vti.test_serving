@@ -63,7 +63,7 @@ class ScheduleModel(ndb.Model):
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
     manifest_branch = messages.StringField(1)
-    build_target = messages.StringField(2, repeated=True)
+    build_target = messages.StringField(2)
     test_name = messages.StringField(3)
     period = messages.IntegerField(4)
     priority = messages.StringField(5)
