@@ -95,9 +95,7 @@
         <td>
           {{ job.manifest_branch }}
         <td>
-          {% for build_target in job.build_target %}
-          {{ build_target }} <br>
-          {% endfor %}
+          {{ job.build_target }}
         <td>
           {{ job.test_name }}
         <td>
