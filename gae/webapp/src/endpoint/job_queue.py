@@ -18,38 +18,11 @@ import endpoints
 
 from protorpc import remote
 
-from google.appengine.ext import deferred
-
 from webapp.src.proto import model
 from webapp.src.scheduler import device_status
 from webapp.src import vtslab_status as Status
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
-
-# The default timeout for leased jobs in sec.
-_LEASED_JOB_RESPONSE_TIMEOUT_IN_SECS = 300
-
-# A dict stores timestamps of the last heartbeat signal from HC
-# for the leased jobs
-_timestamp_last_heartbeat = {}
-
-
-def SetJobStatusToReady(key):
-    """Sets certain job to READY status if there is no heartbeat from HC.
-
-    Args
-        key: Datastore key for an entity.
-    """
-    if key.id() in _timestamp_last_heartbeat:
-        current_time = datetime.datetime.now()
-        if (current_time - _timestamp_last_heartbeat[key.id()]
-            ).seconds >= _LEASED_JOB_RESPONSE_TIMEOUT_IN_SECS:
-            job = key.get()
-            if job.status == Status.JOB_STATUS_DICT["leased"]:
-                job.status = Status.JOB_STATUS_DICT["ready"]
-                job.put()
-                device_status.RefreshDevicesScheduleingStatus(job)
-            _timestamp_last_heartbeat.pop(key.id())
 
 
 @endpoints.api(name='job_queue', version='v1')
@@ -166,29 +139,12 @@ class JobQueueApi(remote.Service):
             job_message.period = job.period
             job_messages.append(job_message)
             if job.status == Status.JOB_STATUS_DICT["leased"]:
-                self.SetJobStatus(job, request.status)
+                job.status = request.status
+                job.put()
+                device_status.RefreshDevicesScheduleingStatus(job)
                 return model.JobLeaseResponse(
-                    return_code=model.ReturnCodeMessage.SUCCESS,
-                    jobs=job_messages)
+                        return_code=model.ReturnCodeMessage.SUCCESS,
+                        jobs=job_messages)
 
         return model.JobLeaseResponse(
             return_code=model.ReturnCodeMessage.FAIL, jobs=job_messages)
-
-    def SetJobStatus(self, job, status):
-        """Sets the job's status to 'status'.
-
-        and defers SetJobStatusToReady func for checking heartbeat timeout.
-
-        Args:
-            job: Datastore object, contains job information.
-            status: string, status value requested from HC.
-        """
-        job.status = status
-        job.heartbeat_stamp = datetime.datetime.now()
-        job_key = job.put()
-        device_status.RefreshDevicesScheduleingStatus(job)
-        _timestamp_last_heartbeat[job_key.id()] = datetime.datetime.now()
-        deferred.defer(
-            SetJobStatusToReady,
-            job_key,
-            _countdown=_LEASED_JOB_RESPONSE_TIMEOUT_IN_SECS)

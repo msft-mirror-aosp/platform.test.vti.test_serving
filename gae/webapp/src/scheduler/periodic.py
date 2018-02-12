@@ -19,7 +19,6 @@ import datetime
 import webapp2
 
 from webapp.src import vtslab_status as Status
-from webapp.src.dashboard import build_list
 from webapp.src.proto import model
 from webapp.src.utils import logger
 
@@ -34,14 +33,13 @@ def StrGT(left, right):
 
 
 class PeriodicScheduler(webapp2.RequestHandler):
-    """Main class for /tasks/schedule servlet which does actual job scheduling.
+    """Main class for /tasks/schedule servlet.
 
-    periodic scheduling.
+    This class creates jobs from registered schedules periodically.
 
     Attributes:
         logger: Logger class
     """
-
     def __init__(self):
         self.logger = logger.Logger()
 

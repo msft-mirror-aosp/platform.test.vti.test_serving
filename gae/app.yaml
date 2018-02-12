@@ -10,7 +10,6 @@ env_variables:
 
 # [START builtins]
 builtins:
-- deferred: on
 # [END builtins]
 
 # [START handlers]
@@ -28,10 +27,6 @@ handlers:
 
 - url: /.*
   script: webapp.src.webapp_main.app
-
-- url: /_ah/queue/deferred
-  script: google.appengine.ext.deferred.deferred.application
-  login: admin
 # [END handlers]
 
 # [START libraries]
