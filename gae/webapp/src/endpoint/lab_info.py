@@ -57,9 +57,6 @@ class LabInfoApi(remote.Service):
         name="set")
     def set(self, request):
         """Sets the lab info based on `request`."""
-        lab_query = model.LabModel.query()
-        existing_labs = lab_query.fetch()
-
         for host in request.host:
             lab = model.LabModel()
             lab.name = request.name

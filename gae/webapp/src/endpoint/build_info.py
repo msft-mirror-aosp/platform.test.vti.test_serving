@@ -38,18 +38,14 @@ class BuildInfoApi(remote.Service):
         name="set")
     def set(self, request):
         """Sets the build info based on the `request`."""
-        build_query = model.BuildModel.query()
+        build_query = model.BuildModel.query(
+            model.BuildModel.build_id == request.build_id,
+            model.BuildModel.build_target == request.build_target,
+            model.BuildModel.build_type == request.build_type
+        )
         existing_builds = build_query.fetch()
 
-        found = False
-        for existing_build in existing_builds:
-            if (request.build_id == existing_build.build_id and
-                request.build_target == existing_build.build_target and
-                request.build_type == existing_build.build_type):
-                found = True
-                break
-
-        if not found:
+        if not existing_builds:
             build = model.BuildModel()
             build.manifest_branch = request.manifest_branch
             build.build_id = request.build_id
