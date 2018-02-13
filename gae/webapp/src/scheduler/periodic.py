@@ -254,6 +254,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                     self.LogPrintln("- check device %s %s" %
                                     (device.status, device.product))
                     if ((device.status in [
+                            Status.DEVICE_STATUS_DICT["fastboot"],
                             Status.DEVICE_STATUS_DICT["online"],
                             Status.DEVICE_STATUS_DICT["ready"]
                     ]) and (device.scheduling_status ==
