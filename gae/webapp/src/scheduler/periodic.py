@@ -43,32 +43,36 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
     log_message = []
 
-    def ReserveDevices(self, devices, target_device_serials):
+    def ReserveDevices(self, target_device_serials):
         """Reserves devices.
 
         Args:
-            devices: a list of DeviceModel, available devices.
             target_device_serials: a list of strings, containing target device
                                    serial numbers.
         """
+        device_query = model.DeviceModel.query(
+            model.DeviceModel.serial.IN(target_device_serials)
+        )
+        devices = device_query.fetch()
         for device in devices:
-            if device.serial in target_device_serials:
-                device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
-                    "reserved"]
-                device.put()
+            device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
+                "reserved"]
+            device.put()
 
-    def FindBuildId(self, new_job, builds):
+    def FindBuildId(self, new_job):
         """Finds build ID for a new job.
 
         Args:
             new_job: JobModel, a new job.
-            builds: a list of BuildModel, containing available build
-                    information.
 
         Return:
             string, build ID found.
         """
         build_id = ""
+        build_query = model.BuildModel.query(
+            model.BuildModel.manifest_branch == new_job.manifest_branch
+        )
+        builds = build_query.fetch()
 
         if builds:
             self.LogPrintln("-- Find build ID")
@@ -82,12 +86,9 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 x for x in sorted_list if (
                     all(
                         hasattr(x, attrs) for attrs in [
-                            "build_target", "build_type", "manifest_branch",
-                            "build_id"
+                            "build_target", "build_type", "build_id"
                         ])
-                    and x.build_target
-                    and x.build_type
-                    and x.manifest_branch == new_job.manifest_branch)
+                    and x.build_target and x.build_type)
             ]
             for device_build in filtered_list:
                 candidate_build_target = "-".join(
@@ -104,26 +105,14 @@ class PeriodicScheduler(webapp2.RequestHandler):
         schedule_query = model.ScheduleModel.query()
         schedules = schedule_query.fetch()
 
-        lab_query = model.LabModel.query()
-        labs = lab_query.fetch()
-
-        device_query = model.DeviceModel.query()
-        devices = device_query.fetch()
-
-        job_query = model.JobModel.query()
-        jobs = job_query.fetch()
-
-        build_query = model.BuildModel.query()
-        builds = build_query.fetch()
-
         if schedules:
             for schedule in schedules:
                 self.LogPrintln("Schedule: %s" % schedule.test_name)
                 self.LogIndent()
-                if self.NewPeriod(schedule, jobs):
+                if self.NewPeriod(schedule):
                     self.LogPrintln("- Need new job")
                     target_host, target_device_serials = self.SelectTargetLab(
-                        schedule, labs, devices)
+                        schedule)
                     self.LogPrintln("- Target host: %s" % target_host)
                     self.LogPrintln(
                         "- Target serials: %s" % target_device_serials)
@@ -154,10 +143,10 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         #_, device_builds, _ = build_list.ReadBuildInfo()
 
                         new_job.build_id = ""
-                        new_job.build_id = self.FindBuildId(new_job, builds)
+                        new_job.build_id = self.FindBuildId(new_job)
 
                         if new_job.build_id:
-                            self.ReserveDevices(devices, target_device_serials)
+                            self.ReserveDevices(target_device_serials)
                             # TODO remove only until full builds are available.
                             new_job.status = Status.JOB_STATUS_DICT["ready"]
                             new_job.timestamp = datetime.datetime.now()
@@ -186,56 +175,50 @@ class PeriodicScheduler(webapp2.RequestHandler):
     def LogUnindent(self):
         self.log_indent -= 1
 
-    def NewPeriod(self, schedule, jobs):
+    def NewPeriod(self, schedule):
         """Checks whether a new job creation is needed.
 
         Args:
             schedule: a proto containing schedule information.
-            jobs: a list of proto messages containing existing job information.
 
         Returns:
             True if new job is required, False otherwise.
         """
-        if not jobs:
+        job_query = model.JobModel.query(
+            model.JobModel.manifest_branch == schedule.manifest_branch,
+            model.JobModel.build_target == schedule.build_target,
+            model.JobModel.test_name == schedule.test_name,
+            model.JobModel.period == schedule.period,
+            model.JobModel.device == schedule.device,
+            model.JobModel.shards == schedule.shards,
+            model.JobModel.gsi_branch == schedule.gsi_branch,
+            model.JobModel.test_branch == schedule.test_branch
+        )
+        same_jobs = job_query.fetch()
+        same_jobs = [x for x in same_jobs
+                     if set(x.param) == set(schedule.param)]
+        if not same_jobs:
             return True
 
-        def IsScheduleAndJobTheSame(schedule, job):
-            return (job.manifest_branch == schedule.manifest_branch
-                    and job.build_target == schedule.build_target
-                    and job.test_name == schedule.test_name
-                    and job.period == schedule.period
-                    and job.device == schedule.device
-                    and job.shards == schedule.shards
-                    and job.param == schedule.param
-                    and job.gsi_branch == schedule.gsi_branch
-                    and job.test_branch == schedule.test_branch)
+        ready_jobs = [x for x in same_jobs
+                      if x.status == Status.JOB_STATUS_DICT["ready"]]
+        if ready_jobs:
+            return False
 
-        latest_timestamp = None
-        for job in jobs:
-            if IsScheduleAndJobTheSame(schedule, job):
-                if latest_timestamp is None:
-                    latest_timestamp = job.timestamp
-                elif latest_timestamp < job.timestamp:
-                    latest_timestamp = job.timestamp
-
-        if latest_timestamp is None:
+        same_jobs = sorted(
+            same_jobs, key=lambda x: x.timestamp, reverse=True)
+        if (same_jobs[0].timestamp <=
+            (datetime.datetime.now() -
+             datetime.timedelta(minutes=same_jobs[0].period))):
             return True
+        else:
+            return False
 
-        if (latest_timestamp <= (datetime.datetime.now() -
-                                 datetime.timedelta(minutes=job.period))):
-            return True
-
-        return False
-
-    def SelectTargetLab(self, schedule, labs, devices):
+    def SelectTargetLab(self, schedule):
         """Find target host and devices to schedule a new job.
 
         Args:
             schedule: a proto containing the information of a schedule.
-            labs: a list of proto messages containing info about available
-                  labs.
-            devices: a list of proto messages containing available device
-                     information.
 
         Returns:
             hostname,
@@ -250,39 +233,42 @@ class PeriodicScheduler(webapp2.RequestHandler):
         self.LogPrintln("- Seeking product %s in lab %s" %
                         (target_product_type, target_lab))
         self.LogIndent()
+        lab_query = model.LabModel.query(
+            model.LabModel.name == target_lab
+        )
+        target_labs = lab_query.fetch()
 
         available_devices = {}
-        if labs and devices:
-            for lab in labs:
-                if lab.name != target_lab:
-                    continue
+        if target_labs:
+            for lab in target_labs:
                 self.LogPrintln("- target lab found")
                 self.LogPrintln("- target device %s %s" %
                                 (lab.hostname, target_product_type))
                 self.LogIndent()
-                for device in devices:
-                    self.LogPrintln("- check device %s %s %s" %
-                                    (device.hostname, device.status,
-                                     device.product))
-                    if (device.hostname == lab.hostname and (device.status in [
-                            Status.DEVICE_STATUS_DICT["fastboot"],
+                device_query = model.DeviceModel.query(
+                    model.DeviceModel.hostname == lab.hostname
+                )
+                host_devices = device_query.fetch()
+
+                for device in host_devices:
+                    self.LogPrintln("- check device %s %s" %
+                                    (device.status, device.product))
+                    if ((device.status in [
                             Status.DEVICE_STATUS_DICT["online"],
                             Status.DEVICE_STATUS_DICT["ready"]
-                    ]) and (device.scheduling_status in [
+                    ]) and (device.scheduling_status ==
                             Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
-                    ]) and device.product == target_product_type):
+                    ) and device.product == target_product_type):
                         self.LogPrintln("- a device found %s" % device.serial)
                         if device.hostname not in available_devices:
                             available_devices[device.hostname] = []
                         available_devices[device.hostname].append(
                             device.serial)
                 self.LogUnindent()
+            for host in available_devices:
+                self.LogPrintln("- len(devices) %s > shards %s ?" %
+                                (len(available_devices[host]), schedule.shards))
+                if len(available_devices[host]) >= schedule.shards:
+                    return host, available_devices[host][:schedule.shards]
         self.LogUnindent()
-
-        for host in available_devices:
-            self.LogPrintln("- len(devices) %s > shards %s ?" %
-                            (len(available_devices[host]), schedule.shards))
-            if len(available_devices[host]) >= schedule.shards:
-                return host, available_devices[host][:schedule.shards]
-
         return None, []
