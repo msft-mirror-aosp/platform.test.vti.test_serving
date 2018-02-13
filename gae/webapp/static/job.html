@@ -123,7 +123,10 @@
           {{ job.test_build_target }} /
           {{ job.test_pab_account_id }}
         <td>
-          {{ job.status }}
+          {{ {0: "ready",
+              1: "leased",
+              2: "complete",
+              3: "infra-err"}[job.status] | default("status key error") }}
         <td>
           {{ job.timestamp }}
       </tr>
