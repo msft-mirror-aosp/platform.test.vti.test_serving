@@ -158,6 +158,7 @@ class JobModel(ndb.Model):
     test_build_target = ndb.StringProperty()
     test_pab_account_id = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
+    heartbeat_stamp = ndb.DateTimeProperty(auto_now=False)
 
 
 class JobMessage(messages.Message):

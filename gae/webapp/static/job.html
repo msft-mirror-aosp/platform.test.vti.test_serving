@@ -84,7 +84,8 @@
         <td>GSI
         <td>test suite
         <td>status
-        <td>timestamp
+        <td>created
+        <td>last heartbeat
       </tr>
       {% set index = 1 %}
       {% for job in jobs %}
@@ -129,6 +130,8 @@
               3: "infra-err"}[job.status] | default("status key error") }}
         <td>
           {{ job.timestamp }}
+        <td>
+          {{ job.heartbeat_stamp }}
       </tr>
       {% endfor %}
       </table>
