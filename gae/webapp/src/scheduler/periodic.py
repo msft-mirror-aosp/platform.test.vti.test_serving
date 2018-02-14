@@ -21,6 +21,7 @@ import webapp2
 from webapp.src import vtslab_status as Status
 from webapp.src.dashboard import build_list
 from webapp.src.proto import model
+from webapp.src.utils import logger
 
 
 def StrGT(left, right):
@@ -38,10 +39,11 @@ class PeriodicScheduler(webapp2.RequestHandler):
     periodic scheduling.
 
     Attributes:
-        log_message: a list of strings, containing the log messages.
+        logger: Logger class
     """
 
-    log_message = []
+    def __init__(self):
+        self.logger = logger.Logger()
 
     def ReserveDevices(self, target_device_serials):
         """Reserves devices.
@@ -75,7 +77,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
         builds = build_query.fetch()
 
         if builds:
-            self.LogPrintln("-- Find build ID")
+            self.logger.Println("-- Find build ID")
             # Remove builds if build_id info is none
             build_id_filled = [x for x in builds if x.build_id]
             sorted_list = sorted(
@@ -100,21 +102,21 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
     def get(self):
         """Generates an HTML page based on the task schedules kept in DB."""
-        self.LogClear()
+        self.logger.Clear()
 
         schedule_query = model.ScheduleModel.query()
         schedules = schedule_query.fetch()
 
         if schedules:
             for schedule in schedules:
-                self.LogPrintln("Schedule: %s" % schedule.test_name)
-                self.LogIndent()
+                self.logger.Println("Schedule: %s" % schedule.test_name)
+                self.logger.Indent()
                 if self.NewPeriod(schedule):
-                    self.LogPrintln("- Need new job")
+                    self.logger.Println("- Need new job")
                     target_host, target_device_serials = self.SelectTargetLab(
                         schedule)
-                    self.LogPrintln("- Target host: %s" % target_host)
-                    self.LogPrintln(
+                    self.logger.Println("- Target host: %s" % target_host)
+                    self.logger.Println(
                         "- Target serials: %s" % target_device_serials)
                     # TODO: update device status
 
@@ -151,29 +153,13 @@ class PeriodicScheduler(webapp2.RequestHandler):
                             new_job.status = Status.JOB_STATUS_DICT["ready"]
                             new_job.timestamp = datetime.datetime.now()
                             new_job.put()
-                            self.LogPrintln("NEW JOB")
+                            self.logger.Println("NEW JOB")
                         else:
-                            self.LogPrintln("NO BUILD FOUND")
-                self.LogUnindent()
+                            self.logger.Println("NO BUILD FOUND")
+                self.logger.Unindent()
 
         self.response.write(
-            "<pre>\n" + "\n".join(self.log_message) + "\n</pre>")
-
-    def LogClear(self):
-        """Clears the log buffer."""
-        self.log_message = []
-        self.log_indent = 0
-
-    def LogPrintln(self, msg):
-        """Stores a new string `msg` to the log buffer."""
-        indent = "  " * self.log_indent
-        self.log_message.append(indent + msg)
-
-    def LogIndent(self):
-        self.log_indent += 1
-
-    def LogUnindent(self):
-        self.log_indent -= 1
+            "<pre>\n" + "\n".join(self.logger.Get()) + "\n</pre>")
 
     def NewPeriod(self, schedule):
         """Checks whether a new job creation is needed.
@@ -230,9 +216,9 @@ class PeriodicScheduler(webapp2.RequestHandler):
             return None, None
 
         target_lab, target_product_type = schedule.device.split("/")
-        self.LogPrintln("- Seeking product %s in lab %s" %
+        self.logger.Println("- Seeking product %s in lab %s" %
                         (target_product_type, target_lab))
-        self.LogIndent()
+        self.logger.Indent()
         lab_query = model.LabModel.query(
             model.LabModel.name == target_lab
         )
@@ -241,17 +227,17 @@ class PeriodicScheduler(webapp2.RequestHandler):
         available_devices = {}
         if target_labs:
             for lab in target_labs:
-                self.LogPrintln("- target lab found")
-                self.LogPrintln("- target device %s %s" %
+                self.logger.Println("- target lab found")
+                self.logger.Println("- target device %s %s" %
                                 (lab.hostname, target_product_type))
-                self.LogIndent()
+                self.logger.Indent()
                 device_query = model.DeviceModel.query(
                     model.DeviceModel.hostname == lab.hostname
                 )
                 host_devices = device_query.fetch()
 
                 for device in host_devices:
-                    self.LogPrintln("- check device %s %s" %
+                    self.logger.Println("- check device %s %s" %
                                     (device.status, device.product))
                     if ((device.status in [
                             Status.DEVICE_STATUS_DICT["online"],
@@ -259,16 +245,17 @@ class PeriodicScheduler(webapp2.RequestHandler):
                     ]) and (device.scheduling_status ==
                             Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
                     ) and device.product == target_product_type):
-                        self.LogPrintln("- a device found %s" % device.serial)
+                        self.logger.Println(
+                            "- a device found %s" % device.serial)
                         if device.hostname not in available_devices:
                             available_devices[device.hostname] = []
                         available_devices[device.hostname].append(
                             device.serial)
-                self.LogUnindent()
+                self.logger.Unindent()
             for host in available_devices:
-                self.LogPrintln("- len(devices) %s > shards %s ?" %
+                self.logger.Println("- len(devices) %s > shards %s ?" %
                                 (len(available_devices[host]), schedule.shards))
                 if len(available_devices[host]) >= schedule.shards:
                     return host, available_devices[host][:schedule.shards]
-        self.LogUnindent()
+        self.logger.Unindent()
         return None, []
