@@ -174,6 +174,7 @@ class JobQueueApi(remote.Service):
             status: string, status value requested from HC.
         """
         job.status = status
+        job.heartbeat_stamp = datetime.datetime.now()
         job_key = job.put()
         device_status.RefreshDevicesScheduleingStatus(job)
         _timestamp_last_heartbeat[job_key.id()] = datetime.datetime.now()
