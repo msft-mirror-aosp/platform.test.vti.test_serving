@@ -66,9 +66,20 @@ class JobQueueApi(remote.Service):
         """Gets the job(s) based on the condition specified in `request`."""
         job_query = model.JobModel.query(
             model.JobModel.hostname == request.hostname,
-            model.JobModel.status == Status.JOB_STATUS_DICT["ready"]
-        )
+            model.JobModel.status == Status.JOB_STATUS_DICT["ready"])
         existing_jobs = job_query.fetch()
+
+        def PrioritySortHelper(priority):
+            if priority == "high":
+                return 1
+            elif priority == "low":
+                return 3
+            else:
+                return 2
+
+        priority_sorted_jobs = sorted(
+            existing_jobs, key=lambda x: (PrioritySortHelper(x.priority),
+                                          x.timestamp))
 
         job_message = model.JobMessage()
         job_message.hostname = ""
@@ -84,10 +95,8 @@ class JobQueueApi(remote.Service):
         job_message.status = 0
         job_message.period = 0
 
-        if existing_jobs:
-            sorted_job = sorted(existing_jobs, key=lambda x: x.timestamp,
-                                reverse=False)
-            job = sorted_job[0]
+        if priority_sorted_jobs:
+            job = priority_sorted_jobs[0]
             job_message.hostname = job.hostname
             job_message.priority = job.priority
             job_message.test_name = job.test_name
@@ -130,8 +139,7 @@ class JobQueueApi(remote.Service):
             model.JobModel.manifest_branch == request.manifest_branch,
             model.JobModel.build_target == request.build_target,
             model.JobModel.test_name == request.test_name,
-            model.JobModel.status == Status.JOB_STATUS_DICT["leased"]
-        )
+            model.JobModel.status == Status.JOB_STATUS_DICT["leased"])
         existing_jobs = job_query.fetch()
         same_jobs = [
             x for x in existing_jobs if set(x.serial) == set(request.serial)
