@@ -98,7 +98,7 @@ class JobQueueApi(remote.Service):
             job_message.shards = job.shards
             job_message.param = job.param
             job_message.build_id = job.build_id
-            job_message.status = job.status
+            job_message.status = Status.JOB_STATUS_DICT["leased"]
             job_message.period = job.period
             job_message.gsi_branch = job.gsi_branch
             job_message.gsi_build_target = job.gsi_build_target
@@ -174,6 +174,7 @@ class JobQueueApi(remote.Service):
             status: string, status value requested from HC.
         """
         job.status = status
+        job.heartbeat_stamp = datetime.datetime.now()
         job_key = job.put()
         device_status.RefreshDevicesScheduleingStatus(job)
         _timestamp_last_heartbeat[job_key.id()] = datetime.datetime.now()

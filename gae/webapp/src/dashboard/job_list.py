@@ -41,7 +41,7 @@ class JobPage(webapp2.RequestHandler):
 
         template_values = {
             "user": user,
-            "jobs": jobs,
+            "jobs": sorted(jobs, key=lambda x: x.timestamp, reverse=True),
             "url": url,
             "url_linktext": url_linktext,
         }
