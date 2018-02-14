@@ -97,6 +97,9 @@ class JobQueueApi(remote.Service):
 
         if priority_sorted_jobs:
             job = priority_sorted_jobs[0]
+            job.status = Status.JOB_STATUS_DICT["leased"]
+            job.put()
+
             job_message.hostname = job.hostname
             job_message.priority = job.priority
             job_message.test_name = job.test_name
@@ -107,7 +110,7 @@ class JobQueueApi(remote.Service):
             job_message.shards = job.shards
             job_message.param = job.param
             job_message.build_id = job.build_id
-            job_message.status = Status.JOB_STATUS_DICT["leased"]
+            job_message.status = job.status
             job_message.period = job.period
             job_message.gsi_branch = job.gsi_branch
             job_message.gsi_build_target = job.gsi_build_target
@@ -115,8 +118,7 @@ class JobQueueApi(remote.Service):
             job_message.test_branch = job.test_branch
             job_message.test_build_target = job.test_build_target
             job_message.test_pab_account_id = job.test_pab_account_id
-            job.put()
-            device_status.RefreshDevicesScheduleingStatus(job)
+            device_status.RefreshDevicesScheduleingStatus(job_message)
 
             return model.JobLeaseResponse(
                 return_code=model.ReturnCodeMessage.SUCCESS,
