@@ -77,6 +77,7 @@
         <td>device
         <td>shards
         <td>param
+        <td>priority
         <td>timestamp
       </tr>
       {% set index = 1 %}
@@ -99,6 +100,8 @@
           {{ schedule.shards }}
         <td>
           {{ schedule.param }}
+        <td>
+          {{ schedule.priority }}
         <td>
           {{ schedule.timestamp }}
       </tr>
