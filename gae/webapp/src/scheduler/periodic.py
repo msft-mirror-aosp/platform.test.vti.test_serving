@@ -109,8 +109,10 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
         if schedules:
             for schedule in schedules:
-                self.logger.Println("Schedule: %s" % schedule.test_name)
-                self.logger.Indent()
+                self.logger.Println("Schedule: %s (%s %s)" % (
+                    schedule.test_name, schedule.manifest_branch,
+                    schedule.build_target))
+                self.LogIndent()
                 if self.NewPeriod(schedule):
                     self.logger.Println("- Need new job")
                     target_host, target_device_serials = self.SelectTargetLab(
@@ -249,14 +251,13 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         self.logger.Println(
                             "- a device found %s" % device.serial)
                         if device.hostname not in available_devices:
-                            available_devices[device.hostname] = []
-                        available_devices[device.hostname].append(
-                            device.serial)
+                            available_devices[device.hostname] = set()
+                        available_devices[device.hostname].add(device.serial)
                 self.logger.Unindent()
             for host in available_devices:
                 self.logger.Println("- len(devices) %s > shards %s ?" %
                                 (len(available_devices[host]), schedule.shards))
                 if len(available_devices[host]) >= schedule.shards:
-                    return host, available_devices[host][:schedule.shards]
+                    return host, list(available_devices[host])[:schedule.shards]
         self.logger.Unindent()
         return None, []
