@@ -41,13 +41,14 @@ class PeriodicDeviceHeartBeat(webapp2.RequestHandler):
         """Generates an HTML page based on the task schedules kept in DB."""
         self.logger.LogClear()
 
-        device_query = model.DeviceModel.query()
+        device_query = model.DeviceModel.query(
+            model.DeviceModel.status !=
+            Status.DEVICE_STATUS_DICT["no-response"])
         devices = device_query.fetch()
         lost_devices = [
             x for x in devices
             if (datetime.datetime.now() - x.timestamp
                 ).seconds >= DEVICE_RESPONSE_TIMEOUT_SECONDS
-               and x.status != Status.DEVICE_STATUS_DICT["no-response"]
         ]
         for device in lost_devices:
             self.logger.LogPrintln("Device[{}] is not responding.".format(
