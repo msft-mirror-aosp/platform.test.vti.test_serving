@@ -38,10 +38,12 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
         self.logger = logger.Logger()
 
     def get(self):
-        """Generates an HTML page based on the task schedules kept in DB."""
+        """Generates an HTML page based on the jobs kept in DB."""
         self.logger.LogClear()
 
-        job_query = model.JobModel.query()
+        job_query = model.JobModel.query(
+            model.JobModel.status == Status.JOB_STATUS_DICT["leased"]
+        )
         jobs = job_query.fetch()
 
         lost_jobs = [
@@ -49,7 +51,6 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
             if x.heartbeat_stamp and
             (datetime.datetime.now() - x.heartbeat_stamp
              ).seconds >= JOB_RESPONSE_TIMEOUT_SECONDS
-            and x.status == Status.JOB_STATUS_DICT["leased"]
         ]
         for job in lost_jobs:
             self.logger.LogPrintln("Lost job found")
@@ -59,19 +60,14 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
             job.status = Status.JOB_STATUS_DICT["infra-err"]
             job.put()
 
-            device_query = model.DeviceModel.query()
+            device_query = model.DeviceModel.query(
+                model.DeviceModel.serial.IN(job.serial)
+            )
             devices = device_query.fetch()
 
-            devices_in_job = [x for x in devices if x.serial in job.serial]
-
-            for device in devices_in_job:
-                if job.status == Status.JOB_STATUS_DICT["leased"]:
-                    status = Status.DEVICE_SCHEDULING_STATUS_DICT["use"]
-                elif job.status == Status.JOB_STATUS_DICT["ready"]:
-                    status = Status.DEVICE_SCHEDULING_STATUS_DICT["reserved"]
-                else:
-                    status = Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
-                device.scheduling_status = status
+            for device in devices:
+                device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
+                    "free"]
                 device.put()
 
         self.response.write(
