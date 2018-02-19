@@ -40,8 +40,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
     Attributes:
         logger: Logger class
     """
-    def __init__(self):
-        self.logger = logger.Logger()
+    logger = logger.Logger()
 
     def ReserveDevices(self, target_device_serials):
         """Reserves devices.
@@ -110,7 +109,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 self.logger.Println("Schedule: %s (%s %s)" % (
                     schedule.test_name, schedule.manifest_branch,
                     schedule.build_target))
-                self.LogIndent()
+                self.logger.Indent()
                 if self.NewPeriod(schedule):
                     self.logger.Println("- Need new job")
                     target_host, target_device_serials = self.SelectTargetLab(
@@ -256,6 +255,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 self.logger.Println("- len(devices) %s > shards %s ?" %
                                 (len(available_devices[host]), schedule.shards))
                 if len(available_devices[host]) >= schedule.shards:
+                    self.logger.Unindent()
                     return host, list(available_devices[host])[:schedule.shards]
         self.logger.Unindent()
         return None, []

@@ -33,13 +33,11 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
     Attributes:
         logger: Logger class
     """
-
-    def __init__(self):
-        self.logger = logger.Logger()
+    logger = logger.Logger()
 
     def get(self):
         """Generates an HTML page based on the jobs kept in DB."""
-        self.logger.LogClear()
+        self.logger.Clear()
 
         job_query = model.JobModel.query(
             model.JobModel.status == Status.JOB_STATUS_DICT["leased"]
@@ -53,10 +51,10 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
              ).seconds >= JOB_RESPONSE_TIMEOUT_SECONDS
         ]
         for job in lost_jobs:
-            self.logger.LogPrintln("Lost job found")
-            self.logger.LogPrintln(
-                "[hostname]{} [device]{} [testname]{}".format(
-                    job.hostname, job.device, job.testname))
+            self.logger.Println("Lost job found")
+            self.logger.Println(
+                "[hostname]{} [device]{} [test_name]{}".format(
+                    job.hostname, job.device, job.test_name))
             job.status = Status.JOB_STATUS_DICT["infra-err"]
             job.put()
 
