@@ -26,6 +26,8 @@ from webapp.src.dashboard import device_list
 from webapp.src.dashboard import job_list
 from webapp.src.dashboard import schedule_list
 from webapp.src.scheduler import periodic
+from webapp.src.scheduler import device_heartbeat
+from webapp.src.scheduler import job_heartbeat
 
 
 class MainPage(webapp2.RequestHandler):
@@ -60,4 +62,6 @@ app = webapp2.WSGIApplication([
     ("/result", MainPage),
     ("/schedule", schedule_list.SchedulePage),
     ("/tasks/schedule", periodic.PeriodicScheduler),
+    ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
+    ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat)
 ], debug=False)

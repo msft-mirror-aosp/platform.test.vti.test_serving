@@ -26,24 +26,8 @@ from webapp.src.proto import model
 
 HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.HostInfoMessage)
 
-# The default timeout for devices in sec.
-_DEVICE_RESPONSE_TIMEOUT_IN_SECS = 300
 # Product type name for null device.
 _NULL_DEVICE_PRODUCT_TYPE = "null"
-
-
-def DeviceErrorOnTimeout(key):
-    """Issues and error on the timeout devices.
-
-    Args
-        key: Datastore key for an entity.
-    """
-    current_time = datetime.datetime.now()
-    device = key.get()
-    if (current_time -
-            device.timestamp).seconds >= _DEVICE_RESPONSE_TIMEOUT_IN_SECS:
-        device.status = Status.DEVICE_STATUS_DICT["no-response"]
-        device.put()
 
 
 def AddNullDevices(hostname, null_device_count):
