@@ -33,13 +33,11 @@ class PeriodicDeviceHeartBeat(webapp2.RequestHandler):
     Attributes:
         logger: Logger class
     """
-
-    def __init__(self):
-        self.logger = logger.Logger()
+    logger = logger.Logger()
 
     def get(self):
         """Generates an HTML page based on the task schedules kept in DB."""
-        self.logger.LogClear()
+        self.logger.Clear()
 
         device_query = model.DeviceModel.query(
             model.DeviceModel.status !=
@@ -51,7 +49,7 @@ class PeriodicDeviceHeartBeat(webapp2.RequestHandler):
                 ).seconds >= DEVICE_RESPONSE_TIMEOUT_SECONDS
         ]
         for device in lost_devices:
-            self.logger.LogPrintln("Device[{}] is not responding.".format(
+            self.logger.Println("Device[{}] is not responding.".format(
                 device.serial))
             device.status = Status.DEVICE_STATUS_DICT["no-response"]
             device.put()
