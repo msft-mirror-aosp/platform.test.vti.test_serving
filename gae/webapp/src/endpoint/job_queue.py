@@ -164,6 +164,11 @@ class JobQueueApi(remote.Service):
                     device.scheduling_status =\
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
                     device.put()
+            elif request.status == Status.JOB_STATUS_DICT["leased"]:
+                for device in devices:
+                    device.timestamp = datetime.datetime.now()
+                    device.put()
+
             job.status = request.status
             job.heartbeat_stamp = datetime.datetime.now()
             job.put()
