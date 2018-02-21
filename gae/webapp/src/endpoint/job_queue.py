@@ -15,11 +15,11 @@
 
 import datetime
 import endpoints
+import logging
 
 from protorpc import remote
 
 from webapp.src.proto import model
-from webapp.src.scheduler import device_status
 from webapp.src import vtslab_status as Status
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
@@ -51,8 +51,8 @@ class JobQueueApi(remote.Service):
                 return 2
 
         priority_sorted_jobs = sorted(
-            existing_jobs, key=lambda x: (PrioritySortHelper(x.priority),
-                                          x.timestamp))
+            existing_jobs,
+            key=lambda x: (PrioritySortHelper(x.priority), x.timestamp))
 
         job_message = model.JobMessage()
         job_message.hostname = ""
@@ -91,7 +91,14 @@ class JobQueueApi(remote.Service):
             job_message.test_branch = job.test_branch
             job_message.test_build_target = job.test_build_target
             job_message.test_pab_account_id = job.test_pab_account_id
-            device_status.RefreshDevicesScheduleingStatus(job_message)
+
+            device_query = model.DeviceModel.query(
+                model.DeviceModel.serial.IN(job.serial))
+            devices = device_query.fetch()
+            for device in devices:
+                device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
+                    "use"]
+                device.put()
 
             return model.JobLeaseResponse(
                 return_code=model.ReturnCodeMessage.SUCCESS,
@@ -123,6 +130,14 @@ class JobQueueApi(remote.Service):
         job_message = model.JobMessage()
         job_messages = []
 
+        if len(same_jobs) > 1:
+            logging.warning("[heartbeat] more than one job is found!")
+            logging.warning(
+                "[heartbeat] <hostname>{} <manifest_branch>{} "
+                "<build_target>{} <test_name>{} <serials>{}".
+                format(request.hostname, request.manifest_branch,
+                       request.build_target, request.test_name, request.serial))
+
         if same_jobs:
             job = same_jobs[0]
             job_message.hostname = job.hostname
@@ -138,13 +153,22 @@ class JobQueueApi(remote.Service):
             job_message.status = job.status
             job_message.period = job.period
             job_messages.append(job_message)
-            if job.status == Status.JOB_STATUS_DICT["leased"]:
-                job.status = request.status
-                job.put()
-                device_status.RefreshDevicesScheduleingStatus(job)
-                return model.JobLeaseResponse(
-                        return_code=model.ReturnCodeMessage.SUCCESS,
-                        jobs=job_messages)
+            device_query = model.DeviceModel.query(
+                model.DeviceModel.serial.IN(job.serial))
+            devices = device_query.fetch()
+            if request.status in [
+                    Status.JOB_STATUS_DICT["complete"],
+                    Status.JOB_STATUS_DICT["infra-err"]
+            ]:
+                for device in devices:
+                    device.scheduling_status =\
+                        Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
+                    device.put()
+            job.status = request.status
+            job.heartbeat_stamp = datetime.datetime.now()
+            job.put()
+            return model.JobLeaseResponse(
+                return_code=model.ReturnCodeMessage.SUCCESS, jobs=job_messages)
 
         return model.JobLeaseResponse(
             return_code=model.ReturnCodeMessage.FAIL, jobs=job_messages)
