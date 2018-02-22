@@ -19,10 +19,7 @@
     "WebappSrcProtoModelScheduleInfoMessage": {
       "properties": {
         "build_target": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
+          "type": "string"
         },
         "device": {
           "type": "string"
@@ -53,6 +50,10 @@
           "type": "string"
         },
         "shards": {
+          "format": "int64",
+          "type": "string"
+        },
+        "retry_count": {
           "format": "int64",
           "type": "string"
         },

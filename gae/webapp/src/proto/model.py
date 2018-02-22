@@ -58,6 +58,7 @@ class ScheduleModel(ndb.Model):
     test_build_target = ndb.StringProperty()
     test_pab_account_id = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
+    retry_count = ndb.IntegerProperty()
 
 
 class ScheduleInfoMessage(messages.Message):
@@ -76,6 +77,7 @@ class ScheduleInfoMessage(messages.Message):
     test_branch = messages.StringField(12)
     test_build_target = messages.StringField(13)
     test_pab_account_id = messages.StringField(14)
+    retry_count = messages.IntegerField(15)
 
 
 class LabModel(ndb.Model):
@@ -159,6 +161,7 @@ class JobModel(ndb.Model):
     test_pab_account_id = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
     heartbeat_stamp = ndb.DateTimeProperty(auto_now=False)
+    retry_count = ndb.IntegerProperty()
 
 
 class JobMessage(messages.Message):
@@ -181,6 +184,7 @@ class JobMessage(messages.Message):
     test_branch = messages.StringField(16)
     test_build_target = messages.StringField(17)
     test_pab_account_id = messages.StringField(18)
+    retry_count = messages.IntegerField(19)
 
 
 class ReturnCodeMessage(messages.Enum):
