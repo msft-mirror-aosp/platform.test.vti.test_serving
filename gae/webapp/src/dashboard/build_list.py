@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 
-import webapp2
-
-from google.appengine.api import users
-
 from webapp.src.handlers.base import BaseHandler
 from webapp.src.proto import model
 

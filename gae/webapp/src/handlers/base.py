@@ -14,24 +14,16 @@
 # limitations under the License.
 #
 
+import arrow
 import errors
 import httplib
-import json
 import logging
 import os
 import stripe
-import urllib
 import urlparse
-import arrow
-
 import webapp2
-from google.appengine.api import app_identity
-from google.appengine.api import memcache
-from google.appengine.api import search
-from google.appengine.api import urlfetch
+
 from google.appengine.api import users
-from google.appengine.ext import ndb
-from webapp2_extras import auth as wa2_auth
 from webapp2_extras import jinja2 as wa2_jinja2
 from webapp2_extras import sessions
 

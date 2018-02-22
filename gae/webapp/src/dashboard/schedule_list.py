@@ -15,13 +15,7 @@
 # limitations under the License.
 #
 
-import datetime
-import webapp2
-
-from google.appengine.api import users
-
 from webapp.src.handlers.base import BaseHandler
-from webapp.src.dashboard import build_list
 from webapp.src.proto import model
 
 
