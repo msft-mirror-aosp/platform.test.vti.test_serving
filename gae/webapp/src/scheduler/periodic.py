@@ -252,7 +252,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         available_devices[device.hostname].add(device.serial)
                 self.logger.Unindent()
             for host in available_devices:
-                self.logger.Println("- len(devices) %s > shards %s ?" %
+                self.logger.Println("- len(devices) %s >= shards %s ?" %
                                 (len(available_devices[host]), schedule.shards))
                 if len(available_devices[host]) >= schedule.shards:
                     self.logger.Unindent()
