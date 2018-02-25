@@ -17,7 +17,6 @@
 import datetime
 import endpoints
 
-from protorpc import message_types
 from protorpc import remote
 
 from google.appengine.ext import ndb
