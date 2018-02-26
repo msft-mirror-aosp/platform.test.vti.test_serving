@@ -44,12 +44,16 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
         )
         jobs = job_query.fetch()
 
-        lost_jobs = [
-            x for x in jobs
-            if x.heartbeat_stamp and
-            (datetime.datetime.now() - x.heartbeat_stamp
-             ).seconds >= JOB_RESPONSE_TIMEOUT_SECONDS
-        ]
+        lost_jobs = []
+        for job in jobs:
+            if job.heartbeat_stamp:
+                job_timestamp = job.heartbeat_stamp
+            else:
+                job_timestamp = job.timestamp
+            if (datetime.datetime.now() -
+                    job_timestamp).seconds >= JOB_RESPONSE_TIMEOUT_SECONDS:
+                lost_jobs.append(job)
+
         for job in lost_jobs:
             self.logger.Println("Lost job found")
             self.logger.Println(
