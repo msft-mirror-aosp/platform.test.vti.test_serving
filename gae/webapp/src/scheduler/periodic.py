@@ -132,6 +132,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.build_target = schedule.build_target
                         new_job.shards = schedule.shards
                         new_job.param = schedule.param
+                        new_job.retry_count = schedule.retry_count
                         new_job.gsi_branch = schedule.gsi_branch
                         new_job.gsi_build_target = schedule.gsi_build_target
                         new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
@@ -176,6 +177,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
             model.JobModel.period == schedule.period,
             model.JobModel.device == schedule.device,
             model.JobModel.shards == schedule.shards,
+            model.JobModel.retry_count == schedule.retry_count,
             model.JobModel.gsi_branch == schedule.gsi_branch,
             model.JobModel.test_branch == schedule.test_branch
         )
@@ -252,7 +254,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         available_devices[device.hostname].add(device.serial)
                 self.logger.Unindent()
             for host in available_devices:
-                self.logger.Println("- len(devices) %s > shards %s ?" %
+                self.logger.Println("- len(devices) %s >= shards %s ?" %
                                 (len(available_devices[host]), schedule.shards))
                 if len(available_devices[host]) >= schedule.shards:
                     self.logger.Unindent()

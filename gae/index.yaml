@@ -31,6 +31,7 @@ indexes:
   - name: device
   - name: shards
   - name: param
+  - name: retry_count
   - name: gsi_branch
   - name: gsi_build_target
   - name: gsi_pab_account_id
@@ -54,6 +55,7 @@ indexes:
   - name: hostname
   - name: priority
   - name: period
+  - name: retry_count
   - name: test_name
   - name: device
   - name: serial

@@ -63,6 +63,7 @@ class ScheduleInfoApi(remote.Service):
         schedule.device = request.device
         schedule.shards = request.shards
         schedule.param = request.param
+        schedule.retry_count = request.retry_count
         schedule.gsi_branch = request.gsi_branch
         schedule.gsi_build_target = request.gsi_build_target
         schedule.gsi_pab_account_id = request.gsi_pab_account_id

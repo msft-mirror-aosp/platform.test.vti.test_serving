@@ -67,6 +67,7 @@ class JobQueueApi(remote.Service):
         job_message.build_id = ""
         job_message.status = 0
         job_message.period = 0
+        job_message.retry_count = 0
 
         if priority_sorted_jobs:
             job = priority_sorted_jobs[0]
@@ -85,6 +86,7 @@ class JobQueueApi(remote.Service):
             job_message.build_id = job.build_id
             job_message.status = job.status
             job_message.period = job.period
+            job_message.retry_count = job.retry_count
             job_message.gsi_branch = job.gsi_branch
             job_message.gsi_build_target = job.gsi_build_target
             job_message.gsi_pab_account_id = job.gsi_pab_account_id
@@ -152,6 +154,7 @@ class JobQueueApi(remote.Service):
             job_message.build_id = job.build_id
             job_message.status = job.status
             job_message.period = job.period
+            job_message.retry_count = job.retry_count
             job_messages.append(job_message)
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
