@@ -57,6 +57,8 @@
     <div class="container">
       <h1>Job Queue</h1>
       <p>Shortcuts: <a href=#>8.0 (oc)</a> <a href=#>8.1 (oc-mr1)</a> <a href=#>9.0 (pi)</a></p>
+      <p><a href="/create_job_template">Create a job</a></p>
+      <p>{{ message }}</p>
       <table>
       <tr>
         <td>
@@ -81,7 +83,7 @@
         <td>hostname
         <td>priority
         <td>serial
-        <td>build_id
+        <td>build_id<br>(PAB account ID)
         <td>GSI
         <td>test suite
         <td>status
@@ -118,14 +120,17 @@
           {{ job.serial }}
         <td>
           {{ job.build_id }}
+          ({{ job.pab_account_id }})
         <td>
           {{ job.gsi_branch }} /
-          {{ job.gsi_build_target }} /
-          {{ job.gsi_pab_account_id }}
+          {{ job.gsi_build_id }} /
+          {{ job.gsi_build_target }}
+          ({{ job.gsi_pab_account_id }})
         <td>
           {{ job.test_branch }} /
-          {{ job.test_build_target }} /
-          {{ job.test_pab_account_id }}
+          {{ job.test_build_id }} /
+          {{ job.test_build_target }}
+          ({{ job.test_pab_account_id }})
         <td>
           {{ {0: "ready",
               1: "leased",
