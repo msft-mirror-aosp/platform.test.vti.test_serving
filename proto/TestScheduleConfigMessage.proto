@@ -58,7 +58,7 @@ message TestScheduleConfigMessage {
   optional bytes priority = 3;
 
   // such as <lab>/<device type>
-  optional bytes device = 4;
+  repeated bytes device = 4;
 
   // number of shards (-1 for auto selection?)
   optional int32 shards = 5;
