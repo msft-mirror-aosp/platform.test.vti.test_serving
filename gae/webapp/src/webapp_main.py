@@ -15,45 +15,36 @@
 # limitations under the License.
 #
 
+import os
+
 import webapp2
-
-from google.appengine.api import users
-
-from webapp.src import webapp_config
 
 from webapp.src.dashboard import build_list
 from webapp.src.dashboard import device_list
 from webapp.src.dashboard import job_list
 from webapp.src.dashboard import schedule_list
-from webapp.src.scheduler import periodic
+from webapp.src.handlers.base import BaseHandler
 from webapp.src.scheduler import device_heartbeat
 from webapp.src.scheduler import job_heartbeat
+from webapp.src.scheduler import periodic
 from webapp.src.tasks import indexing
 
 
-class MainPage(webapp2.RequestHandler):
+class MainPage(BaseHandler):
     """Main web page request handler."""
 
     def get(self):
         """Generates an HTML page."""
-        user = users.get_current_user()
-        if user:
-            url = users.create_logout_url(self.request.uri)
-            url_linktext = "Logout"
-        else:
-            url = users.create_login_url(self.request.uri)
-            url_linktext = "Login"
+        self.template = "index.html"
 
-        template_values = {
-            "user": user,
-            "url": url,
-            "url_linktext": url_linktext,
-        }
+        template_values = {}
 
-        template = webapp_config.JINJA_ENVIRONMENT.get_template(
-            "static/index.html")
-        self.response.write(template.render(template_values))
+        self.render(template_values)
 
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': os.environ.get('SESSION_SECRET_KEY'),
+}
 
 app = webapp2.WSGIApplication([
     ("/", MainPage),
@@ -66,4 +57,4 @@ app = webapp2.WSGIApplication([
     ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
     ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),
     ("/tasks/indexing", indexing.CreateIndex)
-], debug=False)
+], config=config, debug=False)
