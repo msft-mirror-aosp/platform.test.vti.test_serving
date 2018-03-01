@@ -22,7 +22,10 @@
           "type": "string"
         },
         "device": {
-          "type": "string"
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "gsi_branch": {
           "type": "string"
