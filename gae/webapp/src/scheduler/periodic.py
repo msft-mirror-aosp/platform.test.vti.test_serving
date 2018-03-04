@@ -112,9 +112,10 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 self.logger.Indent()
                 if self.NewPeriod(schedule):
                     self.logger.Println("- Need new job")
-                    target_host, target_device_serials = self.SelectTargetLab(
-                        schedule)
+                    target_host, target_device, target_device_serials =\
+                        self.SelectTargetLab(schedule)
                     self.logger.Println("- Target host: %s" % target_host)
+                    self.logger.Println("- Target device: %s" % target_device)
                     self.logger.Println(
                         "- Target serials: %s" % target_device_serials)
                     # TODO: update device status
@@ -125,7 +126,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.hostname = target_host
                         new_job.priority = schedule.priority
                         new_job.test_name = schedule.test_name
-                        new_job.device = schedule.device
+                        new_job.device = target_device
                         new_job.period = schedule.period
                         new_job.serial.extend(target_device_serials)
                         new_job.manifest_branch = schedule.manifest_branch
@@ -156,6 +157,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                             self.logger.Println("NEW JOB")
                         else:
                             self.logger.Println("NO BUILD FOUND")
+
                 self.logger.Unindent()
 
         self.response.write(
@@ -175,15 +177,17 @@ class PeriodicScheduler(webapp2.RequestHandler):
             model.JobModel.build_target == schedule.build_target,
             model.JobModel.test_name == schedule.test_name,
             model.JobModel.period == schedule.period,
-            model.JobModel.device == schedule.device,
             model.JobModel.shards == schedule.shards,
             model.JobModel.retry_count == schedule.retry_count,
             model.JobModel.gsi_branch == schedule.gsi_branch,
             model.JobModel.test_branch == schedule.test_branch
         )
         same_jobs = job_query.fetch()
-        same_jobs = [x for x in same_jobs
-                     if set(x.param) == set(schedule.param)]
+        same_jobs = [
+            x for x in same_jobs
+            if (set(x.param) == set(schedule.param)
+                and x.device in schedule.device)
+        ]
         if not same_jobs:
             return True
 
@@ -208,56 +212,58 @@ class PeriodicScheduler(webapp2.RequestHandler):
             schedule: a proto containing the information of a schedule.
 
         Returns:
-            hostname,
-            a list of selected devices  (see whether devices will be selected
-            later when the job is picked up.)
+            a string which represents hostname,
+            a string containing target lab and product with '/' separator,
+            a list of selected devices serial (see whether devices will be
+            selected later when the job is picked up.)
         """
-        if "/" not in schedule.device:
-            # device malformed
-            return None, None
+        for target_device in schedule.device:
+            if "/" not in target_device:
+                # device malformed
+                continue
 
-        target_lab, target_product_type = schedule.device.split("/")
-        self.logger.Println("- Seeking product %s in lab %s" %
-                        (target_product_type, target_lab))
-        self.logger.Indent()
-        lab_query = model.LabModel.query(
-            model.LabModel.name == target_lab
-        )
-        target_labs = lab_query.fetch()
+            target_lab, target_product_type = target_device.split("/")
+            self.logger.Println("- Seeking product %s in lab %s" %
+                                (target_product_type, target_lab))
+            self.logger.Indent()
+            lab_query = model.LabModel.query(model.LabModel.name == target_lab)
+            target_labs = lab_query.fetch()
 
-        available_devices = {}
-        if target_labs:
-            for lab in target_labs:
-                self.logger.Println("- target lab found")
-                self.logger.Println("- target device %s %s" %
-                                (lab.hostname, target_product_type))
-                self.logger.Indent()
-                device_query = model.DeviceModel.query(
-                    model.DeviceModel.hostname == lab.hostname
-                )
-                host_devices = device_query.fetch()
+            available_devices = {}
+            if target_labs:
+                for lab in target_labs:
+                    self.logger.Println("- target lab found")
+                    self.logger.Println("- target device %s %s" %
+                                        (lab.hostname, target_product_type))
+                    self.logger.Indent()
+                    device_query = model.DeviceModel.query(
+                        model.DeviceModel.hostname == lab.hostname)
+                    host_devices = device_query.fetch()
 
-                for device in host_devices:
-                    self.logger.Println("- check device %s %s" %
-                                    (device.status, device.product))
-                    if ((device.status in [
-                            Status.DEVICE_STATUS_DICT["fastboot"],
-                            Status.DEVICE_STATUS_DICT["online"],
-                            Status.DEVICE_STATUS_DICT["ready"]
-                    ]) and (device.scheduling_status ==
-                            Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
-                    ) and device.product == target_product_type):
-                        self.logger.Println(
-                            "- a device found %s" % device.serial)
-                        if device.hostname not in available_devices:
-                            available_devices[device.hostname] = set()
-                        available_devices[device.hostname].add(device.serial)
-                self.logger.Unindent()
-            for host in available_devices:
-                self.logger.Println("- len(devices) %s >= shards %s ?" %
-                                (len(available_devices[host]), schedule.shards))
-                if len(available_devices[host]) >= schedule.shards:
+                    for device in host_devices:
+                        self.logger.Println("- check device %s %s" %
+                                            (device.status, device.product))
+                        if ((device.status in [
+                                Status.DEVICE_STATUS_DICT["fastboot"],
+                                Status.DEVICE_STATUS_DICT["online"],
+                                Status.DEVICE_STATUS_DICT["ready"]
+                        ]) and (device.scheduling_status ==
+                                Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
+                                and device.product == target_product_type):
+                            self.logger.Println(
+                                "- a device found %s" % device.serial)
+                            if device.hostname not in available_devices:
+                                available_devices[device.hostname] = set()
+                            available_devices[device.hostname].add(
+                                device.serial)
                     self.logger.Unindent()
-                    return host, list(available_devices[host])[:schedule.shards]
-        self.logger.Unindent()
-        return None, []
+                for host in available_devices:
+                    self.logger.Println("- len(devices) %s >= shards %s ?" %
+                                        (len(available_devices[host]),
+                                         schedule.shards))
+                    if len(available_devices[host]) >= schedule.shards:
+                        self.logger.Unindent()
+                        return host, target_device, list(
+                            available_devices[host])[:schedule.shards]
+            self.logger.Unindent()
+        return None, None, []
