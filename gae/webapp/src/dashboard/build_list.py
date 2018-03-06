@@ -14,11 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import webapp2
 
-from google.appengine.api import users
-
-from webapp.src import webapp_config
+from webapp.src.handlers.base import BaseHandler
 from webapp.src.proto import model
 
 
@@ -90,21 +87,16 @@ def ReadBuildInfo(target_branch=""):
     return test_builds, device_builds, gsi_builds
 
 
-class BuildPage(webapp2.RequestHandler):
+class BuildPage(BaseHandler):
     """Main class for /build web page."""
 
     def get(self):
         """Generates an HTML page based on the build info kept in DB."""
+        self.template = "build.html"
+
         target_branch = self.request.get("branch", default_value="")
 
         test_builds, device_builds, gsi_builds = ReadBuildInfo(target_branch)
-        user = users.get_current_user()
-        if user:
-            url = users.create_logout_url(self.request.uri)
-            url_linktext = "Logout"
-        else:
-            url = users.create_login_url(self.request.uri)
-            url_linktext = "Login"
 
         manifest_branch_keys =  list(set().union(
             test_builds.keys(), device_builds.keys(),
@@ -129,12 +121,7 @@ class BuildPage(webapp2.RequestHandler):
                 all_builds[manifest_branch_key]["gsi"] = []
 
         template_values = {
-            "user": user,
             "all_builds": all_builds,
-            "url": url,
-            "url_linktext": url_linktext,
         }
 
-        template = webapp_config.JINJA_ENVIRONMENT.get_template(
-            "static/build.html")
-        self.response.write(template.render(template_values))
+        self.render(template_values)

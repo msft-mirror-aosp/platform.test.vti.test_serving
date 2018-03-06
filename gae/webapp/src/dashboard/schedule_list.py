@@ -15,29 +15,19 @@
 # limitations under the License.
 #
 
-import webapp2
-
-from google.appengine.api import users
-
-from webapp.src import webapp_config
+from webapp.src.handlers.base import BaseHandler
 from webapp.src.proto import model
 
 
-class SchedulePage(webapp2.RequestHandler):
+class SchedulePage(BaseHandler):
     """Main class for /schedule web page."""
 
     def get(self):
         """Generates an HTML page based on the task schedules kept in DB."""
+        self.template = "schedule.html"
+
         schedule_query = model.ScheduleModel.query()
         schedules = schedule_query.fetch()
-
-        user = users.get_current_user()
-        if user:
-            url = users.create_logout_url(self.request.uri)
-            url_linktext = "Logout"
-        else:
-            url = users.create_login_url(self.request.uri)
-            url_linktext = "Login"
 
         if schedules:
             schedules = sorted(
@@ -45,12 +35,7 @@ class SchedulePage(webapp2.RequestHandler):
                 reverse=False)
 
         template_values = {
-            "user": user,
             "schedules": schedules,
-            "url": url,
-            "url_linktext": url_linktext,
         }
 
-        template = webapp_config.JINJA_ENVIRONMENT.get_template(
-            "static/schedule.html")
-        self.response.write(template.render(template_values))
+        self.render(template_values)
