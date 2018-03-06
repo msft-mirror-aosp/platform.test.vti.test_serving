@@ -16,32 +16,23 @@
 #
 
 import datetime
-import webapp2
 
-from google.appengine.api import users
-
-from webapp.src import webapp_config
+from webapp.src.handlers.base import BaseHandler
 from webapp.src.proto import model
 
 
-class DevicePage(webapp2.RequestHandler):
+class DevicePage(BaseHandler):
     """Main class for /device web page."""
 
     def get(self):
         """Generates an HTML page based on the device info kept in DB."""
+        self.template = "device.html"
+
         device_query = model.DeviceModel.query()
         devices = device_query.fetch()
 
         lab_query = model.LabModel.query()
         labs = lab_query.fetch()
-
-        user = users.get_current_user()
-        if user:
-            url = users.create_logout_url(self.request.uri)
-            url_linktext = "Logout"
-        else:
-            url = users.create_login_url(self.request.uri)
-            url_linktext = "Login"
 
         if devices:
             devices = sorted(
@@ -49,14 +40,9 @@ class DevicePage(webapp2.RequestHandler):
                 reverse=False)
 
         template_values = {
-            "user": user,
             "now": datetime.datetime.now(),
             "devices": devices,
             "labs": labs,
-            "url": url,
-            "url_linktext": url_linktext,
         }
 
-        template = webapp_config.JINJA_ENVIRONMENT.get_template(
-            "static/device.html")
-        self.response.write(template.render(template_values))
+        self.render(template_values)
