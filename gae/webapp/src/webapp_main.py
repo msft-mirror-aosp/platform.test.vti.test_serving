@@ -41,20 +41,23 @@ class MainPage(BaseHandler):
 
         self.render(template_values)
 
+
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': os.environ.get('SESSION_SECRET_KEY'),
 }
 
-app = webapp2.WSGIApplication([
-    ("/", MainPage),
-    ("/build", build_list.BuildPage),
-    ("/device", device_list.DevicePage),
-    ("/job", job_list.JobPage),
-    ("/result", MainPage),
-    ("/schedule", schedule_list.SchedulePage),
-    ("/tasks/schedule", periodic.PeriodicScheduler),
-    ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
-    ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),
-    ("/tasks/indexing", indexing.CreateIndex)
-], config=config, debug=False)
+app = webapp2.WSGIApplication(
+    [
+        ("/", MainPage), ("/build", build_list.BuildPage),
+        ("/device", device_list.DevicePage), ("/job", job_list.JobPage),
+        ("/create_job", job_list.CreateJobPage),
+        ("/create_job_template", job_list.CreateJobTemplatePage),
+        ("/result", MainPage), ("/schedule", schedule_list.SchedulePage),
+        ("/tasks/schedule", periodic.PeriodicScheduler),
+        ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
+        ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),
+        ("/tasks/indexing", indexing.CreateIndex)
+    ],
+    config=config,
+    debug=False)
