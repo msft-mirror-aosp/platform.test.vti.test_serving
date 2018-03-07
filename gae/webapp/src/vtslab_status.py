@@ -52,3 +52,27 @@ JOB_STATUS_DICT = {
     # unexpected error during running
     "infra-err": 3
 }
+
+
+JOB_PRIORITY_DICT = {
+    "top": 0,
+    "high": 1,
+    "medium": 2,
+    "low": 3,
+    "other": 4
+}
+
+
+def PrioritySortHelper(priority):
+    """Helper function to sort jobs based on priority.
+
+    Args:
+        priority: string, the job priority.
+
+    Returns:
+        int, priority order (the lower, the higher)
+    """
+    priority = priority.lower()
+    if priority in JOB_PRIORITY_DICT:
+        return JOB_PRIORITY_DICT[priority]
+    return 4
