@@ -82,4 +82,7 @@ message TestScheduleConfigMessage {
 
   // PAB account ID for test package.
   optional bytes test_pab_account_id = 33;
+
+  // number of retry count
+  optional int32 retry_count = 41;
 }

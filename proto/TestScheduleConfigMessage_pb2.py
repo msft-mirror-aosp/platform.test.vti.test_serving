@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='TestScheduleConfigMessage.proto',
   package='android.test.lab',
   syntax='proto2',
-  serialized_pb=_b('\n\x1fTestScheduleConfigMessage.proto\x12\x10\x61ndroid.test.lab\"\xe4\x01\n\x15ScheduleConfigMessage\x12\x17\n\x0fmanifest_branch\x18\x01 \x01(\x0c\x12\x16\n\x0epab_account_id\x18\x02 \x01(\x0c\x12V\n\x12\x62uild_storage_type\x18\x03 \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x42\n\x0c\x62uild_target\x18\x0b \x03(\x0b\x32,.android.test.lab.BuildScheduleConfigMessage\"n\n\x1a\x42uildScheduleConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\x42\n\rtest_schedule\x18\x0b \x03(\x0b\x32+.android.test.lab.TestScheduleConfigMessage\"\x96\x02\n\x19TestScheduleConfigMessage\x12\x11\n\ttest_name\x18\x01 \x01(\x0c\x12\x0e\n\x06period\x18\x02 \x01(\x05\x12\x10\n\x08priority\x18\x03 \x01(\x0c\x12\x0e\n\x06\x64\x65vice\x18\x04 \x03(\x0c\x12\x0e\n\x06shards\x18\x05 \x01(\x05\x12\r\n\x05param\x18\x0b \x01(\x0c\x12\x12\n\ngsi_branch\x18\x15 \x01(\x0c\x12\x18\n\x10gsi_build_target\x18\x16 \x01(\x0c\x12\x1a\n\x12gsi_pab_account_id\x18\x17 \x01(\x0c\x12\x13\n\x0btest_branch\x18\x1f \x01(\x0c\x12\x19\n\x11test_build_target\x18  \x01(\x0c\x12\x1b\n\x13test_pab_account_id\x18! \x01(\x0c*j\n\x10\x42uildStorageType\x12\x1e\n\x1aUNKNOWN_BUILD_STORAGE_TYPE\x10\x00\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_PAB\x10\x01\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_GCS\x10\x02')
+  serialized_pb=_b('\n\x1fTestScheduleConfigMessage.proto\x12\x10\x61ndroid.test.lab\"\xe4\x01\n\x15ScheduleConfigMessage\x12\x17\n\x0fmanifest_branch\x18\x01 \x01(\x0c\x12\x16\n\x0epab_account_id\x18\x02 \x01(\x0c\x12V\n\x12\x62uild_storage_type\x18\x03 \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x42\n\x0c\x62uild_target\x18\x0b \x03(\x0b\x32,.android.test.lab.BuildScheduleConfigMessage\"n\n\x1a\x42uildScheduleConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\x42\n\rtest_schedule\x18\x0b \x03(\x0b\x32+.android.test.lab.TestScheduleConfigMessage\"\xab\x02\n\x19TestScheduleConfigMessage\x12\x11\n\ttest_name\x18\x01 \x01(\x0c\x12\x0e\n\x06period\x18\x02 \x01(\x05\x12\x10\n\x08priority\x18\x03 \x01(\x0c\x12\x0e\n\x06\x64\x65vice\x18\x04 \x03(\x0c\x12\x0e\n\x06shards\x18\x05 \x01(\x05\x12\r\n\x05param\x18\x0b \x01(\x0c\x12\x12\n\ngsi_branch\x18\x15 \x01(\x0c\x12\x18\n\x10gsi_build_target\x18\x16 \x01(\x0c\x12\x1a\n\x12gsi_pab_account_id\x18\x17 \x01(\x0c\x12\x13\n\x0btest_branch\x18\x1f \x01(\x0c\x12\x19\n\x11test_build_target\x18  \x01(\x0c\x12\x1b\n\x13test_pab_account_id\x18! \x01(\x0c\x12\x13\n\x0bretry_count\x18) \x01(\x05*j\n\x10\x42uildStorageType\x12\x1e\n\x1aUNKNOWN_BUILD_STORAGE_TYPE\x10\x00\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_PAB\x10\x01\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_GCS\x10\x02')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -45,8 +45,8 @@ _BUILDSTORAGETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=677,
-  serialized_end=783,
+  serialized_start=698,
+  serialized_end=804,
 )
 _sym_db.RegisterEnumDescriptor(_BUILDSTORAGETYPE)
 
@@ -238,6 +238,13 @@ _TESTSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='retry_count', full_name='android.test.lab.TestScheduleConfigMessage.retry_count', index=12,
+      number=41, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -251,7 +258,7 @@ _TESTSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=397,
-  serialized_end=675,
+  serialized_end=696,
 )
 
 _SCHEDULECONFIGMESSAGE.fields_by_name['build_storage_type'].enum_type = _BUILDSTORAGETYPE
