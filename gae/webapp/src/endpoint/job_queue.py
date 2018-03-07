@@ -42,17 +42,9 @@ class JobQueueApi(remote.Service):
             model.JobModel.status == Status.JOB_STATUS_DICT["ready"])
         existing_jobs = job_query.fetch()
 
-        def PrioritySortHelper(priority):
-            if priority == "high":
-                return 1
-            elif priority == "low":
-                return 3
-            else:
-                return 2
-
         priority_sorted_jobs = sorted(
             existing_jobs,
-            key=lambda x: (PrioritySortHelper(x.priority), x.timestamp))
+            key=lambda x: (Status.PrioritySortHelper(x.priority), x.timestamp))
 
         job_message = model.JobMessage()
         job_message.hostname = ""
@@ -84,14 +76,17 @@ class JobQueueApi(remote.Service):
             job_message.shards = job.shards
             job_message.param = job.param
             job_message.build_id = job.build_id
+            job_message.pab_account_id = job.pab_account_id
             job_message.status = job.status
             job_message.period = job.period
             job_message.retry_count = job.retry_count
             job_message.gsi_branch = job.gsi_branch
             job_message.gsi_build_target = job.gsi_build_target
+            job_message.gsi_build_id = job.gsi_build_id
             job_message.gsi_pab_account_id = job.gsi_pab_account_id
             job_message.test_branch = job.test_branch
             job_message.test_build_target = job.test_build_target
+            job_message.test_build_id = job.test_build_id
             job_message.test_pab_account_id = job.test_pab_account_id
 
             device_query = model.DeviceModel.query(
@@ -159,13 +154,16 @@ class JobQueueApi(remote.Service):
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
             devices = device_query.fetch()
-            if request.status in [
-                    Status.JOB_STATUS_DICT["complete"],
-                    Status.JOB_STATUS_DICT["infra-err"]
-            ]:
+            if request.status == Status.JOB_STATUS_DICT["complete"]:
                 for device in devices:
-                    device.scheduling_status =\
-                        Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
+                    device.scheduling_status = (
+                        Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
+                    device.put()
+            elif request.status == Status.JOB_STATUS_DICT["infra-err"]:
+                for device in devices:
+                    device.scheduling_status = (
+                        Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
+                    device.status = Status.DEVICE_STATUS_DICT["unknown"]
                     device.put()
             elif request.status == Status.JOB_STATUS_DICT["leased"]:
                 for device in devices:
