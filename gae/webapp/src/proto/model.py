@@ -151,13 +151,16 @@ class JobModel(ndb.Model):
     shards = ndb.IntegerProperty()
     param = ndb.StringProperty(repeated=True)
     build_id = ndb.StringProperty()
+    pab_account_id = ndb.StringProperty()
     status = ndb.IntegerProperty()
     period = ndb.IntegerProperty()
     gsi_branch = ndb.StringProperty()
     gsi_build_target = ndb.StringProperty()
+    gsi_build_id = ndb.StringProperty()
     gsi_pab_account_id = ndb.StringProperty()
     test_branch = ndb.StringProperty()
     test_build_target = ndb.StringProperty()
+    test_build_id = ndb.StringProperty()
     test_pab_account_id = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
     heartbeat_stamp = ndb.DateTimeProperty(auto_now=False)
@@ -171,19 +174,27 @@ class JobMessage(messages.Message):
     test_name = messages.StringField(3)
     device = messages.StringField(4)
     serial = messages.StringField(5, repeated=True)
+
     manifest_branch = messages.StringField(6)
     build_target = messages.StringField(7)
+    build_id = messages.StringField(10)
+    pab_account_id = messages.StringField(20)
+
     shards = messages.IntegerField(8)
     param = messages.StringField(9, repeated=True)
-    build_id = messages.StringField(10)
     status = messages.IntegerField(11)
     period = messages.IntegerField(12)
+
     gsi_branch = messages.StringField(13)
     gsi_build_target = messages.StringField(14)
+    gsi_build_id = messages.StringField(21)
     gsi_pab_account_id = messages.StringField(15)
+
     test_branch = messages.StringField(16)
     test_build_target = messages.StringField(17)
+    test_build_id = messages.StringField(22)
     test_pab_account_id = messages.StringField(18)
+
     retry_count = messages.IntegerField(19)
 
 
