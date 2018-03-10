@@ -14,4 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-gcloud datastore create-indexes index.yaml
+if [ "$#" -ne 1 ]; then
+  echo "usage: deploy-endpoint.sh prod|test"
+  exit 1
+fi
+
+if [ $1 = "prod" ]; then
+  SERVICE="vtslab-schedule-prod.appspot.com"
+else
+  SERVICE="vtslab-schedule-test.appspot.com"
+fi
+
+echo "Depolying the endpoint API implementation to $SERVICE ..."
+
+gcloud endpoints services deploy build_infov1openapi.json
+gcloud endpoints services deploy host_infov1openapi.json
+gcloud endpoints services deploy lab_infov1openapi.json
+gcloud endpoints services deploy schedule_infov1openapi.json
+gcloud endpoints configs list --service=$SERVICE
+
+echo "Deployment done!"
+
+vi app.yaml
