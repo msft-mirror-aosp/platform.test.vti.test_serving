@@ -14,4 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-gcloud datastore create-indexes index.yaml
+if [ "$#" -ne 1 ]; then
+  echo "usage: deploy-webapp.sh prod|test|local"
+  exit 1
+fi
+
+if [ $1 = "prod" ]; then
+  SERVICE="vtslab-schedule-prod"
+elif [ $1 = "test" ]; then
+  SERVICE="vtslab-schedule-test"
+else
+  dev_appserver.py ./
+  exit 0
+fi
+
+echo "Deploying the web app to $SERVICE ..."
+
+gcloud app deploy app.yaml index.yaml cron.yaml --project=$SERVICE
+
+echo "Deployment done!"

@@ -60,8 +60,7 @@ class ScheduleInfoApi(remote.Service):
         schedule.test_name = request.test_name
         schedule.period = request.period
         schedule.priority = request.priority
-        schedule.device = []
-        schedule.device.append(request.device)
+        schedule.device = request.device
         schedule.shards = request.shards
         schedule.param = request.param
         schedule.retry_count = request.retry_count
