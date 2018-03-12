@@ -16,6 +16,7 @@
 #
 
 import datetime
+import logging
 import webapp2
 
 from webapp.src import vtslab_status as Status
@@ -50,8 +51,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                                    serial numbers.
         """
         device_query = model.DeviceModel.query(
-            model.DeviceModel.serial.IN(target_device_serials)
-        )
+            model.DeviceModel.serial.IN(target_device_serials))
         devices = device_query.fetch()
         for device in devices:
             device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
@@ -69,8 +69,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
         """
         build_id = ""
         build_query = model.BuildModel.query(
-            model.BuildModel.manifest_branch == new_job.manifest_branch
-        )
+            model.BuildModel.manifest_branch == new_job.manifest_branch)
         builds = build_query.fetch()
 
         if builds:
@@ -78,15 +77,12 @@ class PeriodicScheduler(webapp2.RequestHandler):
             # Remove builds if build_id info is none
             build_id_filled = [x for x in builds if x.build_id]
             sorted_list = sorted(
-                build_id_filled,
-                key=lambda x: int(x.build_id),
-                reverse=True)
+                build_id_filled, key=lambda x: int(x.build_id), reverse=True)
             filtered_list = [
-                x for x in sorted_list if (
-                    all(
-                        hasattr(x, attrs) for attrs in [
-                            "build_target", "build_type", "build_id"
-                        ])
+                x for x in sorted_list
+                if (all(
+                    hasattr(x, attrs)
+                    for attrs in ["build_target", "build_type", "build_id"])
                     and x.build_target and x.build_type)
             ]
             for device_build in filtered_list:
@@ -106,9 +102,10 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
         if schedules:
             for schedule in schedules:
-                self.logger.Println("Schedule: %s (%s %s)" % (
-                    schedule.test_name, schedule.manifest_branch,
-                    schedule.build_target))
+                self.logger.Println("Schedule: %s (%s %s)" %
+                                    (schedule.test_name,
+                                     schedule.manifest_branch,
+                                     schedule.build_target))
                 self.logger.Indent()
                 if self.NewPeriod(schedule):
                     self.logger.Println("- Need new job")
@@ -180,8 +177,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
             model.JobModel.shards == schedule.shards,
             model.JobModel.retry_count == schedule.retry_count,
             model.JobModel.gsi_branch == schedule.gsi_branch,
-            model.JobModel.test_branch == schedule.test_branch
-        )
+            model.JobModel.test_branch == schedule.test_branch)
         same_jobs = job_query.fetch()
         same_jobs = [
             x for x in same_jobs
@@ -191,19 +187,45 @@ class PeriodicScheduler(webapp2.RequestHandler):
         if not same_jobs:
             return True
 
-        ready_jobs = [x for x in same_jobs
-                      if x.status == Status.JOB_STATUS_DICT["ready"]]
-        if ready_jobs:
-            return False
+        outdated_jobs = [
+            x for x in same_jobs
+            if (datetime.datetime.now() - x.timestamp > datetime.timedelta(
+                minutes=x.period))
+        ]
+        outdated_ready_jobs = [
+            x for x in outdated_jobs
+            if x.status == Status.JOB_STATUS_DICT["expired"]
+        ]
 
-        same_jobs = sorted(
-            same_jobs, key=lambda x: x.timestamp, reverse=True)
-        if (same_jobs[0].timestamp <=
-            (datetime.datetime.now() -
-             datetime.timedelta(minutes=same_jobs[0].period))):
-            return True
-        else:
+        if outdated_ready_jobs:
+            msg = ("Job key[{}] is(are) outdated. "
+                   "They became infra-err status.").format(
+                       ", ".join(
+                           [str(x.key.id()) for x in outdated_ready_jobs]))
+            logging.debug(msg)
+            self.logger.Println(msg)
+            for job in outdated_ready_jobs:
+                job.status = Status.JOB_STATUS_DICT["infra-err"]
+                job.put()
+
+        outdated_leased_jobs = [
+            x for x in outdated_jobs
+            if x.status == Status.JOB_STATUS_DICT["leased"]
+        ]
+        if outdated_leased_jobs:
+            msg = ("Job key[{}] is(are) expected to be completed "
+                   "however still in leased status.").format(
+                       ", ".join(
+                           [str(x.key.id()) for x in outdated_leased_jobs]))
+            logging.debug(msg)
+            self.logger.Println(msg)
+
+        recent_jobs = [x for x in same_jobs if x not in outdated_jobs]
+
+        if recent_jobs or outdated_leased_jobs:
             return False
+        else:
+            return True
 
     def SelectTargetLab(self, schedule):
         """Find target host and devices to schedule a new job.
