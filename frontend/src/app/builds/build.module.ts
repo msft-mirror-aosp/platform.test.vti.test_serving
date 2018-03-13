@@ -9,7 +9,6 @@ import {BuildRoutingModule} from './build-routing.module';
 import {SharedModule} from '../shared/modules/shared.module';
 
 import {BuildListComponent} from './build-list/build-list.component';
-import {BuildTopComponent} from './build-top/build-top.component';
 import {BuildService} from './shared/build.service';
 import {BuildComponent} from './build.component';
 
@@ -24,7 +23,6 @@ import {BuildComponent} from './build.component';
   declarations: [
     BuildComponent,
     BuildListComponent,
-    BuildTopComponent
   ],
   entryComponents: [
   ],
