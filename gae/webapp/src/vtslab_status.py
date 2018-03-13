@@ -50,9 +50,10 @@ JOB_STATUS_DICT = {
     # completed job
     "complete": 2,
     # unexpected error during running
-    "infra-err": 3
+    "infra-err": 3,
+    # never leased within schedule period
+    "expired": 4
 }
-
 
 JOB_PRIORITY_DICT = {
     "top": 0,
