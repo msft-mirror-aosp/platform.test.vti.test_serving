@@ -6,7 +6,7 @@ import {TestsModule} from '../../shared/modules/tests.module';
 import {TranslateModule} from '@ngx-translate/core';
 import {APP_CONFIG, AppConfig} from '../../config/app.config';
 
-describe('HeroListComponent', () => {
+describe('ScheduleListComponent', () => {
   let fixture;
   let component;
 
@@ -28,7 +28,7 @@ describe('HeroListComponent', () => {
     component = fixture.debugElement.componentInstance;
   }));
 
-  it('should create hero list component', (() => {
+  it('should create schedule list component', (() => {
     expect(component).toBeTruthy();
   }));
 });
