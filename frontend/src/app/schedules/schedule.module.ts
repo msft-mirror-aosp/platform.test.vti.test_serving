@@ -9,7 +9,6 @@ import {ScheduleRoutingModule} from './schedule-routing.module';
 import {SharedModule} from '../shared/modules/shared.module';
 
 import {ScheduleListComponent} from './schedule-list/schedule-list.component';
-import {ScheduleTopComponent} from './schedule-top/schedule-top.component';
 import {ScheduleService} from './shared/schedule.service';
 import {ScheduleComponent} from './schedule.component';
 
@@ -24,7 +23,6 @@ import {ScheduleComponent} from './schedule.component';
   declarations: [
     ScheduleComponent,
     ScheduleListComponent,
-    ScheduleTopComponent
   ],
   entryComponents: [
   ],
