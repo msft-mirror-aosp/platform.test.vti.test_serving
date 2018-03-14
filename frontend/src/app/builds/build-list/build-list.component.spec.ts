@@ -1,12 +1,12 @@
 import {async, TestBed} from '@angular/core/testing';
 import {APP_BASE_HREF} from '@angular/common';
-import {JobListComponent} from './job-list.component';
-import {JobsModule} from '../jobs.module';
+import {BuildListComponent} from './build-list.component';
+import {BuildModule} from '../build.module';
 import {TestsModule} from '../../shared/modules/tests.module';
 import {TranslateModule} from '@ngx-translate/core';
 import {APP_CONFIG, AppConfig} from '../../config/app.config';
 
-describe('HeroListComponent', () => {
+describe('BuildListComponent', () => {
   let fixture;
   let component;
 
@@ -15,7 +15,7 @@ describe('HeroListComponent', () => {
       imports: [
         TestsModule,
         TranslateModule.forRoot(),
-        JobsModule
+        BuildModule
       ],
       providers: [
         {provide: APP_CONFIG, useValue: AppConfig},
@@ -23,12 +23,12 @@ describe('HeroListComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(JobListComponent);
+    fixture = TestBed.createComponent(BuildListComponent);
     fixture.detectChanges();
     component = fixture.debugElement.componentInstance;
   }));
 
-  it('should create hero list component', (() => {
+  it('should create build list component', (() => {
     expect(component).toBeTruthy();
   }));
 });

@@ -11,7 +11,6 @@ import {Error404Component} from '../error/404/404.component';
 describe('SearchBarComponent', () => {
   let fixture;
   let component;
-  let heroService;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -36,35 +35,7 @@ describe('SearchBarComponent', () => {
     component = fixture.debugElement.componentInstance;
   }));
 
-  it('should create hero search component', (() => {
+  it('should create search component', (() => {
     expect(component).toBeTruthy();
-  }));
-
-  it('should get all heroes', fakeAsync(() => {
-    spyOn(heroService, 'getAllHeroes').and.returnValue(Promise.resolve(true));
-    tick();
-    fixture.detectChanges();
-    expect(component.defaultHeroes.length).toBeGreaterThan(0);
-    for (const hero of component.defaultHeroes) {
-      expect(hero.default).toBe(true);
-    }
-  }));
-
-  it('should filter heroes array', (() => {
-    component.defaultHeroes = [
-      {
-        'id': 1,
-        'name': 'batman',
-        'default': true
-      },
-      {
-        'id': 2,
-        'name': 'spiderman',
-        'default': false
-      }
-    ];
-    expect(component.filterHeroes('batman').length).toBe(1);
-    expect(component.filterHeroes('spiderman').length).toBe(0);
-    expect(component.filterHeroes().length).toBe(2);
   }));
 });
