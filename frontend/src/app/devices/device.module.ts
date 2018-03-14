@@ -9,7 +9,6 @@ import {DeviceRoutingModule} from './device-routing.module';
 import {SharedModule} from '../shared/modules/shared.module';
 
 import {DeviceListComponent} from './device-list/device-list.component';
-import {DeviceTopComponent} from './device-top/device-top.component';
 import {DeviceService} from './shared/device.service';
 import {DeviceComponent} from './device.component';
 
@@ -24,7 +23,6 @@ import {DeviceComponent} from './device.component';
   declarations: [
     DeviceComponent,
     DeviceListComponent,
-    DeviceTopComponent
   ],
   entryComponents: [
   ],

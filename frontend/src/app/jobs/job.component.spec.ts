@@ -5,7 +5,7 @@ import {JobModule} from './job.module';
 import {TestsModule} from '../shared/modules/tests.module';
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 
-describe('HeroesComponent', () => {
+describe('JobComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -19,7 +19,7 @@ describe('HeroesComponent', () => {
     }).compileComponents();
   }));
 
-  it('should create heroes component', (() => {
+  it('should create job component', (() => {
     const fixture = TestBed.createComponent(JobComponent);
     fixture.detectChanges();
     const component = fixture.debugElement.componentInstance;
