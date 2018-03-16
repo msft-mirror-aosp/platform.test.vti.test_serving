@@ -5,7 +5,7 @@ import {DeviceModule} from './device.module';
 import {TestsModule} from '../shared/modules/tests.module';
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 
-describe('DeviceComponent', () => {
+describe('HeroesComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -19,7 +19,7 @@ describe('DeviceComponent', () => {
     }).compileComponents();
   }));
 
-  it('should create device component', (() => {
+  it('should create heroes component', (() => {
     const fixture = TestBed.createComponent(DeviceComponent);
     fixture.detectChanges();
     const component = fixture.debugElement.componentInstance;
