@@ -5,7 +5,7 @@ import {BuildModule} from './build.module';
 import {TestsModule} from '../shared/modules/tests.module';
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 
-describe('BuildComponent', () => {
+describe('HeroesComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
