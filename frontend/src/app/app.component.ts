@@ -26,7 +26,7 @@ export class AppComponent {
     this.translateService.setDefaultLang('en');
     this.translateService.use('en');
 
-    this.title.setTitle('VTSLab Scheduler');
+    this.title.setTitle('Angular Example App');
     this.router.events.subscribe((event: any) => {
       if (event instanceof NavigationEnd) {
         switch (event.urlAfterRedirects) {
