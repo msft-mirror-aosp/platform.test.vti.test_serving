@@ -5,7 +5,7 @@ import {ScheduleModule} from './schedule.module';
 import {TestsModule} from '../shared/modules/tests.module';
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 
-describe('ScheduleComponent', () => {
+describe('HeroesComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
