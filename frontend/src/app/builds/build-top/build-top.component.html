@@ -1,0 +1,33 @@
+<div fxLayout="row">
+    <div fxFlex="10" fxFlex.gt-sm="20"></div>
+    <div fxFlex="90" fxFlex.gt-sm="80">
+        <h1 class="section-title">{{'topHeroes' | translate}}</h1>
+        <mat-progress-spinner *ngIf="!builds"
+                              class="progress-spinner"
+                              [color]="'primary'"
+                              [mode]="'indeterminate'">
+        </mat-progress-spinner>
+        <div id="build-list" *ngIf="builds">
+            <ng-container *ngFor="let build of builds">
+                <mat-card class="build-card">
+                    <mat-card-header>
+                        <div mat-card-avatar class="hero-header-image"
+                             [ngStyle]="{'background-image': 'url(assets/images/heroes/' + build.id + '-thumbnail.jpg)'}"></div>
+                        <mat-card-title>{{build.name}}</mat-card-title>
+                        <mat-card-subtitle>{{build.alterEgo}}</mat-card-subtitle>
+                        <div class="flex-spacer"></div>
+                        <div class="build-actions">
+                            {{build.likes}}
+                            <mat-icon matTooltip="{{(canVote ? 'canVote' : 'cannotVote') | translate}}"
+                                      [matTooltipPosition]="'above'"
+                                      class="like-icon" (click)="like(build)">favorite
+                            </mat-icon>
+                        </div>
+                    </mat-card-header>
+                    <img mat-card-image src="assets/images/heroes/{{build.id}}.jpg">
+                </mat-card>
+            </ng-container>
+        </div>
+    </div>
+    <div fxFlex="10" fxFlex.gt-sm="20"></div>
+</div>

@@ -9,6 +9,7 @@ import {JobRoutingModule} from './job-routing.module';
 import {SharedModule} from '../shared/modules/shared.module';
 
 import {JobListComponent, RemoveJobDialogComponent} from './job-list/job-list.component';
+import {JobTopComponent} from './job-top/job-top.component';
 import {JobService} from './shared/job.service';
 import {JobComponent} from './job.component';
 
@@ -23,6 +24,7 @@ import {JobComponent} from './job.component';
   declarations: [
     JobComponent,
     JobListComponent,
+    JobTopComponent,
     RemoveJobDialogComponent
   ],
   entryComponents: [
