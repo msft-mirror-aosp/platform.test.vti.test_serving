@@ -83,6 +83,9 @@ message TestScheduleConfigMessage {
   // PAB account ID for test package.
   optional bytes test_pab_account_id = 33;
 
-  // number of retry count
+  // number of retry count.
   optional int32 retry_count = 41;
+
+  // whether to disable this schedule.
+  optional bool disable = 51 [default = false];
 }
