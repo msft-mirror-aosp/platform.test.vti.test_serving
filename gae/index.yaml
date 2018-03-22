@@ -26,6 +26,7 @@ indexes:
   - name: manifest_branch
   - name: build_target
   - name: test_name
+  - name: require_signed_device_build
   - name: period
   - name: priority
   - name: device

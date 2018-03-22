@@ -50,6 +50,7 @@ class JobQueueApi(remote.Service):
         job_message.hostname = ""
         job_message.priority = ""
         job_message.test_name = ""
+        job_message.require_signed_device_build = False
         job_message.device = ""
         job_message.serial = [""]
         job_message.manifest_branch = ""
@@ -69,6 +70,8 @@ class JobQueueApi(remote.Service):
             job_message.hostname = job.hostname
             job_message.priority = job.priority
             job_message.test_name = job.test_name
+            job_message.require_signed_device_build = (
+                job.require_signed_device_build)
             job_message.device = job.device
             job_message.serial = job.serial
             job_message.manifest_branch = job.manifest_branch
@@ -140,6 +143,8 @@ class JobQueueApi(remote.Service):
             job_message.hostname = job.hostname
             job_message.priority = job.priority
             job_message.test_name = job.test_name
+            job_message.require_signed_device_build = (
+                job.require_signed_device_build)
             job_message.device = job.device
             job_message.serial = job.serial
             job_message.manifest_branch = job.manifest_branch
