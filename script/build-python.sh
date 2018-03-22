@@ -19,6 +19,7 @@ pushd ${ANDROID_BUILD_TOP}/test/vti/test_serving
 
 protoc -I=proto --python_out=proto proto/TestLabConfigMessage.proto
 protoc -I=proto --python_out=proto proto/TestScheduleConfigMessage.proto
+protoc -I=proto --python_out=proto proto/GreenBuildScheduleConfigMessage.proto
 
 # Compiles all the python source codes.
 python -m compileall .
