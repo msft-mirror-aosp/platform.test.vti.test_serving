@@ -136,6 +136,9 @@
               1: "leased",
               2: "complete",
               3: "infra-err"}[job.status] | default("status key error") }}
+          {% if job.infra_log_url %}
+            <a href="{{ job.infra_log_url }}" download>(download log)</a>
+          {% endif %}
         <td>
           {{ job.timestamp }}
         <td>
