@@ -44,6 +44,9 @@ message BuildScheduleConfigMessage {
   // build target name (e.g., aosp_taimen-userdebug)
   optional bytes name = 1;
 
+  // whether to use signed build.
+  optional bool require_signed_device_build = 2;
+
   repeated TestScheduleConfigMessage test_schedule = 11;
 }
 
