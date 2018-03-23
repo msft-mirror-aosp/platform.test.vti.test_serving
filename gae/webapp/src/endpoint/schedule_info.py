@@ -62,6 +62,8 @@ class ScheduleInfoApi(remote.Service):
             schedule.device_pab_account_id = request.device_pab_account_id
         schedule.build_target = request.build_target
         schedule.test_name = request.test_name
+        schedule.require_signed_device_build = (
+            request.require_signed_device_build)
         schedule.period = request.period
         schedule.priority = request.priority
         schedule.device = request.device

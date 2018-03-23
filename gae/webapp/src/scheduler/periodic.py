@@ -123,6 +123,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.hostname = target_host
                         new_job.priority = schedule.priority
                         new_job.test_name = schedule.test_name
+                        new_job.require_signed_device_build = (
+                            schedule.require_signed_device_build)
                         new_job.device = target_device
                         new_job.period = schedule.period
                         new_job.serial.extend(target_device_serials)
