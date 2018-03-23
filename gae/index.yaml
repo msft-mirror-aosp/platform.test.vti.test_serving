@@ -71,4 +71,4 @@ indexes:
   - name: test_branch
   - name: test_build_target
   - name: test_pab_account_id
-    direction: asc
+  - name: infra_log_url

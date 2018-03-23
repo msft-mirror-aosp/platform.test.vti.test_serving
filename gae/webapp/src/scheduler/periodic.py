@@ -271,7 +271,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                                 Status.DEVICE_STATUS_DICT["ready"]
                         ]) and (device.scheduling_status ==
                                 Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
-                                and device.product == target_product_type):
+                                and device.product.lower() == target_product_type.lower()):
                             self.logger.Println(
                                 "- a device found %s" % device.serial)
                             if device.hostname not in available_devices:
