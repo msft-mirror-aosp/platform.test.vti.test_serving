@@ -56,7 +56,7 @@ message GreenBuildTestScheduleConfigMessage {
   // Device PAB account ID.
   optional bytes device_pab_account_id = 22;
 
-  repeated GreenBuildDeviceScheduleConfigMessage test = 31;
+  repeated GreenBuildDeviceScheduleConfigMessage device = 31;
 }
 
 // To specify a device scheduling policy.

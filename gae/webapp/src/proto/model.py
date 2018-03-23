@@ -43,10 +43,13 @@ class BuildInfoMessage(messages.Message):
 
 class ScheduleModel(ndb.Model):
     """A model for representing an individual schedule entry."""
+    name = ndb.StringProperty()
     manifest_branch = ndb.StringProperty()
     build_target = ndb.StringProperty()  # type:name
+    device_pab_account_id = ndb.StringProperty()
     test_name = ndb.StringProperty()
     period = ndb.IntegerProperty()
+    schedule = ndb.StringProperty()
     priority = ndb.StringProperty()
     device = ndb.StringProperty(repeated=True)
     shards = ndb.IntegerProperty()
@@ -59,14 +62,18 @@ class ScheduleModel(ndb.Model):
     test_pab_account_id = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
     retry_count = ndb.IntegerProperty()
+    schedule_type = ndb.StringProperty()
 
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
+    name = messages.StringField(16)
     manifest_branch = messages.StringField(1)
     build_target = messages.StringField(2)
+    device_pab_account_id = messages.StringField(17)
     test_name = messages.StringField(3)
     period = messages.IntegerField(4)
+    schedule = messages.StringField(18)
     priority = messages.StringField(5)
     device = messages.StringField(6, repeated=True)
     shards = messages.IntegerField(7)
@@ -78,6 +85,7 @@ class ScheduleInfoMessage(messages.Message):
     test_build_target = messages.StringField(13)
     test_pab_account_id = messages.StringField(14)
     retry_count = messages.IntegerField(15)
+    schedule_type = messages.StringField(19)
 
 
 class LabModel(ndb.Model):
