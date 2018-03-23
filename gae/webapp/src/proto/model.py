@@ -173,6 +173,7 @@ class JobModel(ndb.Model):
     timestamp = ndb.DateTimeProperty(auto_now=False)
     heartbeat_stamp = ndb.DateTimeProperty(auto_now=False)
     retry_count = ndb.IntegerProperty()
+    infra_log_url = ndb.StringProperty()
 
 
 class JobMessage(messages.Message):
@@ -204,6 +205,8 @@ class JobMessage(messages.Message):
     test_pab_account_id = messages.StringField(18)
 
     retry_count = messages.IntegerField(19)
+
+    infra_log_url = messages.StringField(23)
 
 
 class ReturnCodeMessage(messages.Enum):
