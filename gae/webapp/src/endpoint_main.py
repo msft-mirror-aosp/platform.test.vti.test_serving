@@ -28,4 +28,5 @@ api = endpoints.api_server([
     host_info.HostInfoApi,
     lab_info.LabInfoApi,
     schedule_info.ScheduleInfoApi,
+    schedule_info.GreenScheduleInfoApi,
     job_queue.JobQueueApi])
