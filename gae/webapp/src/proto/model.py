@@ -48,6 +48,7 @@ class ScheduleModel(ndb.Model):
     build_target = ndb.StringProperty()  # type:name
     device_pab_account_id = ndb.StringProperty()
     test_name = ndb.StringProperty()
+    require_signed_device_build = ndb.BooleanProperty()
     period = ndb.IntegerProperty()
     schedule = ndb.StringProperty()
     priority = ndb.StringProperty()
@@ -72,6 +73,7 @@ class ScheduleInfoMessage(messages.Message):
     build_target = messages.StringField(2)
     device_pab_account_id = messages.StringField(17)
     test_name = messages.StringField(3)
+    require_signed_device_build = messages.BooleanField(20)
     period = messages.IntegerField(4)
     schedule = messages.StringField(18)
     priority = messages.StringField(5)
@@ -152,6 +154,7 @@ class JobModel(ndb.Model):
     hostname = ndb.StringProperty()
     priority = ndb.StringProperty()
     test_name = ndb.StringProperty()
+    require_signed_device_build = ndb.BooleanProperty()
     device = ndb.StringProperty()
     serial = ndb.StringProperty(repeated=True)
     manifest_branch = ndb.StringProperty()
@@ -181,6 +184,7 @@ class JobMessage(messages.Message):
     hostname = messages.StringField(1)
     priority = messages.StringField(2)
     test_name = messages.StringField(3)
+    require_signed_device_build = messages.BooleanField(23)
     device = messages.StringField(4)
     serial = messages.StringField(5, repeated=True)
 
