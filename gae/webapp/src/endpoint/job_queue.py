@@ -16,6 +16,7 @@
 import datetime
 import endpoints
 import logging
+import re
 
 from protorpc import remote
 
@@ -23,6 +24,9 @@ from webapp.src.proto import model
 from webapp.src import vtslab_status as Status
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
+GCS_URL_PREFIX = "gs://"
+HTTP_HTTPS_REGEX = "^https?://"
+STORAGE_API_URL = "https://storage.cloud.google.com/"
 
 
 @endpoints.api(name='job_queue', version='v1')
@@ -50,6 +54,7 @@ class JobQueueApi(remote.Service):
         job_message.hostname = ""
         job_message.priority = ""
         job_message.test_name = ""
+        job_message.require_signed_device_build = False
         job_message.device = ""
         job_message.serial = [""]
         job_message.manifest_branch = ""
@@ -69,6 +74,8 @@ class JobQueueApi(remote.Service):
             job_message.hostname = job.hostname
             job_message.priority = job.priority
             job_message.test_name = job.test_name
+            job_message.require_signed_device_build = (
+                job.require_signed_device_build)
             job_message.device = job.device
             job_message.serial = job.serial
             job_message.manifest_branch = job.manifest_branch
@@ -140,6 +147,8 @@ class JobQueueApi(remote.Service):
             job_message.hostname = job.hostname
             job_message.priority = job.priority
             job_message.test_name = job.test_name
+            job_message.require_signed_device_build = (
+                job.require_signed_device_build)
             job_message.device = job.device
             job_message.serial = job.serial
             job_message.manifest_branch = job.manifest_branch
@@ -169,7 +178,16 @@ class JobQueueApi(remote.Service):
                 for device in devices:
                     device.timestamp = datetime.datetime.now()
                     device.put()
-
+            if request.infra_log_url:
+                if request.infra_log_url.startswith(GCS_URL_PREFIX):
+                    url = "{}{}".format(
+                        STORAGE_API_URL,
+                        request.infra_log_url[len(GCS_URL_PREFIX):])
+                    job.infra_log_url = url
+                elif re.match(HTTP_HTTPS_REGEX, request.infra_log_url):
+                    job.infra_log_url = request.infra_log_url
+                else:
+                    logging.debug("Wrong infra_log_url address.")
             job.status = request.status
             job.heartbeat_stamp = datetime.datetime.now()
             job.put()
