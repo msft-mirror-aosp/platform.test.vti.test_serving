@@ -210,7 +210,7 @@ class JobMessage(messages.Message):
 
     retry_count = messages.IntegerField(19)
 
-    infra_log_url = messages.StringField(23)
+    infra_log_url = messages.StringField(24)
 
 
 class ReturnCodeMessage(messages.Enum):
