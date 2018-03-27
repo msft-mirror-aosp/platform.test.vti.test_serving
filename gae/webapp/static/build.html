@@ -111,6 +111,7 @@
             <td>ID
             <td>Target
             <td>Build Type
+            <td>Signed
           </tr>
           {% set index = 1 %}
           {% for build in builds["device"] %}
@@ -127,6 +128,8 @@
               {{ build.build_target }}
             <td>
               {{ build.build_type }}
+            <td>
+              {{ build.signed }}
           </tr>
           {% endfor %}
           </table>
