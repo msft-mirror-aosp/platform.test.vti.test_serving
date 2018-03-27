@@ -16,6 +16,7 @@
 
 import datetime
 import endpoints
+import logging
 
 from protorpc import remote
 
@@ -45,8 +46,21 @@ class BuildInfoApi(remote.Service):
         )
         existing_builds = build_query.fetch()
 
-        if not existing_builds:
+        if existing_builds and len(existing_builds) > 1:
+            logging.warning("Duplicated builds found for [build_id]{} "
+                            "[build_target]{} [build_type]{}".format(
+                request.build_id, request.build_target, request.build_type))
+
+        if request.signed and existing_builds:
+            # only signed builds need to overwrite the exist entities.
+            build = existing_builds[0]
+        elif not existing_builds:
             build = model.BuildModel()
+        else:
+            # the same build existed and request is not signed build.
+            build = None
+
+        if build:
             build.manifest_branch = request.manifest_branch
             build.build_id = request.build_id
             build.build_target = request.build_target
@@ -54,6 +68,7 @@ class BuildInfoApi(remote.Service):
             build.artifact_type = request.artifact_type
             build.artifacts = request.artifacts
             build.timestamp = datetime.datetime.now()
+            build.signed = request.signed
             build.put()
 
         return model.DefaultResponse(
