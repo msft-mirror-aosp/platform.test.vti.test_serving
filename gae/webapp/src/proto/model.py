@@ -29,6 +29,7 @@ class BuildModel(ndb.Model):
     artifact_type = ndb.StringProperty()
     artifacts = ndb.StringProperty(repeated=True)
     timestamp = ndb.DateTimeProperty(auto_now=False)
+    signed = ndb.BooleanProperty()
 
 
 class BuildInfoMessage(messages.Message):
@@ -39,6 +40,7 @@ class BuildInfoMessage(messages.Message):
     build_type = messages.StringField(4)
     artifact_type = messages.StringField(5)
     artifacts = messages.StringField(6, repeated=True)
+    signed = messages.BooleanField(7)
 
 
 class ScheduleModel(ndb.Model):
