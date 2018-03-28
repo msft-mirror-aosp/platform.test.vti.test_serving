@@ -58,6 +58,7 @@ class ScheduleInfoApi(remote.Service):
         """Sets the schedule info based on `request`."""
         schedule = model.ScheduleModel()
         schedule.manifest_branch = request.manifest_branch
+        schedule.build_storage_type = request.build_storage_type
         if request.get_assigned_value("device_pab_account_id"):
             schedule.device_pab_account_id = request.device_pab_account_id
         schedule.build_target = request.build_target
@@ -70,9 +71,11 @@ class ScheduleInfoApi(remote.Service):
         schedule.shards = request.shards
         schedule.param = request.param
         schedule.retry_count = request.retry_count
+        schedule.gsi_storage_type = request.gsi_storage_type
         schedule.gsi_branch = request.gsi_branch
         schedule.gsi_build_target = request.gsi_build_target
         schedule.gsi_pab_account_id = request.gsi_pab_account_id
+        schedule.test_storage_type = request.test_storage_type
         schedule.test_branch = request.test_branch
         schedule.test_build_target = request.test_build_target
         schedule.test_pab_account_id = request.test_pab_account_id
