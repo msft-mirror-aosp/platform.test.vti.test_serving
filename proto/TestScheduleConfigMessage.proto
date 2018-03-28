@@ -19,9 +19,9 @@ package android.test.lab;
 // Type of a command.
 enum BuildStorageType {
   UNKNOWN_BUILD_STORAGE_TYPE = 0;
-  // To get a list of available HAL modules.
+  // For Partner Android Build (PAB)
   BUILD_STORAGE_TYPE_PAB = 1;
-  // To set the host information (e.g., callback server port).
+  // For a Google Cloud Storage (GCS) bucket
   BUILD_STORAGE_TYPE_GCS = 2;
 }
 
@@ -33,7 +33,7 @@ message ScheduleConfigMessage {
   // PAB account ID.
   optional bytes pab_account_id = 2;
 
-  // PAB account ID (e.g., PAB or GCS)
+  // Device image storage type (e.g., PAB or GCS)
   optional BuildStorageType build_storage_type = 3 [default = BUILD_STORAGE_TYPE_PAB];
 
   // For the IP address.
@@ -65,6 +65,9 @@ message TestScheduleConfigMessage {
 
   optional bytes param = 11;
 
+  // GSI storage type (e.g., PAB or GCS)
+  optional BuildStorageType gsi_storage_type = 24 [default = BUILD_STORAGE_TYPE_PAB];
+
   // if GSI (General System Image) is used, GSI manifest branch name.
   optional bytes gsi_branch = 21;
 
@@ -73,6 +76,9 @@ message TestScheduleConfigMessage {
 
   // if GSI (General System Image) is used, GSI PAB account ID.
   optional bytes gsi_pab_account_id = 23;
+
+  // Test package's storage type (e.g., PAB or GCS)
+  optional BuildStorageType test_storage_type = 34 [default = BUILD_STORAGE_TYPE_PAB];
 
   // Test package's manifest branch name.
   optional bytes test_branch = 31;
