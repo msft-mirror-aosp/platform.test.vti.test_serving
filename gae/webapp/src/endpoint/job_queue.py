@@ -78,6 +78,7 @@ class JobQueueApi(remote.Service):
                 job.require_signed_device_build)
             job_message.device = job.device
             job_message.serial = job.serial
+            job_message.build_storage_type = job.build_storage_type
             job_message.manifest_branch = job.manifest_branch
             job_message.build_target = job.build_target
             job_message.shards = job.shards
@@ -87,10 +88,12 @@ class JobQueueApi(remote.Service):
             job_message.status = job.status
             job_message.period = job.period
             job_message.retry_count = job.retry_count
+            job_message.gsi_storage_type = job.gsi_storage_type
             job_message.gsi_branch = job.gsi_branch
             job_message.gsi_build_target = job.gsi_build_target
             job_message.gsi_build_id = job.gsi_build_id
             job_message.gsi_pab_account_id = job.gsi_pab_account_id
+            job_message.test_storage_type = job.test_storage_type
             job_message.test_branch = job.test_branch
             job_message.test_build_target = job.test_build_target
             job_message.test_build_id = job.test_build_id
