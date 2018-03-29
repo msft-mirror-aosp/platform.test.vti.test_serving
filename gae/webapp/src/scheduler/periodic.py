@@ -88,7 +88,9 @@ class PeriodicScheduler(webapp2.RequestHandler):
             for device_build in filtered_list:
                 candidate_build_target = "-".join(
                     [device_build.build_target, device_build.build_type])
-                if new_job.build_target == candidate_build_target:
+                if (new_job.build_target == candidate_build_target and
+                    (not new_job.require_signed_device_build or
+                     device_build.signed)):
                     build_id = device_build.build_id
                     break
         return build_id
