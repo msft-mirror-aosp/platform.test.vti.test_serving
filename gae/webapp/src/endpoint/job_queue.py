@@ -141,9 +141,9 @@ class JobQueueApi(remote.Service):
             logging.warning("[heartbeat] more than one job is found!")
             logging.warning(
                 "[heartbeat] <hostname>{} <manifest_branch>{} "
-                "<build_target>{} <test_name>{} <serials>{}".
-                format(request.hostname, request.manifest_branch,
-                       request.build_target, request.test_name, request.serial))
+                "<build_target>{} <test_name>{} <serials>{}".format(
+                    request.hostname, request.manifest_branch,
+                    request.build_target, request.test_name, request.serial))
 
         if same_jobs:
             job = same_jobs[0]
@@ -166,6 +166,13 @@ class JobQueueApi(remote.Service):
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
             devices = device_query.fetch()
+            logging.debug("[heartbeat] heartbeat job: hostname={}, "
+                          "test_name={}, job creation time={}".format(
+                              job.hostname, job.test_name, job.timestamp))
+            logging.debug("[heartbeat] request status: {}".format(
+                request.status))
+            logging.debug("[heartbeat]  - devices = {}".format(
+                ", ".join([device.serial for device in devices])))
             if request.status == Status.JOB_STATUS_DICT["complete"]:
                 for device in devices:
                     device.scheduling_status = (
@@ -181,6 +188,11 @@ class JobQueueApi(remote.Service):
                 for device in devices:
                     device.timestamp = datetime.datetime.now()
                     device.put()
+            else:
+                logging.error(
+                    "[heartbeat] Unexpected job status is received. - {}".
+                    format(request.serial))
+
             if request.infra_log_url:
                 if request.infra_log_url.startswith(GCS_URL_PREFIX):
                     url = "{}{}".format(
@@ -190,7 +202,7 @@ class JobQueueApi(remote.Service):
                 elif re.match(HTTP_HTTPS_REGEX, request.infra_log_url):
                     job.infra_log_url = request.infra_log_url
                 else:
-                    logging.debug("Wrong infra_log_url address.")
+                    logging.debug("[heartbeat] Wrong infra_log_url address.")
             job.status = request.status
             job.heartbeat_stamp = datetime.datetime.now()
             job.put()
