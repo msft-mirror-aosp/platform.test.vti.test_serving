@@ -88,7 +88,9 @@ class PeriodicScheduler(webapp2.RequestHandler):
             for device_build in filtered_list:
                 candidate_build_target = "-".join(
                     [device_build.build_target, device_build.build_type])
-                if new_job.build_target == candidate_build_target:
+                if (new_job.build_target == candidate_build_target and
+                    (not new_job.require_signed_device_build or
+                     device_build.signed)):
                     build_id = device_build.build_id
                     break
         return build_id
@@ -128,18 +130,21 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.device = target_device
                         new_job.period = schedule.period
                         new_job.serial.extend(target_device_serials)
+                        new_job.build_storage_type = schedule.build_storage_type
                         new_job.manifest_branch = schedule.manifest_branch
                         new_job.build_target = schedule.build_target
                         new_job.shards = schedule.shards
                         new_job.param = schedule.param
                         new_job.retry_count = schedule.retry_count
+                        new_job.gsi_storage_type = schedule.gsi_storage_type
                         new_job.gsi_branch = schedule.gsi_branch
                         new_job.gsi_build_target = schedule.gsi_build_target
                         new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
+                        new_job.test_storage_type = schedule.test_storage_type
                         new_job.test_branch = schedule.test_branch
                         new_job.test_build_target = schedule.test_build_target
-                        new_job.test_pab_account_id = \
-                            schedule.test_pab_account_id
+                        new_job.test_pab_account_id = (
+                            schedule.test_pab_account_id)
 
                         # assume device build
                         #_, device_builds, _ = build_list.ReadBuildInfo()
