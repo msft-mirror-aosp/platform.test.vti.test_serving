@@ -23,6 +23,10 @@ from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import logger
 
+UNKNOWN_BUILD_STORAGE_TYPE = 0
+BUILD_STORAGE_TYPE_PAB = 1
+BUILD_STORAGE_TYPE_GCS = 2
+
 
 def StrGT(left, right):
     """Returns true if `left` string is greater than `right` in value."""
@@ -146,21 +150,27 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         new_job.test_pab_account_id = (
                             schedule.test_pab_account_id)
 
-                        # assume device build
-                        #_, device_builds, _ = build_list.ReadBuildInfo()
-
                         new_job.build_id = ""
-                        new_job.build_id = self.FindBuildId(new_job)
 
-                        if new_job.build_id:
-                            self.ReserveDevices(target_device_serials)
-                            # TODO remove only until full builds are available.
+                        if new_job.build_storage_type == BUILD_STORAGE_TYPE_PAB:
+                            new_job.build_id = self.FindBuildId(new_job)
+                            if new_job.build_id:
+                                self.ReserveDevices(target_device_serials)
+                                new_job.status = Status.JOB_STATUS_DICT[
+                                    "ready"]
+                                new_job.timestamp = datetime.datetime.now()
+                                new_job.put()
+                                self.logger.Println("NEW JOB")
+                            else:
+                                self.logger.Println("NO BUILD FOUND")
+                        elif new_job.build_storage_type == (
+                                BUILD_STORAGE_TYPE_GCS):
                             new_job.status = Status.JOB_STATUS_DICT["ready"]
                             new_job.timestamp = datetime.datetime.now()
                             new_job.put()
-                            self.logger.Println("NEW JOB")
+                            self.logger.Println("NEW JOB - GCS")
                         else:
-                            self.logger.Println("NO BUILD FOUND")
+                            self.logger.Println("Unexpected storage type.")
 
                 self.logger.Unindent()
 
