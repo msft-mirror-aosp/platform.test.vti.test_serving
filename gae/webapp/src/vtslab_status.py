@@ -64,6 +64,13 @@ JOB_PRIORITY_DICT = {
 }
 
 
+STORAGE_TYPE_DICT = {
+    "unknown": 0,
+    "PAB": 1,
+    "GCS": 2
+}
+
+
 def PrioritySortHelper(priority):
     """Helper function to sort jobs based on priority.
 
