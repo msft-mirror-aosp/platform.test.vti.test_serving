@@ -23,10 +23,6 @@ from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import logger
 
-UNKNOWN_BUILD_STORAGE_TYPE = 0
-BUILD_STORAGE_TYPE_PAB = 1
-BUILD_STORAGE_TYPE_GCS = 2
-
 
 def StrGT(left, right):
     """Returns true if `left` string is greater than `right` in value."""
@@ -152,7 +148,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
                         new_job.build_id = ""
 
-                        if new_job.build_storage_type == BUILD_STORAGE_TYPE_PAB:
+                        if new_job.build_storage_type == (
+                                Status.STORAGE_TYPE_DICT["PAB"]):
                             new_job.build_id = self.FindBuildId(new_job)
                             if new_job.build_id:
                                 self.ReserveDevices(target_device_serials)
@@ -164,7 +161,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                             else:
                                 self.logger.Println("NO BUILD FOUND")
                         elif new_job.build_storage_type == (
-                                BUILD_STORAGE_TYPE_GCS):
+                                Status.STORAGE_TYPE_DICT["GCS"]):
                             new_job.status = Status.JOB_STATUS_DICT["ready"]
                             new_job.timestamp = datetime.datetime.now()
                             new_job.put()

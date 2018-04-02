@@ -57,7 +57,12 @@ app = webapp2.WSGIApplication(
         ("/tasks/schedule", periodic.PeriodicScheduler),
         ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
         ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),
-        ("/tasks/indexing", indexing.CreateIndex)
+        ("/tasks/indexing", indexing.CreateIndex),
+        ("/tasks/indexing/build", indexing.CreateBuildModelIndex),
+        ("/tasks/indexing/device", indexing.CreateDeviceModelIndex),
+        ("/tasks/indexing/job", indexing.CreateJobModelIndex),
+        ("/tasks/indexing/lab", indexing.CreateLabModelIndex),
+        ("/tasks/indexing/schedule", indexing.CreateScheduleModelIndex)
     ],
     config=config,
     debug=False)
