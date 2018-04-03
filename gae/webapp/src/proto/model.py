@@ -195,14 +195,14 @@ class JobModel(ndb.Model):
     period = ndb.IntegerProperty()
 
     # GSI information
-    gsi_storage_type = ndb.StringProperty()
+    gsi_storage_type = ndb.IntegerProperty()
     gsi_branch = ndb.StringProperty()
     gsi_build_target = ndb.StringProperty()
     gsi_build_id = ndb.StringProperty()
     gsi_pab_account_id = ndb.StringProperty()
 
     # test suite information
-    test_storage_type = ndb.StringProperty()
+    test_storage_type = ndb.IntegerProperty()
     test_branch = ndb.StringProperty()
     test_build_target = ndb.StringProperty()
     test_build_id = ndb.StringProperty()
