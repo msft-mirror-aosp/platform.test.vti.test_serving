@@ -22,6 +22,28 @@ from webapp.src.handlers.base import BaseHandler
 from webapp.src.proto import model
 
 
+class JobStats(object):
+    """Job stats class.
+
+    Attributes:
+        created: int, the number of created jobs.
+        completed: int, the number of completed jobs.
+        failed: int, the number of failed jobs.
+        expired: int, the number of expired jobs.
+        running: int, the number of running jobs.
+        ready: int, the number of ready jobs.
+        unknown: int, the number of unknown jobs.
+    """
+
+    created = 0
+    completed = 0
+    failed = 0
+    expired = 0
+    running = 0
+    ready = 0
+    unknown = 0
+
+
 class JobPage(BaseHandler):
     """Main class for /job web page."""
 
@@ -32,12 +54,44 @@ class JobPage(BaseHandler):
         job_query = model.JobModel.query()
         jobs = job_query.fetch()
 
+        now = datetime.datetime.now()
+        stats_all = JobStats()
+        stats_24hrs = JobStats()
+        if jobs:
+            for job in jobs:
+                self._UpdateStats(stats_all, job)
+                if now - job.timestamp <= datetime.timedelta(hours=24):
+                    self._UpdateStats(stats_24hrs, job)
+
         template_values = {
             "jobs": sorted(jobs, key=lambda x: x.timestamp,
                            reverse=True),
+            "stats_all": stats_all,
+            "stats_24hrs": stats_24hrs
         }
 
         self.render(template_values)
+
+    def _UpdateStats(self, stats, job):
+        """Updates the stats using the state info of a given job.
+
+        Args:
+            stats: JobStats, the stats class to update.
+            job: JobModel, the job to check.
+        """
+        stats.created += 1
+        if job.status == vtslab_status.JOB_STATUS_DICT["complete"]:
+            stats.completed += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["leased"]:
+            stats.running += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["ready"]:
+            stats.ready += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["infra-err"]:
+            stats.failed += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["expired"]:
+            stats.expired += 1
+        else:
+            stats.unknown += 1
 
 
 class CreateJobTemplatePage(BaseHandler):
