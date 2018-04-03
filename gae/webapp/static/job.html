@@ -56,19 +56,46 @@
     </div>
     <div class="container">
       <h1>Job Queue</h1>
-      <p>Shortcuts: <a href=#>8.0 (oc)</a> <a href=#>8.1 (oc-mr1)</a> <a href=#>9.0 (pi)</a></p>
-      <p><a href="/create_job_template">Create a job</a></p>
-      <p>{{ message }}</p>
       <table>
       <tr>
-        <td>
-          <select>
-            <option value="all">all</option>
-            <option value="git_master">git_master</option>
-            <option value="git_pi-release">git_pi-release</option>
-          </select>
-      </tr>
+      <td>
+        <p>Shortcuts: <a href=#>8.0 (oc)</a> <a href=#>8.1 (oc-mr1)</a> <a href=#>9.0 (pi)</a></p>
+        <p><a href="/create_job_template">Create a job</a></p>
+        <p>{{ message }}</p>
+        <table>
+        <tr>
+          <td>
+            <select>
+              <option value="all">all</option>
+              <option value="git_master">git_master</option>
+              <option value="git_pi-release">git_pi-release</option>
+            </select>
+        </tr>
+        </table>
+      <td>
+        <table border=1>
+        <tr>
+          <td><b>Stats</b>
+          <td>Created
+          <td>Completed
+          <td>Running/Ready
+          <td>Failed/Expired
+        <tr>
+          <td>24 Hours
+          <td>{{ stats_24hrs.created }}
+          <td>{{ stats_24hrs.completed * 100 / stats_24hrs.created }}%
+          <td>{{ (stats_24hrs.running + stats_24hrs.ready) * 100 / stats_24hrs.created }}%
+          <td>{{ (stats_24hrs.failed + stats_24hrs.expired) * 100 / stats_24hrs.created }}%
+        <tr>
+          <td>All
+          <td>{{ stats_all.created }}
+          <td>{{ stats_all.completed * 100 / stats_all.created }}%
+          <td>{{ (stats_all.running + stats_all.ready) * 100 / stats_all.created }}%
+          <td>{{ (stats_all.failed + stats_all.expired) * 100 / stats_all.created }}%
+        </table>
       </table>
+      <hr>
+      (Now: {{ now }})<br>
       <table border=1>
       <tr>
         <td>#
