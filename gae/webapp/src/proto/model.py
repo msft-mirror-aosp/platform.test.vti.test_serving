@@ -43,6 +43,13 @@ class BuildInfoMessage(messages.Message):
     signed = messages.BooleanField(7)
 
 
+class ScheduleControlModel(ndb.Model):
+    """A model for representing a schedule control data entry."""
+    enabled = ndb.BooleanProperty()
+    # "global" or empty string to enable/disable all schedules.
+    schedule_name = ndb.StringProperty()
+
+
 class ScheduleModel(ndb.Model):
     """A model for representing an individual schedule entry."""
     # schedule name for green build schedule, optional.
@@ -77,6 +84,12 @@ class ScheduleModel(ndb.Model):
     param = ndb.StringProperty(repeated=True, indexed=False)
     timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
     retry_count = ndb.IntegerProperty(indexed=False)
+
+
+class ScheduleControlInfoMessage(messages.Message):
+    """A message for representing a schedule control data entry."""
+    enabled = messages.BooleanField(1)
+    schedule_name = messages.StringField(2)
 
 
 class ScheduleInfoMessage(messages.Message):

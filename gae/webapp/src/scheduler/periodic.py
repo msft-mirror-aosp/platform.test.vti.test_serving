@@ -99,6 +99,20 @@ class PeriodicScheduler(webapp2.RequestHandler):
         """Generates an HTML page based on the task schedules kept in DB."""
         self.logger.Clear()
 
+        schedule_control = model.ScheduleControlModel.query()
+        schedule_control_dataset = schedule_control.fetch()
+        enabled = True
+        if schedule_control_dataset:
+            for schedule_control_data_tuple in schedule_control_dataset:
+                if (not schedule_control_data_tuple.schedule_name or
+                    schedule_control_data_tuple.schedule_name == "global"):
+                    enabled = schedule_control_data_tuple.enabled
+
+        if not enabled:
+            self.response.write(
+                "<pre>\nScheduler not enabled.\n</pre>")
+            return
+
         schedule_query = model.ScheduleModel.query()
         schedules = schedule_query.fetch()
 
@@ -108,7 +122,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 self.logger.Println("Schedule: %s (branch: %s)" %
                                     (schedule.test_name,
                                      schedule.manifest_branch))
-                self.logger.Println("Device: %s" % schedule.build_target)
+                self.logger.Println("Build Target: %s" % schedule.build_target)
+                self.logger.Println("Device: %s" % schedule.device)
                 self.logger.Indent()
                 if not self.NewPeriod(schedule):
                     self.logger.Println("- Skipped")
@@ -267,8 +282,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 continue
 
             target_lab, target_product_type = target_device.split("/")
-            self.logger.Println("- Lab %s (device: %s)" %
-                                (target_lab, target_product_type))
+            self.logger.Println("- Lab %s" % target_lab)
             self.logger.Indent()
             lab_query = model.LabModel.query(model.LabModel.name == target_lab)
             target_labs = lab_query.fetch()
@@ -276,8 +290,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
             available_devices = {}
             if target_labs:
                 for lab in target_labs:
-                    self.logger.Println("- Host: %s (device: %s)" %
-                                        (lab.hostname, target_product_type))
+                    self.logger.Println("- Host: %s" % lab.hostname)
                     self.logger.Indent()
                     device_query = model.DeviceModel.query(
                         model.DeviceModel.hostname == lab.hostname)
@@ -307,7 +320,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
                         return host, target_device, list(
                             available_devices[host])[:schedule.shards]
                 self.logger.Println(
-                    "- Not enough devices found, while %s required." % (
-                    schedule.shards))
+                    "- Not enough devices found, while %s required.\n%s" % (
+                    schedule.shards, available_devices))
+                self.logger.Unindent()
             self.logger.Unindent()
         return None, None, []
