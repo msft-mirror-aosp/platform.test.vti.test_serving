@@ -162,6 +162,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 new_job.gsi_branch = schedule.gsi_branch
                 new_job.gsi_build_target = schedule.gsi_build_target
                 new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
+                new_job.gsi_vendor_version = schedule.gsi_vendor_version
                 new_job.test_storage_type = schedule.test_storage_type
                 new_job.test_branch = schedule.test_branch
                 new_job.test_build_target = schedule.test_build_target

@@ -68,6 +68,7 @@ class ScheduleModel(ndb.Model):
     gsi_branch = ndb.StringProperty(indexed=False)
     gsi_build_target = ndb.StringProperty(indexed=False)
     gsi_pab_account_id = ndb.StringProperty(indexed=False)
+    gsi_vendor_version = ndb.StringProperty(indexed=False)
 
     # test suite information
     test_storage_type = ndb.IntegerProperty(indexed=False)
@@ -94,6 +95,7 @@ class ScheduleControlInfoMessage(messages.Message):
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
+    # Next ID = 25
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -110,6 +112,7 @@ class ScheduleInfoMessage(messages.Message):
     gsi_branch = messages.StringField(9)
     gsi_build_target = messages.StringField(10)
     gsi_pab_account_id = messages.StringField(11)
+    gsi_vendor_version = messages.StringField(24)
 
     # test suite information
     test_storage_type = messages.IntegerField(23)
@@ -213,6 +216,7 @@ class JobModel(ndb.Model):
     gsi_build_target = ndb.StringProperty(indexed=False)
     gsi_build_id = ndb.StringProperty(indexed=False)
     gsi_pab_account_id = ndb.StringProperty(indexed=False)
+    gsi_vendor_version = ndb.StringProperty(indexed=False)
 
     # test suite information
     test_storage_type = ndb.IntegerProperty(indexed=False)
@@ -255,6 +259,7 @@ class JobMessage(messages.Message):
     gsi_build_target = messages.StringField(14)
     gsi_build_id = messages.StringField(21)
     gsi_pab_account_id = messages.StringField(15)
+    gsi_vendor_version = messages.StringField(28)
 
     # test suite information
     test_storage_type = messages.IntegerField(27)
