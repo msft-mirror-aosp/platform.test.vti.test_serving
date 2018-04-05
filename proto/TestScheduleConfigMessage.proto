@@ -80,6 +80,10 @@ message TestScheduleConfigMessage {
   // if GSI (General System Image) is used, GSI PAB account ID.
   optional bytes gsi_pab_account_id = 23;
 
+  // if GSI (General System Image) is used, the version of a vendor.img
+  // to use GSI with (e.g., 8.1.0).
+  optional bytes gsi_vendor_version = 25;
+
   // Test package's storage type (e.g., PAB or GCS)
   optional BuildStorageType test_storage_type = 34 [default = BUILD_STORAGE_TYPE_PAB];
 
