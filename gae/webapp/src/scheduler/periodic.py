@@ -104,70 +104,78 @@ class PeriodicScheduler(webapp2.RequestHandler):
 
         if schedules:
             for schedule in schedules:
-                self.logger.Println("Schedule: %s (%s %s)" %
+                self.logger.Println("")
+                self.logger.Println("Schedule: %s (branch: %s)" %
                                     (schedule.test_name,
-                                     schedule.manifest_branch,
-                                     schedule.build_target))
+                                     schedule.manifest_branch))
+                self.logger.Println("Device: %s" % schedule.build_target)
                 self.logger.Indent()
-                if self.NewPeriod(schedule):
-                    self.logger.Println("- Need new job")
-                    target_host, target_device, target_device_serials =\
-                        self.SelectTargetLab(schedule)
-                    self.logger.Println("- Target host: %s" % target_host)
-                    self.logger.Println("- Target device: %s" % target_device)
-                    self.logger.Println(
-                        "- Target serials: %s" % target_device_serials)
-                    # TODO: update device status
+                if not self.NewPeriod(schedule):
+                    self.logger.Println("- Skipped")
+                    self.logger.Unindent()
+                    continue
 
-                    # create job and add.
-                    if target_host:
-                        new_job = model.JobModel()
-                        new_job.hostname = target_host
-                        new_job.priority = schedule.priority
-                        new_job.test_name = schedule.test_name
-                        new_job.require_signed_device_build = (
-                            schedule.require_signed_device_build)
-                        new_job.device = target_device
-                        new_job.period = schedule.period
-                        new_job.serial.extend(target_device_serials)
-                        new_job.build_storage_type = schedule.build_storage_type
-                        new_job.manifest_branch = schedule.manifest_branch
-                        new_job.build_target = schedule.build_target
-                        new_job.shards = schedule.shards
-                        new_job.param = schedule.param
-                        new_job.retry_count = schedule.retry_count
-                        new_job.gsi_storage_type = schedule.gsi_storage_type
-                        new_job.gsi_branch = schedule.gsi_branch
-                        new_job.gsi_build_target = schedule.gsi_build_target
-                        new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
-                        new_job.test_storage_type = schedule.test_storage_type
-                        new_job.test_branch = schedule.test_branch
-                        new_job.test_build_target = schedule.test_build_target
-                        new_job.test_pab_account_id = (
-                            schedule.test_pab_account_id)
+                target_host, target_device, target_device_serials = (
+                    self.SelectTargetLab(schedule))
+                if not target_host:
+                    self.logger.Unindent()
+                    continue
 
-                        new_job.build_id = ""
+                self.logger.Println("- Target host: %s" % target_host)
+                self.logger.Println("- Target device: %s" % target_device)
+                self.logger.Println(
+                    "- Target serials: %s" % target_device_serials)
+                # TODO: update device status
 
-                        if new_job.build_storage_type == (
-                                Status.STORAGE_TYPE_DICT["PAB"]):
-                            new_job.build_id = self.FindBuildId(new_job)
-                            if new_job.build_id:
-                                self.ReserveDevices(target_device_serials)
-                                new_job.status = Status.JOB_STATUS_DICT[
-                                    "ready"]
-                                new_job.timestamp = datetime.datetime.now()
-                                new_job.put()
-                                self.logger.Println("NEW JOB")
-                            else:
-                                self.logger.Println("NO BUILD FOUND")
-                        elif new_job.build_storage_type == (
-                                Status.STORAGE_TYPE_DICT["GCS"]):
-                            new_job.status = Status.JOB_STATUS_DICT["ready"]
-                            new_job.timestamp = datetime.datetime.now()
-                            new_job.put()
-                            self.logger.Println("NEW JOB - GCS")
-                        else:
-                            self.logger.Println("Unexpected storage type.")
+                # create job and add.
+                new_job = model.JobModel()
+                new_job.hostname = target_host
+                new_job.priority = schedule.priority
+                new_job.test_name = schedule.test_name
+                new_job.require_signed_device_build = (
+                    schedule.require_signed_device_build)
+                new_job.device = target_device
+                new_job.period = schedule.period
+                new_job.serial.extend(target_device_serials)
+                new_job.build_storage_type = schedule.build_storage_type
+                new_job.manifest_branch = schedule.manifest_branch
+                new_job.build_target = schedule.build_target
+                new_job.shards = schedule.shards
+                new_job.param = schedule.param
+                new_job.retry_count = schedule.retry_count
+                new_job.gsi_storage_type = schedule.gsi_storage_type
+                new_job.gsi_branch = schedule.gsi_branch
+                new_job.gsi_build_target = schedule.gsi_build_target
+                new_job.gsi_pab_account_id = schedule.gsi_pab_account_id
+                new_job.test_storage_type = schedule.test_storage_type
+                new_job.test_branch = schedule.test_branch
+                new_job.test_build_target = schedule.test_build_target
+                new_job.test_pab_account_id = (
+                    schedule.test_pab_account_id)
+
+                new_job.build_id = ""
+
+                if new_job.build_storage_type == (
+                        Status.STORAGE_TYPE_DICT["PAB"]):
+                    new_job.build_id = self.FindBuildId(new_job)
+                    if new_job.build_id:
+                        self.ReserveDevices(target_device_serials)
+                        new_job.status = Status.JOB_STATUS_DICT[
+                            "ready"]
+                        new_job.timestamp = datetime.datetime.now()
+                        new_job.put()
+                        self.logger.Println("NEW JOB")
+                    else:
+                        self.logger.Println("NO BUILD FOUND")
+                elif new_job.build_storage_type == (
+                        Status.STORAGE_TYPE_DICT["GCS"]):
+                    new_job.status = Status.JOB_STATUS_DICT["ready"]
+                    new_job.timestamp = datetime.datetime.now()
+                    new_job.put()
+                    self.logger.Println("NEW JOB - GCS")
+                else:
+                    self.logger.Println("Unexpected storage type (%s)." %
+                                        new_job.build_storage_type)
 
                 self.logger.Unindent()
 
@@ -259,8 +267,8 @@ class PeriodicScheduler(webapp2.RequestHandler):
                 continue
 
             target_lab, target_product_type = target_device.split("/")
-            self.logger.Println("- Seeking product %s in lab %s" %
-                                (target_product_type, target_lab))
+            self.logger.Println("- Lab %s (device: %s)" %
+                                (target_lab, target_product_type))
             self.logger.Indent()
             lab_query = model.LabModel.query(model.LabModel.name == target_lab)
             target_labs = lab_query.fetch()
@@ -268,8 +276,7 @@ class PeriodicScheduler(webapp2.RequestHandler):
             available_devices = {}
             if target_labs:
                 for lab in target_labs:
-                    self.logger.Println("- target lab found")
-                    self.logger.Println("- target device %s %s" %
+                    self.logger.Println("- Host: %s (device: %s)" %
                                         (lab.hostname, target_product_type))
                     self.logger.Indent()
                     device_query = model.DeviceModel.query(
@@ -277,8 +284,6 @@ class PeriodicScheduler(webapp2.RequestHandler):
                     host_devices = device_query.fetch()
 
                     for device in host_devices:
-                        self.logger.Println("- check device %s %s" %
-                                            (device.status, device.product))
                         if ((device.status in [
                                 Status.DEVICE_STATUS_DICT["fastboot"],
                                 Status.DEVICE_STATUS_DICT["online"],
@@ -287,19 +292,22 @@ class PeriodicScheduler(webapp2.RequestHandler):
                                 Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                                 and device.product.lower() == target_product_type.lower()):
                             self.logger.Println(
-                                "- a device found %s" % device.serial)
+                                "- Found %s %s %s" % (device.product,
+                                                      device.status,
+                                                      device.serial))
                             if device.hostname not in available_devices:
                                 available_devices[device.hostname] = set()
                             available_devices[device.hostname].add(
                                 device.serial)
                     self.logger.Unindent()
                 for host in available_devices:
-                    self.logger.Println("- len(devices) %s >= shards %s ?" %
-                                        (len(available_devices[host]),
-                                         schedule.shards))
                     if len(available_devices[host]) >= schedule.shards:
+                        self.logger.Println("All devices found.")
                         self.logger.Unindent()
                         return host, target_device, list(
                             available_devices[host])[:schedule.shards]
+                self.logger.Println(
+                    "- Not enough devices found, while %s required." % (
+                    schedule.shards))
             self.logger.Unindent()
         return None, None, []
