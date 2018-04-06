@@ -26,10 +26,10 @@ class BuildModel(ndb.Model):
     build_id = ndb.StringProperty()
     build_target = ndb.StringProperty()
     build_type = ndb.StringProperty()
-    artifact_type = ndb.StringProperty()
-    artifacts = ndb.StringProperty(repeated=True)
-    timestamp = ndb.DateTimeProperty(auto_now=False)
-    signed = ndb.BooleanProperty()
+    artifact_type = ndb.StringProperty(indexed=False)
+    artifacts = ndb.StringProperty(repeated=True, indexed=False)
+    timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
+    signed = ndb.BooleanProperty(indexed=False)
 
 
 class BuildInfoMessage(messages.Message):
@@ -43,44 +43,59 @@ class BuildInfoMessage(messages.Message):
     signed = messages.BooleanField(7)
 
 
+class ScheduleControlModel(ndb.Model):
+    """A model for representing a schedule control data entry."""
+    enabled = ndb.BooleanProperty()
+    # "global" or empty string to enable/disable all schedules.
+    schedule_name = ndb.StringProperty()
+
+
 class ScheduleModel(ndb.Model):
     """A model for representing an individual schedule entry."""
     # schedule name for green build schedule, optional.
-    name = ndb.StringProperty()
+    name = ndb.StringProperty(indexed=False)
     schedule_type = ndb.StringProperty()
 
     # device image information
-    build_storage_type = ndb.IntegerProperty()
-    manifest_branch = ndb.StringProperty()
-    build_target = ndb.StringProperty()  # type:name
-    device_pab_account_id = ndb.StringProperty()
-    require_signed_device_build = ndb.BooleanProperty()
+    build_storage_type = ndb.IntegerProperty(indexed=False)
+    manifest_branch = ndb.StringProperty(indexed=False)
+    build_target = ndb.StringProperty(indexed=False)  # type:name
+    device_pab_account_id = ndb.StringProperty(indexed=False)
+    require_signed_device_build = ndb.BooleanProperty(indexed=False)
 
     # GSI information
-    gsi_storage_type = ndb.IntegerProperty()
-    gsi_branch = ndb.StringProperty()
-    gsi_build_target = ndb.StringProperty()
-    gsi_pab_account_id = ndb.StringProperty()
+    gsi_storage_type = ndb.IntegerProperty(indexed=False)
+    gsi_branch = ndb.StringProperty(indexed=False)
+    gsi_build_target = ndb.StringProperty(indexed=False)
+    gsi_pab_account_id = ndb.StringProperty(indexed=False)
+    gsi_vendor_version = ndb.StringProperty(indexed=False)
 
     # test suite information
-    test_storage_type = ndb.IntegerProperty()
-    test_branch = ndb.StringProperty()
-    test_build_target = ndb.StringProperty()
-    test_pab_account_id = ndb.StringProperty()
+    test_storage_type = ndb.IntegerProperty(indexed=False)
+    test_branch = ndb.StringProperty(indexed=False)
+    test_build_target = ndb.StringProperty(indexed=False)
+    test_pab_account_id = ndb.StringProperty(indexed=False)
 
-    test_name = ndb.StringProperty()
-    period = ndb.IntegerProperty()
-    schedule = ndb.StringProperty()
-    priority = ndb.StringProperty()
-    device = ndb.StringProperty(repeated=True)
-    shards = ndb.IntegerProperty()
-    param = ndb.StringProperty(repeated=True)
-    timestamp = ndb.DateTimeProperty(auto_now=False)
-    retry_count = ndb.IntegerProperty()
+    test_name = ndb.StringProperty(indexed=False)
+    period = ndb.IntegerProperty(indexed=False)
+    schedule = ndb.StringProperty(indexed=False)
+    priority = ndb.StringProperty(indexed=False)
+    device = ndb.StringProperty(repeated=True, indexed=False)
+    shards = ndb.IntegerProperty(indexed=False)
+    param = ndb.StringProperty(repeated=True, indexed=False)
+    timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
+    retry_count = ndb.IntegerProperty(indexed=False)
+
+
+class ScheduleControlInfoMessage(messages.Message):
+    """A message for representing a schedule control data entry."""
+    enabled = messages.BooleanField(1)
+    schedule_name = messages.StringField(2)
 
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
+    # Next ID = 25
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -97,6 +112,7 @@ class ScheduleInfoMessage(messages.Message):
     gsi_branch = messages.StringField(9)
     gsi_build_target = messages.StringField(10)
     gsi_pab_account_id = messages.StringField(11)
+    gsi_vendor_version = messages.StringField(24)
 
     # test suite information
     test_storage_type = messages.IntegerField(23)
@@ -117,12 +133,12 @@ class ScheduleInfoMessage(messages.Message):
 class LabModel(ndb.Model):
     """A model for representing an individual lab entry."""
     name = ndb.StringProperty()
-    owner = ndb.StringProperty()
-    hostname = ndb.StringProperty()
-    ip = ndb.StringProperty()
+    owner = ndb.StringProperty(indexed=False)
+    hostname = ndb.StringProperty(indexed=False)
+    ip = ndb.StringProperty(indexed=False)
     # devices is a comma-separated list of serial=product pairs
-    devices = ndb.StringProperty()
-    timestamp = ndb.DateTimeProperty(auto_now=False)
+    devices = ndb.StringProperty(indexed=False)
+    timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
 
 
 class LabDeviceInfoMessage(messages.Message):
@@ -154,8 +170,8 @@ class DeviceModel(ndb.Model):
     product = ndb.StringProperty()
     serial = ndb.StringProperty()
     status = ndb.IntegerProperty()
-    scheduling_status = ndb.IntegerProperty()
-    timestamp = ndb.DateTimeProperty(auto_now=False)
+    scheduling_status = ndb.IntegerProperty(indexed=False)
+    timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
 
 
 class DeviceInfoMessage(messages.Message):
@@ -176,43 +192,44 @@ class HostInfoMessage(messages.Message):
 class JobModel(ndb.Model):
     """A model for representing an individual job entry."""
     hostname = ndb.StringProperty()
-    priority = ndb.StringProperty()
+    priority = ndb.StringProperty(indexed=False)
     test_name = ndb.StringProperty()
-    require_signed_device_build = ndb.BooleanProperty()
-    device = ndb.StringProperty()
-    serial = ndb.StringProperty(repeated=True)
+    require_signed_device_build = ndb.BooleanProperty(indexed=False)
+    device = ndb.StringProperty(indexed=False)
+    serial = ndb.StringProperty(repeated=True, indexed=False)
 
     # device image information
-    build_storage_type = ndb.IntegerProperty()
+    build_storage_type = ndb.IntegerProperty(indexed=False)
     manifest_branch = ndb.StringProperty()
     build_target = ndb.StringProperty()
-    build_id = ndb.StringProperty()
-    pab_account_id = ndb.StringProperty()
+    build_id = ndb.StringProperty(indexed=False)
+    pab_account_id = ndb.StringProperty(indexed=False)
 
     shards = ndb.IntegerProperty()
-    param = ndb.StringProperty(repeated=True)
+    param = ndb.StringProperty(repeated=True, indexed=False)
     status = ndb.IntegerProperty()
     period = ndb.IntegerProperty()
 
     # GSI information
-    gsi_storage_type = ndb.IntegerProperty()
+    gsi_storage_type = ndb.IntegerProperty(indexed=False)
     gsi_branch = ndb.StringProperty()
-    gsi_build_target = ndb.StringProperty()
-    gsi_build_id = ndb.StringProperty()
-    gsi_pab_account_id = ndb.StringProperty()
+    gsi_build_target = ndb.StringProperty(indexed=False)
+    gsi_build_id = ndb.StringProperty(indexed=False)
+    gsi_pab_account_id = ndb.StringProperty(indexed=False)
+    gsi_vendor_version = ndb.StringProperty(indexed=False)
 
     # test suite information
-    test_storage_type = ndb.IntegerProperty()
+    test_storage_type = ndb.IntegerProperty(indexed=False)
     test_branch = ndb.StringProperty()
-    test_build_target = ndb.StringProperty()
-    test_build_id = ndb.StringProperty()
-    test_pab_account_id = ndb.StringProperty()
+    test_build_target = ndb.StringProperty(indexed=False)
+    test_build_id = ndb.StringProperty(indexed=False)
+    test_pab_account_id = ndb.StringProperty(indexed=False)
 
-    timestamp = ndb.DateTimeProperty(auto_now=False)
-    heartbeat_stamp = ndb.DateTimeProperty(auto_now=False)
+    timestamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
+    heartbeat_stamp = ndb.DateTimeProperty(auto_now=False, indexed=False)
     retry_count = ndb.IntegerProperty()
 
-    infra_log_url = ndb.StringProperty()
+    infra_log_url = ndb.StringProperty(indexed=False)
 
 
 class JobMessage(messages.Message):
@@ -242,6 +259,7 @@ class JobMessage(messages.Message):
     gsi_build_target = messages.StringField(14)
     gsi_build_id = messages.StringField(21)
     gsi_pab_account_id = messages.StringField(15)
+    gsi_vendor_version = messages.StringField(28)
 
     # test suite information
     test_storage_type = messages.IntegerField(27)

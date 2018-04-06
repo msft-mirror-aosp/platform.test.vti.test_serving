@@ -74,6 +74,7 @@ class ScheduleInfoApi(remote.Service):
         schedule.gsi_storage_type = request.gsi_storage_type
         schedule.gsi_branch = request.gsi_branch
         schedule.gsi_build_target = request.gsi_build_target
+        schedule.gsi_vendor_version = request.gsi_vendor_version
         schedule.gsi_pab_account_id = request.gsi_pab_account_id
         schedule.test_storage_type = request.test_storage_type
         schedule.test_branch = request.test_branch
@@ -128,6 +129,7 @@ class GreenScheduleInfoApi(remote.Service):
         schedule.gsi_branch = request.gsi_branch
         schedule.gsi_build_target = request.gsi_build_target
         schedule.gsi_pab_account_id = request.gsi_pab_account_id
+        schedule.gsi_vendor_version = request.gsi_vendor_version
         schedule.test_branch = request.test_branch
         schedule.test_build_target = request.test_build_target
         schedule.test_pab_account_id = request.test_pab_account_id

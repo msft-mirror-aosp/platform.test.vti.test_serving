@@ -50,4 +50,6 @@ skip_files:
 - ^(.*/)?.*/RCS/.*$
 - ^(.*/)?\..*$
 - ^script/*$
+- testrunner.py
+- .*_test.py$
 # [END exclude]

@@ -93,6 +93,7 @@ class JobQueueApi(remote.Service):
             job_message.gsi_build_target = job.gsi_build_target
             job_message.gsi_build_id = job.gsi_build_id
             job_message.gsi_pab_account_id = job.gsi_pab_account_id
+            job_message.gsi_vendor_version = job.gsi_vendor_version
             job_message.test_storage_type = job.test_storage_type
             job_message.test_branch = job.test_branch
             job_message.test_build_target = job.test_build_target
