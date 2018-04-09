@@ -86,6 +86,8 @@ class ScheduleModel(ndb.Model):
     timestamp = ndb.DateTimeProperty(auto_now=False)
     retry_count = ndb.IntegerProperty()
 
+    children_jobs = ndb.KeyProperty(kind="JobModel", repeated=True)
+
 
 class ScheduleControlInfoMessage(messages.Message):
     """A message for representing a schedule control data entry."""
@@ -234,6 +236,8 @@ class JobModel(ndb.Model):
     retry_count = ndb.IntegerProperty()
 
     infra_log_url = ndb.StringProperty()
+
+    parent_schedule = ndb.KeyProperty(kind="ScheduleModel")
 
 
 class JobMessage(messages.Message):

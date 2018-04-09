@@ -146,6 +146,7 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.test_branch = schedule.test_branch
                 new_job.test_build_target = schedule.test_build_target
                 new_job.test_pab_account_id = (schedule.test_pab_account_id)
+                new_job.parent_schedule = schedule.key
 
                 new_job.build_id = ""
 
@@ -156,7 +157,8 @@ class ScheduleHandler(webapp2.RequestHandler):
                         self.ReserveDevices(target_device_serials)
                         new_job.status = Status.JOB_STATUS_DICT["ready"]
                         new_job.timestamp = datetime.datetime.now()
-                        new_job.put()
+                        new_job_key = new_job.put()
+                        schedule.children_jobs.append(new_job_key)
                         self.logger.Println("NEW JOB")
                     else:
                         self.logger.Println("NO BUILD FOUND")
@@ -164,7 +166,8 @@ class ScheduleHandler(webapp2.RequestHandler):
                         Status.STORAGE_TYPE_DICT["GCS"]):
                     new_job.status = Status.JOB_STATUS_DICT["ready"]
                     new_job.timestamp = datetime.datetime.now()
-                    new_job.put()
+                    new_job_key = new_job.put()
+                    schedule.children_jobs.append(new_job_key)
                     self.logger.Println("NEW JOB - GCS")
                 else:
                     self.logger.Println("Unexpected storage type (%s)." %
