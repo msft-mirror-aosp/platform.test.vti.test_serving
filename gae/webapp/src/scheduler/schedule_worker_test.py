@@ -24,18 +24,18 @@ except ImportError:
 
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
-from webapp.src.scheduler import periodic
+from webapp.src.scheduler import schedule_worker
 
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 
 
-class PeriodicSchedulerTest(unittest.TestCase):
-    """Tests for PeriodicScheduler.
+class ScheduleHandlerTest(unittest.TestCase):
+    """Tests for ScheduleHandler.
 
     Attributes:
         testbed: A Testbed instance which provides local unit testing.
-        scheduler: A mock periodic.PeriodicScheduler.
+        scheduler: A mock schedule_worker.ScheduleHandler.
     """
 
     def setUp(self):
@@ -47,8 +47,8 @@ class PeriodicSchedulerTest(unittest.TestCase):
         self.testbed.init_memcache_stub()
         # Clear cache between tests.
         ndb.get_context().clear_cache()
-        # Mocking PeriodicScheduler and essential methods.
-        self.scheduler = periodic.PeriodicScheduler(mock.Mock())
+        # Mocking ScheduleHandler and essential methods.
+        self.scheduler = schedule_worker.ScheduleHandler(mock.Mock())
         self.scheduler.response = mock.Mock()
         self.scheduler.response.write = mock.Mock()
 
@@ -92,7 +92,7 @@ class PeriodicSchedulerTest(unittest.TestCase):
         build.build_type = "type1"
         build.put()
 
-        self.scheduler.get()
+        self.scheduler.post()
         self.assertEqual(1, len(model.JobModel.query().fetch()))
         print("A job is created successfully.")
 
