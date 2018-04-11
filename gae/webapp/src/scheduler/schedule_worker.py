@@ -20,7 +20,10 @@ import logging
 
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
+from webapp.src.utils import logger
 import webapp2
+
+MAX_LOG_CHARACTERS = 10000  # maximum number of characters per each log
 
 
 class ScheduleHandler(webapp2.RequestHandler):
@@ -28,7 +31,11 @@ class ScheduleHandler(webapp2.RequestHandler):
 
     This class pull tasks from 'queue-schedule' queue and processes in
     background service 'worker'.
+
+    Attributes:
+        logger: Logger class
     """
+    logger = logger.Logger()
 
     def ReserveDevices(self, target_device_serials):
         """Reserves devices.
@@ -60,7 +67,7 @@ class ScheduleHandler(webapp2.RequestHandler):
         builds = build_query.fetch()
 
         if builds:
-            logging.info("-- Find build ID")
+            self.logger.Println("-- Find build ID")
             # Remove builds if build_id info is none
             build_id_filled = [x for x in builds if x.build_id]
             sorted_list = sorted(
@@ -83,28 +90,34 @@ class ScheduleHandler(webapp2.RequestHandler):
         return build_id
 
     def post(self):
+        self.logger.Clear()
         schedule_query = model.ScheduleModel.query()
         schedules = schedule_query.fetch()
 
         if schedules:
-            logging.info(len(schedules))
             for schedule in schedules:
-                logging.info("Schedule: %s (branch: %s)" %
-                             (schedule.test_name, schedule.manifest_branch))
-                logging.info("Build Target: %s" % schedule.build_target)
-                logging.info("Device: %s" % schedule.device)
+                self.logger.Println("")
+                self.logger.Println("Schedule: %s (branch: %s)" %
+                                    (schedule.test_name,
+                                     schedule.manifest_branch))
+                self.logger.Println("Build Target: %s" % schedule.build_target)
+                self.logger.Println("Device: %s" % schedule.device)
+                self.logger.Indent()
                 if not self.NewPeriod(schedule):
-                    logging.info("- Skipped")
+                    self.logger.Println("- Skipped")
+                    self.logger.Unindent()
                     continue
 
                 target_host, target_device, target_device_serials = (
                     self.SelectTargetLab(schedule))
                 if not target_host:
+                    self.logger.Unindent()
                     continue
 
-                logging.info("- Target host: %s" % target_host)
-                logging.info("- Target device: %s" % target_device)
-                logging.info("- Target serials: %s" % target_device_serials)
+                self.logger.Println("- Target host: %s" % target_host)
+                self.logger.Println("- Target device: %s" % target_device)
+                self.logger.Println(
+                    "- Target serials: %s" % target_device_serials)
                 # TODO: update device status
 
                 # create job and add.
@@ -143,20 +156,34 @@ class ScheduleHandler(webapp2.RequestHandler):
                         new_job.status = Status.JOB_STATUS_DICT["ready"]
                         new_job.timestamp = datetime.datetime.now()
                         new_job.put()
-                        logging.info("NEW JOB")
-                        # else:
-                        logging.info("NO BUILD FOUND")
+                        self.logger.Println("NEW JOB")
+                    else:
+                        self.logger.Println("NO BUILD FOUND")
                 elif new_job.build_storage_type == (
                         Status.STORAGE_TYPE_DICT["GCS"]):
                     new_job.status = Status.JOB_STATUS_DICT["ready"]
                     new_job.timestamp = datetime.datetime.now()
                     new_job.put()
-                    logging.info("NEW JOB - GCS")
+                    self.logger.Println("NEW JOB - GCS")
                 else:
-                    logging.info("Unexpected storage type (%s)." %
-                                 new_job.build_storage_type)
+                    self.logger.Println("Unexpected storage type (%s)." %
+                                        new_job.build_storage_type)
+                self.logger.Unindent()
 
-        logging.info("scheduling done.")
+        self.logger.Println("Scheduling completed.")
+
+        lines = self.logger.Get()
+        lines = [line.strip() for line in lines]
+        outputs = []
+        chars = 0
+        for line in lines:
+            chars += len(line)
+            if chars > MAX_LOG_CHARACTERS:
+                logging.info("\n".join(outputs))
+                outputs = []
+                chars = len(line)
+            outputs.append(line)
+        logging.info("\n".join(outputs))
 
     def NewPeriod(self, schedule):
         """Checks whether a new job creation is needed.
@@ -196,10 +223,11 @@ class ScheduleHandler(webapp2.RequestHandler):
         ]
 
         if outdated_ready_jobs:
-            logging.info(
-                "Job key[{}] is(are) outdated. "
-                "They became infra-err status.").format(
-                    ", ".join([str(x.key.id()) for x in outdated_ready_jobs]))
+            self.logger.Println(
+                ("Job key[{}] is(are) outdated. "
+                 "They became infra-err status.").format(
+                     ", ".join(
+                         [str(x.key.id()) for x in outdated_ready_jobs])))
             for job in outdated_ready_jobs:
                 job.status = Status.JOB_STATUS_DICT["infra-err"]
                 job.put()
@@ -209,10 +237,11 @@ class ScheduleHandler(webapp2.RequestHandler):
             if x.status == Status.JOB_STATUS_DICT["leased"]
         ]
         if outdated_leased_jobs:
-            logging.info(
-                "Job key[{}] is(are) expected to be completed "
-                "however still in leased status.").format(
-                    ", ".join([str(x.key.id()) for x in outdated_leased_jobs]))
+            self.logger.Println(
+                ("Job key[{}] is(are) expected to be completed "
+                 "however still in leased status.").format(
+                     ", ".join(
+                         [str(x.key.id()) for x in outdated_leased_jobs])))
 
         recent_jobs = [x for x in same_jobs if x not in outdated_jobs]
 
@@ -239,14 +268,16 @@ class ScheduleHandler(webapp2.RequestHandler):
                 continue
 
             target_lab, target_product_type = target_device.split("/")
-            logging.info("- Lab %s" % target_lab)
+            self.logger.Println("- Lab %s" % target_lab)
+            self.logger.Indent()
             lab_query = model.LabModel.query(model.LabModel.name == target_lab)
             target_labs = lab_query.fetch()
 
             available_devices = {}
             if target_labs:
                 for lab in target_labs:
-                    logging.info("- Host: %s" % lab.hostname)
+                    self.logger.Println("- Host: %s" % lab.hostname)
+                    self.logger.Indent()
                     device_query = model.DeviceModel.query(
                         model.DeviceModel.hostname == lab.hostname)
                     host_devices = device_query.fetch()
@@ -260,19 +291,22 @@ class ScheduleHandler(webapp2.RequestHandler):
                                 Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                                 and device.product.lower() ==
                                 target_product_type.lower()):
-                            logging.info("- Found %s %s %s" %
-                                         (device.product, device.status,
-                                          device.serial))
+                            self.logger.Println("- Found %s %s %s" %
+                                                (device.product, device.status,
+                                                 device.serial))
                             if device.hostname not in available_devices:
                                 available_devices[device.hostname] = set()
                             available_devices[device.hostname].add(
                                 device.serial)
+                    self.logger.Unindent()
                 for host in available_devices:
                     if len(available_devices[host]) >= schedule.shards:
-                        logging.info("All devices found.")
+                        self.logger.Println("All devices found.")
+                        self.logger.Unindent()
                         return host, target_device, list(
                             available_devices[host])[:schedule.shards]
-                logging.info(
+                self.logger.Println(
                     "- Not enough devices found, while %s required.\n%s" %
                     (schedule.shards, available_devices))
+            self.logger.Unindent()
         return None, None, []
