@@ -15,129 +15,97 @@
 # limitations under the License.
 #
 
-import webapp2
+import logging
 
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 
+import webapp2
+from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
+
+PAGING_SIZE = 1000
+DICT_MODELS = {
+    "build": model.BuildModel,
+    "device": model.DeviceModel,
+    "lab": model.LabModel,
+    "job": model.JobModel,
+    "schedule": model.ScheduleModel
+}
+
 
 class CreateIndex(webapp2.RequestHandler):
-    """Main class for /tasks/indexing.
-
-    By fetch and put all entities, indexing all existing entities.
-    """
-
-    def get(self):
-        """Fetch and put all entities and display complete message."""
-        build_query = model.BuildModel.query()
-        builds = build_query.fetch()
-        for build in builds:
-            build.put()
-
-        schedule_query = model.ScheduleModel.query()
-        schedules = schedule_query.fetch()
-        for schedule in schedules:
-            schedule.put()
-
-        lab_query = model.LabModel.query()
-        labs = lab_query.fetch()
-        for lab in labs:
-            lab.put()
-
-        device_query = model.DeviceModel.query()
-        devices = device_query.fetch()
-        for device in devices:
-            device.put()
-
-        job_query = model.JobModel.query()
-        jobs = job_query.fetch()
-        for job in jobs:
-            job.put()
-
-        self.response.write("<pre>Indexing has been completed.</pre>")
-
-
-class CreateBuildModelIndex(webapp2.RequestHandler):
-    """Main class for /tasks/indexing/build.
-
-    By fetch and put all entities, indexing all existing BuildModel entities.
-    """
-
-    def get(self):
-        """Fetch and put all BuildModel entities"""
-        build_query = model.BuildModel.query()
-        builds = build_query.fetch()
-        for build in builds:
-            build.put()
-
-        self.response.write("<pre>BuildModel indexing has been completed.</pre>")
-
-
-class CreateDeviceModelIndex(webapp2.RequestHandler):
-    """Main class for /tasks/indexing/device.
-
-    By fetch and put all entities, indexing all existing DeviceModel entities.
-    """
-
-    def get(self):
-        """Fetch and put all DeviceModel entities"""
-        device_query = model.DeviceModel.query()
-        devices = device_query.fetch()
-        for device in devices:
-            device.put()
-
+    """Cron class for /tasks/indexing/{model}."""
+    def get(self, arg):
+        """Creates a task to re-index, with given URL format."""
+        index_list = []
+        if arg:
+            if arg.startswith("/") and arg[1:].lower() in DICT_MODELS.keys():
+                index_list.append(arg[1:].lower())
+            else:
+                self.response.write("<pre>Access Denied. Please visit "
+                                    "/tasks/indexing/{model}</pre>")
+                return
+        else:
+            # accessed by /tasks/indexing
+            index_list.extend(DICT_MODELS.keys())
         self.response.write(
-            "<pre>DeviceModel indexing has been completed.</pre>")
+            "<pre>Re-indexing task{} for {} {} going to be created.</pre>".
+            format("s"
+                   if len(index_list) > 1 else "", ", ".join(index_list), "are"
+                   if len(index_list) > 1 else "is"))
+
+        for model_type in index_list:
+            task = taskqueue.add(
+                url="/worker/indexing",
+                target="worker",
+                queue_name="queue-indexing",
+                transactional=False,
+                params={
+                    "model_type": model_type
+                })
+            self.response.write(
+                "<pre>Re-indexing task for {} is created. ETA: {}</pre>".
+                format(model_type, task.eta))
 
 
-class CreateJobModelIndex(webapp2.RequestHandler):
-    """Main class for /tasks/indexing/job.
+class IndexingHandler(webapp2.RequestHandler):
+    """Task queue handler class to re-index ndb model."""
+    def post(self):
+        """Fetch entities and process model specific jobs."""
+        reload(model)
+        model_type = self.request.get("model_type")
 
-    By fetch and put all entities, indexing all existing JobModel entities.
-    """
+        num_updated = 0
+        next_cursor = None
+        more = True
 
-    def get(self):
-        """Fetch and put all JobModel entities"""
-        job_query = model.JobModel.query()
-        jobs = job_query.fetch()
-        for job in jobs:
-            job.put()
+        while more:
+            query = DICT_MODELS[model_type].query()
+            entities, next_cursor, more = query.fetch_page(
+                PAGING_SIZE, start_cursor=next_cursor)
 
-        self.response.write(
-            "<pre>JobModel indexing has been completed.</pre>")
+            to_put = []
+            for entity in entities:
+                if model_type == "build":
+                    pass
+                elif model_type == "device":
+                    pass
+                elif model_type == "lab":
+                    pass
+                elif model_type == "job":
+                    pass
+                elif model_type == "schedule":
+                    if entity.build_storage_type is None:
+                        entity.build_storage_type = Status.STORAGE_TYPE_DICT[
+                            "PAB"]
+                else:
+                    pass
+                to_put.append(entity)
 
+            if to_put:
+                ndb.put_multi(to_put)
+                num_updated += len(to_put)
 
-class CreateLabModelIndex(webapp2.RequestHandler):
-    """Main class for /tasks/indexing/lab.
-
-    By fetch and put all entities, indexing all existing LabModel entities.
-    """
-
-    def get(self):
-        """Fetch and put all LabModel entities"""
-        lab_query = model.LabModel.query()
-        labs = lab_query.fetch()
-        for lab in labs:
-            lab.put()
-
-        self.response.write(
-            "<pre>LabModel indexing has been completed.</pre>")
-
-
-class CreateScheduleModelIndex(webapp2.RequestHandler):
-    """Main class for /tasks/indexing/schedule.
-
-    By fetch and put all entities, indexing all existing ScheduleModel entities.
-    """
-
-    def get(self):
-        """Fetch and put all ScheduleModel entities"""
-        schedule_query = model.ScheduleModel.query()
-        schedules = schedule_query.fetch()
-        for schedule in schedules:
-            if schedule.build_storage_type is None:
-                schedule.build_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-            schedule.put()
-
-        self.response.write(
-            "<pre>ScheduleModel indexing has been completed.</pre>")
+        logging.info("{} indexing complete with {} updates!".format(
+            model_type, num_updated))

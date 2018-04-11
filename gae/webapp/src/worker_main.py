@@ -15,9 +15,12 @@
 # limitations under the License.
 #
 
+from webapp.src.tasks import indexing
 from webapp.src.scheduler import schedule_worker
 import webapp2
 
+
 app = webapp2.WSGIApplication([
-        ("/worker/schedule_handler", schedule_worker.ScheduleHandler)
+        ("/worker/schedule_handler", schedule_worker.ScheduleHandler),
+        ("/worker/indexing", indexing.IndexingHandler)
     ], debug=True)
