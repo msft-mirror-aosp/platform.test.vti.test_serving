@@ -53,6 +53,7 @@ indexes:
   - name: script
   - name: devices
   - name: timestamp
+  - name: vtslab_version
 
 - kind: JobModel
   ancestor: no
