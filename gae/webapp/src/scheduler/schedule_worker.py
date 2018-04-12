@@ -133,6 +133,7 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.build_storage_type = schedule.build_storage_type
                 new_job.manifest_branch = schedule.manifest_branch
                 new_job.build_target = schedule.build_target
+                new_job.pab_account_id = schedule.device_pab_account_id
                 new_job.shards = schedule.shards
                 new_job.param = schedule.param
                 new_job.retry_count = schedule.retry_count
