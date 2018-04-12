@@ -109,6 +109,7 @@
         <td>Hostname
         <td>IP
         <td>Script
+        <td>Version
       </tr>
       {% set index = 1 %}
       {% for lab in labs %}
@@ -126,6 +127,8 @@
           {{ lab.ip }}
         <td>
           {{ lab.script }}
+        <td>
+          {{ lab.vtslab_version }}
       </tr>
       {% endfor %}
       </table>
