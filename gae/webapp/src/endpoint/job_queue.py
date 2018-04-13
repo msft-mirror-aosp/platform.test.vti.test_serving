@@ -179,7 +179,8 @@ class JobQueueApi(remote.Service):
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                     device.put()
-            elif request.status == Status.JOB_STATUS_DICT["infra-err"]:
+            elif (request.status == Status.JOB_STATUS_DICT["infra-err"]
+                  or request.status == Status.JOB_STATUS_DICT["bootup-err"]):
                 for device in devices:
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])

@@ -52,7 +52,9 @@ JOB_STATUS_DICT = {
     # unexpected error during running
     "infra-err": 3,
     # never leased within schedule period
-    "expired": 4
+    "expired": 4,
+    # device boot error after flashing the given img sets
+    "bootup-err": 5
 }
 
 JOB_PRIORITY_DICT = {
