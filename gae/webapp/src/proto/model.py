@@ -139,6 +139,7 @@ class LabModel(ndb.Model):
     # devices is a comma-separated list of serial=product pairs
     devices = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
+    vtslab_version = ndb.StringProperty()
 
 
 class LabDeviceInfoMessage(messages.Message):
@@ -154,6 +155,7 @@ class LabHostInfoMessage(messages.Message):
     script = messages.StringField(3)
     device = messages.MessageField(
         LabDeviceInfoMessage, 4, repeated=True)
+    vtslab_version = messages.StringField(5)
 
 
 class LabInfoMessage(messages.Message):

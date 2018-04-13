@@ -8,6 +8,7 @@ indexes:
   - name: serial
   - name: status
   - name: scheduling_status
+  - name: timestamp
 
 - kind: BuildModel
   ancestor: no
@@ -19,6 +20,7 @@ indexes:
   - name: build_type
   - name: artifact_type
   - name: artifacts
+  - name: timestamp
 
 - kind: ScheduleModel
   ancestor: no
@@ -39,6 +41,7 @@ indexes:
   - name: test_branch
   - name: test_build_target
   - name: test_pab_account_id
+  - name: timestamp
 
 - kind: LabModel
   ancestor: no
@@ -49,6 +52,8 @@ indexes:
   - name: ip
   - name: script
   - name: devices
+  - name: timestamp
+  - name: vtslab_version
 
 - kind: JobModel
   ancestor: no
@@ -73,3 +78,4 @@ indexes:
   - name: test_build_target
   - name: test_pab_account_id
   - name: infra_log_url
+  - name: timestamp

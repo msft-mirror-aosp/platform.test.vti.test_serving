@@ -27,6 +27,8 @@ from webapp.src.proto import model
 
 SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(
     model.LabInfoMessage)
+LAB_HOST_INFO_RESOURCE = endpoints.ResourceContainer(
+    model.LabHostInfoMessage)
 
 
 @endpoints.api(name='lab_info', version='v1')
@@ -80,3 +82,24 @@ class LabInfoApi(remote.Service):
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
+
+    @endpoints.method(
+        LAB_HOST_INFO_RESOURCE,
+        model.DefaultResponse,
+        path="set_version",
+        http_method="POST",
+        name="set_version")
+    def set_version(self, request):
+        """Sets vtslab version of the host <hostname>"""
+        lab_query = model.LabModel.query(
+            model.LabModel.hostname == request.hostname
+        )
+        labs = lab_query.fetch()
+
+        for lab in labs:
+            lab.vtslab_version = request.vtslab_version.split(":")[0]
+            lab.put()
+
+        return model.DefaultResponse(
+            return_code=model.ReturnCodeMessage.SUCCESS)
+
