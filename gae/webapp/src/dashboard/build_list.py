@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from webapp.src.handlers.base import BaseHandler
+from webapp.src.handlers import base
 from webapp.src.proto import model
 
 
@@ -87,7 +87,7 @@ def ReadBuildInfo(target_branch=""):
     return test_builds, device_builds, gsi_builds
 
 
-class BuildPage(BaseHandler):
+class BuildPage(base.BaseHandler):
     """Main class for /build web page."""
 
     def get(self):
@@ -121,7 +121,7 @@ class BuildPage(BaseHandler):
                 all_builds[manifest_branch_key]["gsi"] = []
 
         template_values = {
-            "all_builds": all_builds,
+            "all_builds": all_builds
         }
 
         self.render(template_values)

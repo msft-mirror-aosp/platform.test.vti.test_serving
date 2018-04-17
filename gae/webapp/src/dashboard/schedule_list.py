@@ -15,11 +15,11 @@
 # limitations under the License.
 #
 
-from webapp.src.handlers.base import BaseHandler
+from webapp.src.handlers import base
 from webapp.src.proto import model
 
 
-class SchedulePage(BaseHandler):
+class SchedulePage(base.BaseHandler):
     """Main class for /schedule web page."""
 
     def get(self):
