@@ -125,7 +125,7 @@
         </table>
       </table>
       <hr>
-      (Now: {{ now }})<br>
+      (Now: {{ convert_time(now).strftime("%Y-%m-%d %H:%M:%S %Z") }})<br>
       <table border=1>
       <tr>
         <td>#
@@ -199,9 +199,17 @@
             <a href="{{ job.infra_log_url }}" download>(download log)</a>
           {% endif %}
         <td>
+          {% if job.timestamp %}
+          {{ convert_time(job.timestamp).strftime("%Y-%m-%d %H:%M:%S") }}
+          {% else %}
           {{ job.timestamp }}
+          {% endif %}
         <td>
+          {% if job.heartbeat_stamp %}
+          {{ convert_time(job.heartbeat_stamp).strftime("%Y-%m-%d %H:%M:%S") }}
+          {% else %}
           {{ job.heartbeat_stamp }}
+          {% endif %}
       </tr>
       {% endfor %}
       </table>

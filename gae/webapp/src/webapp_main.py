@@ -23,14 +23,14 @@ from webapp.src.dashboard import build_list
 from webapp.src.dashboard import device_list
 from webapp.src.dashboard import job_list
 from webapp.src.dashboard import schedule_list
-from webapp.src.handlers.base import BaseHandler
+from webapp.src.handlers import base
 from webapp.src.scheduler import device_heartbeat
 from webapp.src.scheduler import job_heartbeat
 from webapp.src.scheduler import periodic
 from webapp.src.tasks import indexing
 
 
-class MainPage(BaseHandler):
+class MainPage(base.BaseHandler):
     """Main web page request handler."""
 
     def get(self):

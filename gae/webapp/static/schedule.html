@@ -108,7 +108,11 @@
         <td>
           {{ schedule.priority }}
         <td>
+          {% if schedule.timestamp %}
+          {{ convert_time(schedule.timestamp).strftime("%Y-%m-%d %H:%M:%S") }}
+          {% else %}
           {{ schedule.timestamp }}
+          {% endif %}
       </tr>
       {% endfor %}
       </table>

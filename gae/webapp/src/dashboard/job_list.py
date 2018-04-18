@@ -18,7 +18,7 @@
 import datetime
 
 from webapp.src import vtslab_status
-from webapp.src.handlers.base import BaseHandler
+from webapp.src.handlers import base
 from webapp.src.proto import model
 
 
@@ -44,7 +44,7 @@ class JobStats(object):
     unknown = 0
 
 
-class JobPage(BaseHandler):
+class JobPage(base.BaseHandler):
     """Main class for /job web page."""
 
     def get(self):
@@ -94,7 +94,7 @@ class JobPage(BaseHandler):
             stats.unknown += 1
 
 
-class CreateJobTemplatePage(BaseHandler):
+class CreateJobTemplatePage(base.BaseHandler):
     """Main class for /create_job_template web page."""
 
     def get(self):
@@ -104,7 +104,7 @@ class CreateJobTemplatePage(BaseHandler):
         self.render(template_values)
 
 
-class CreateJobPage(BaseHandler):
+class CreateJobPage(base.BaseHandler):
     """Main class for /create_job web page."""
 
     def get(self):
@@ -183,6 +183,8 @@ class CreateJobPage(BaseHandler):
             job_query = model.JobModel.query()
             jobs = job_query.fetch()
 
-        template_values = {"message": message, }
+        template_values = {
+            "message": message
+        }
 
         self.render(template_values)

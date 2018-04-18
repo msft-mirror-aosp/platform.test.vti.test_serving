@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-import datetime
-
-from webapp.src.handlers.base import BaseHandler
+from webapp.src.handlers import base
 from webapp.src.proto import model
 from webapp.src import vtslab_status
 
@@ -36,7 +34,7 @@ class DeviceStats(object):
     error_ratio = -1
 
 
-class DevicePage(BaseHandler):
+class DevicePage(base.BaseHandler):
     """Main class for /device web page."""
 
     def get(self):
@@ -72,7 +70,6 @@ class DevicePage(BaseHandler):
             stats.error_ratio = count_error * 100 / stats.total
 
         template_values = {
-            "now": datetime.datetime.now(),
             "devices": devices,
             "labs": labs,
             "stats": stats
