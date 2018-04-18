@@ -15,7 +15,7 @@
 # limitations under the License.
 
 if [ "$#" -ne 1 ]; then
-  echo "usage: deploy-webapp.sh prod|test|local"
+  echo "usage: deploy-webapp.sh prod|test|public|local"
   exit 1
 fi
 
@@ -23,6 +23,8 @@ if [ $1 = "prod" ]; then
   SERVICE="vtslab-schedule-prod"
 elif [ $1 = "test" ]; then
   SERVICE="vtslab-schedule-test"
+elif [ $1 = "public" ]; then
+  SERVICE="vtslab-schedule"
 else
   dev_appserver.py ./
   exit 0
@@ -30,6 +32,6 @@ fi
 
 echo "Deploying the web app to $SERVICE ..."
 
-gcloud app deploy app.yaml index.yaml cron.yaml --project=$SERVICE
+gcloud app deploy app.yaml cron.yaml index.yaml queue.yaml worker.yaml --project=$SERVICE
 
 echo "Deployment done!"
