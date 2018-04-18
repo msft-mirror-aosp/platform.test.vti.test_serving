@@ -21,6 +21,7 @@ message LabConfigMessage {
   // Lab name where format is labtype-location-instance (e.g., vtslab-mtv32-main).
   optional bytes name = 1;
   optional bytes owner = 2;
+  repeated bytes admin = 3;
 
   // For the IP address.
   repeated HostConfigMessage host = 11;
