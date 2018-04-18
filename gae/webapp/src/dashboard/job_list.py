@@ -26,19 +26,21 @@ class JobStats(object):
     """Job stats class.
 
     Attributes:
+        boot_error: int, the number of boot-up error jobs.
         created: int, the number of created jobs.
         completed: int, the number of completed jobs.
-        failed: int, the number of failed jobs.
         expired: int, the number of expired jobs.
+        infra_error: int, the number of infra error jobs.
         running: int, the number of running jobs.
         ready: int, the number of ready jobs.
         unknown: int, the number of unknown jobs.
     """
 
+    boot_error = 0
     created = 0
     completed = 0
-    failed = 0
     expired = 0
+    infra_error = 0
     running = 0
     ready = 0
     unknown = 0
@@ -87,7 +89,9 @@ class JobPage(base.BaseHandler):
         elif job.status == vtslab_status.JOB_STATUS_DICT["ready"]:
             stats.ready += 1
         elif job.status == vtslab_status.JOB_STATUS_DICT["infra-err"]:
-            stats.failed += 1
+            stats.infra_error += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["bootup-err"]:
+            stats.boot_error += 1
         elif job.status == vtslab_status.JOB_STATUS_DICT["expired"]:
             stats.expired += 1
         else:

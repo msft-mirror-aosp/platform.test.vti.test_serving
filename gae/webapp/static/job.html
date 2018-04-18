@@ -79,25 +79,39 @@
           <td>Created
           <td>Completed
           <td>Running/Ready
-          <td>Failed/Expired
+          <td>Boot up Error
+          <td>Infra Error
+          <td>Expired
         <tr>
           <td>24 Hours
           <td>{{ stats_24hrs.created }}
           <td>
             {% if stats_24hrs.created %}
-            {{ stats_24hrs.completed * 100 / stats_24hrs.created }}%
+            {{ "%0.2f" % (stats_24hrs.completed * 100 / stats_24hrs.created)|float }}%
             {% else %}
             n/a
             {% endif %}
           <td>
             {% if stats_24hrs.created %}
-            {{ (stats_24hrs.running + stats_24hrs.ready) * 100 / stats_24hrs.created }}%
+            {{ "%0.2f" % ((stats_24hrs.running + stats_24hrs.ready) * 100 / stats_24hrs.created)|float }}%
             {% else %}
             n/a
             {% endif %}
           <td>
             {% if stats_24hrs.created %}
-            {{ (stats_24hrs.failed + stats_24hrs.expired) * 100 / stats_24hrs.created }}%
+            {{ "%0.2f" % (stats_24hrs.boot_error * 100 / stats_24hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_24hrs.created %}
+            {{ "%0.2f" % (stats_24hrs.infra_error * 100 / stats_24hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_24hrs.created %}
+            {{ "%0.2f" % (stats_24hrs.expired * 100 / stats_24hrs.created)|float }}%
             {% else %}
             n/a
             {% endif %}
@@ -106,19 +120,31 @@
           <td>{{ stats_all.created }}
           <td>
             {% if stats_all.created %}
-            {{ stats_all.completed * 100 / stats_all.created }}%
+            {{ "%0.2f" % (stats_all.completed * 100 / stats_all.created)|float }}%
             {% else %}
             n/a
             {% endif %}
           <td>
             {% if stats_all.created %}
-            {{ (stats_all.running + stats_all.ready) * 100 / stats_all.created }}%
+            {{ "%0.2f" % ((stats_all.running + stats_all.ready) * 100 / stats_all.created)|float }}%
             {% else %}
             n/a
             {% endif %}
           <td>
             {% if stats_all.created %}
-            {{ (stats_all.failed + stats_all.expired) * 100 / stats_all.created }}%
+            {{ "%0.2f" % (stats_all.boot_error * 100 / stats_all.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_all.created %}
+            {{ "%0.2f" % (stats_all.infra_error * 100 / stats_all.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_all.created %}
+            {{ "%0.2f" % (stats_all.expired * 100 / stats_all.created)|float }}%
             {% else %}
             n/a
             {% endif %}
