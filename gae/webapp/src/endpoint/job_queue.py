@@ -20,8 +20,9 @@ import re
 
 from protorpc import remote
 
-from webapp.src.proto import model
 from webapp.src import vtslab_status as Status
+from webapp.src.proto import model
+from webapp.src.utils import email_util
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
 GCS_URL_PREFIX = "gs://"
@@ -175,18 +176,22 @@ class JobQueueApi(remote.Service):
             logging.debug("[heartbeat]  - devices = {}".format(
                 ", ".join([device.serial for device in devices])))
             if request.status == Status.JOB_STATUS_DICT["complete"]:
+                job.status = request.status
                 for device in devices:
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                     device.put()
-            elif (request.status == Status.JOB_STATUS_DICT["infra-err"]
-                  or request.status == Status.JOB_STATUS_DICT["bootup-err"]):
+            elif (request.status in [Status.JOB_STATUS_DICT["infra-err"],
+                                     Status.JOB_STATUS_DICT["bootup-err"]]):
+                job.status = request.status
+                email_util.send_job_notification(job)
                 for device in devices:
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                     device.status = Status.DEVICE_STATUS_DICT["unknown"]
                     device.put()
             elif request.status == Status.JOB_STATUS_DICT["leased"]:
+                job.status = request.status
                 for device in devices:
                     device.timestamp = datetime.datetime.now()
                     device.put()
@@ -205,7 +210,6 @@ class JobQueueApi(remote.Service):
                     job.infra_log_url = request.infra_log_url
                 else:
                     logging.debug("[heartbeat] Wrong infra_log_url address.")
-            job.status = request.status
             job.heartbeat_stamp = datetime.datetime.now()
             job.put()
             return model.JobLeaseResponse(
