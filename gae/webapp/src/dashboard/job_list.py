@@ -18,7 +18,7 @@
 import datetime
 
 from webapp.src import vtslab_status
-from webapp.src.handlers.base import BaseHandler
+from webapp.src.handlers import base
 from webapp.src.proto import model
 
 
@@ -26,25 +26,27 @@ class JobStats(object):
     """Job stats class.
 
     Attributes:
+        boot_error: int, the number of boot-up error jobs.
         created: int, the number of created jobs.
         completed: int, the number of completed jobs.
-        failed: int, the number of failed jobs.
         expired: int, the number of expired jobs.
+        infra_error: int, the number of infra error jobs.
         running: int, the number of running jobs.
         ready: int, the number of ready jobs.
         unknown: int, the number of unknown jobs.
     """
 
+    boot_error = 0
     created = 0
     completed = 0
-    failed = 0
     expired = 0
+    infra_error = 0
     running = 0
     ready = 0
     unknown = 0
 
 
-class JobPage(BaseHandler):
+class JobPage(base.BaseHandler):
     """Main class for /job web page."""
 
     def get(self):
@@ -87,14 +89,16 @@ class JobPage(BaseHandler):
         elif job.status == vtslab_status.JOB_STATUS_DICT["ready"]:
             stats.ready += 1
         elif job.status == vtslab_status.JOB_STATUS_DICT["infra-err"]:
-            stats.failed += 1
+            stats.infra_error += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["bootup-err"]:
+            stats.boot_error += 1
         elif job.status == vtslab_status.JOB_STATUS_DICT["expired"]:
             stats.expired += 1
         else:
             stats.unknown += 1
 
 
-class CreateJobTemplatePage(BaseHandler):
+class CreateJobTemplatePage(base.BaseHandler):
     """Main class for /create_job_template web page."""
 
     def get(self):
@@ -104,7 +108,7 @@ class CreateJobTemplatePage(BaseHandler):
         self.render(template_values)
 
 
-class CreateJobPage(BaseHandler):
+class CreateJobPage(base.BaseHandler):
     """Main class for /create_job web page."""
 
     def get(self):
@@ -183,6 +187,8 @@ class CreateJobPage(BaseHandler):
             job_query = model.JobModel.query()
             jobs = job_query.fetch()
 
-        template_values = {"message": message, }
+        template_values = {
+            "message": message
+        }
 
         self.render(template_values)

@@ -48,6 +48,7 @@ indexes:
   properties:
   - name: name
   - name: owner
+  - name: admin
   - name: hostname
   - name: ip
   - name: script

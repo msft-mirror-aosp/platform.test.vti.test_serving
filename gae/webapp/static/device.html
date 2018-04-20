@@ -58,7 +58,7 @@
       <h1>Device List</h1>
       <!-- [START greetings] -->
       Utilization: {{ stats.utilization }}%, Error Ratio: {{ stats.error_ratio }}%, Total Device Count: {{ stats.total}}
-      (Now: {{ now }})<br>
+      (Now: {{ convert_time(now).strftime("%Y-%m-%d %H:%M:%S %Z") }})<br>
       <table border=1>
       <tr>
         <td>#
@@ -94,7 +94,11 @@
               1: "reserved",
               2: "use"}[device.scheduling_status] | default("status key error") }}
         <td>
-          {{ device.timestamp }}
+        {% if device.timestamp %}
+        {{ convert_time(device.timestamp).strftime("%Y-%m-%d %H:%M:%S") }}
+        {% else %}
+        {{ device.timestamp }}
+        {% endif %}
       </tr>
       {% endfor %}
       </table>
@@ -106,6 +110,7 @@
         <td>#
         <td>Name
         <td>Owner
+        <td>Admin
         <td>Hostname
         <td>IP
         <td>Script
@@ -121,6 +126,8 @@
           {{ lab.name }}
         <td>
           {{ lab.owner }}
+        <td>
+          {{ lab.admin }}
         <td>
           {{ lab.hostname }}
         <td>

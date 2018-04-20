@@ -25,7 +25,7 @@ from webapp.src.endpoint import host_info
 from webapp.src.proto import model
 
 
-SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(
+LAB_INFO_RESOURCE = endpoints.ResourceContainer(
     model.LabInfoMessage)
 LAB_HOST_INFO_RESOURCE = endpoints.ResourceContainer(
     model.LabHostInfoMessage)
@@ -36,7 +36,7 @@ class LabInfoApi(remote.Service):
     """Endpoint API for lab_info."""
 
     @endpoints.method(
-        SCHEDULE_INFO_RESOURCE,
+        LAB_INFO_RESOURCE,
         model.DefaultResponse,
         path="clear",
         http_method="POST",
@@ -51,7 +51,7 @@ class LabInfoApi(remote.Service):
             return_code=model.ReturnCodeMessage.SUCCESS)
 
     @endpoints.method(
-        SCHEDULE_INFO_RESOURCE,
+        LAB_INFO_RESOURCE,
         model.DefaultResponse,
         path="set",
         http_method="POST",
@@ -62,6 +62,7 @@ class LabInfoApi(remote.Service):
             lab = model.LabModel()
             lab.name = request.name
             lab.owner = request.owner
+            lab.admin = request.admin
             lab.hostname = host.hostname
             lab.ip = host.ip
             lab.script = host.script

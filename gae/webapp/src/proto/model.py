@@ -134,6 +134,7 @@ class LabModel(ndb.Model):
     """A model for representing an individual lab entry."""
     name = ndb.StringProperty()
     owner = ndb.StringProperty()
+    admin = ndb.StringProperty(repeated=True)
     hostname = ndb.StringProperty()
     ip = ndb.StringProperty()
     # devices is a comma-separated list of serial=product pairs
@@ -162,6 +163,7 @@ class LabInfoMessage(messages.Message):
     """A message for representing an individual lab entry."""
     name = messages.StringField(1)
     owner = messages.StringField(2)
+    admin = messages.StringField(4, repeated=True)
     host = messages.MessageField(
         LabHostInfoMessage, 3, repeated=True)
 
