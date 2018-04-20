@@ -17,6 +17,7 @@
 
 import datetime
 import logging
+import re
 
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
@@ -24,6 +25,76 @@ from webapp.src.utils import logger
 import webapp2
 
 MAX_LOG_CHARACTERS = 10000  # maximum number of characters per each log
+
+
+def GetTestVersionType(manifest_branch, gsi_branch, test_type=0):
+    """Compares manifest branch and gsi branch to get test type.
+
+    This function only completes two LSBs which represent version related
+    test type.
+
+    Args:
+        manifest_branch: a string, manifest branch name.
+        gsi_branch: a string, gsi branch name.
+        test_type: an integer, previous test type value.
+
+    Returns:
+        An integer, test type value.
+    """
+    if not test_type:
+        value = 0
+    else:
+        # clear two bits
+        value = test_type & ~(1 | 1 << 1)
+
+    if not manifest_branch:
+        logging.debug("manifest branch cannot be empty or None.")
+        return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_UNKNOWN]
+
+    if not gsi_branch:
+        logging.debug("gsi_branch is empty.")
+        return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_TOT]
+
+    gcs_pattern = "^gs://.*/v([0-9.]*)/.*"
+    p_pattern = "(git_)?p.*"
+    o_mr1_pattern = "(git_)?o.*mr1.*"
+    o_pattern = "(git_)?o.*"
+    master_pattern = "(git_)master"
+
+    gcs_search = re.search(gcs_pattern, manifest_branch)
+    if gcs_search:
+        device_version = gcs_search.group(1)
+    elif re.match(p_pattern, manifest_branch):
+        device_version = "9.0"
+    elif re.match(o_mr1_pattern, manifest_branch):
+        device_version = "8.1"
+    elif re.match(o_pattern, manifest_branch):
+        device_version = "8.0"
+    elif re.match(master_pattern, manifest_branch):
+        device_version = "master"
+    else:
+        logging.debug("Unknown device version.")
+        return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_UNKNOWN]
+
+    gcs_search = re.search(gcs_pattern, gsi_branch)
+    if gcs_search:
+        gsi_version = gcs_search.group(1)
+    elif re.match(p_pattern, gsi_branch):
+        gsi_version = "9.0"
+    elif re.match(o_mr1_pattern, gsi_branch):
+        gsi_version = "8.1"
+    elif re.match(o_pattern, gsi_branch):
+        gsi_version = "8.0"
+    elif re.match(master_pattern, gsi_branch):
+        gsi_version = "master"
+    else:
+        logging.debug("Unknown gsi version.")
+        return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_UNKNOWN]
+
+    if device_version == gsi_version:
+        return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_TOT]
+    else:
+        return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_OTA]
 
 
 class ScheduleHandler(webapp2.RequestHandler):
@@ -145,8 +216,16 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.test_storage_type = schedule.test_storage_type
                 new_job.test_branch = schedule.test_branch
                 new_job.test_build_target = schedule.test_build_target
-                new_job.test_pab_account_id = (schedule.test_pab_account_id)
+                new_job.test_pab_account_id = schedule.test_pab_account_id
                 new_job.parent_schedule = schedule.key
+
+                # uses bit 0-1 to indicate version.
+                test_type = GetTestVersionType(schedule.manifest_branch,
+                                               schedule.gsi_branch)
+                # uses bit 2
+                if schedule.require_signed_device_build:
+                    test_type |= Status.TEST_TYPE_DICT[Status.TEST_TYPE_SIGNED]
+                new_job.test_type = test_type
 
                 new_job.build_id = ""
 

@@ -82,3 +82,4 @@ indexes:
   - name: infra_log_url
   - name: timestamp
   - name: parent_schedule
+  - name: test_type

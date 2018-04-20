@@ -155,6 +155,7 @@
       <table border=1>
       <tr>
         <td>#
+        <td>test_type
         <td>manifest_branch
         <td>build_target
         <td>test_name
@@ -179,6 +180,8 @@
         <td>
           {{ index }}
           {% set index = index + 1 %}
+        <td>
+          {{ test_type_text(job.test_type) }}
         <td>
           {{ job.manifest_branch }}
         <td>

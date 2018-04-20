@@ -23,6 +23,35 @@ from webapp.src.scheduler import schedule_worker
 from webapp.src.proto import model
 
 
+def test_type_text(test_type, join_str=", "):
+    """Generates text to represent in HTML with given test type.
+
+    Args:
+        test_type: an integer, test type value.
+        join_str: a string, join separator.
+
+    Returns:
+        A string of test type.
+    """
+    text_list = []
+
+    if not test_type:
+        return "Unknown"
+
+    if (test_type & 3) == (
+            vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_UNKNOWN]):
+        return "Unknown"
+
+    if test_type & vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_TOT]:
+        text_list.append("ToT")
+    if test_type & vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_OTA]:
+        text_list.append("OTA")
+    if test_type & vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_SIGNED]:
+        text_list.append("Signed")
+
+    return join_str.join(text_list)
+
+
 class JobStats(object):
     """Job stats class.
 
@@ -97,7 +126,8 @@ class JobPage(JobBase):
             "jobs": sorted(jobs, key=lambda x: x.timestamp,
                            reverse=True),
             "stats_all": stats_all,
-            "stats_24hrs": stats_24hrs
+            "stats_24hrs": stats_24hrs,
+            "test_type_text": test_type_text
         }
 
         self.render(template_values)
@@ -217,7 +247,8 @@ class CreateJobPage(JobBase):
             "jobs": sorted(jobs, key=lambda x: x.timestamp,
                            reverse=True),
             "stats_all": stats_all,
-            "stats_24hrs": stats_24hrs
+            "stats_24hrs": stats_24hrs,
+            "test_type_text": test_type_text
         }
 
         self.render(template_values)

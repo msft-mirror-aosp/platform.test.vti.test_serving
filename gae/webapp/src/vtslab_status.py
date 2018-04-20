@@ -73,6 +73,32 @@ STORAGE_TYPE_DICT = {
 }
 
 
+TEST_TYPE_UNKNOWN = "unknown"
+TEST_TYPE_TOT = "ToT"
+TEST_TYPE_OTA = "OTA"
+TEST_TYPE_SIGNED = "signed"
+TEST_TYPE_PRESUBMIT = "presubmit"
+TEST_TYPE_MANUAL = "manual"
+
+# a dict, where keys indicate test type and values have bitwise values.
+# bit 0-1  : version related test type
+#            00 - Unknown
+#            01 - ToT
+#            10 - OTA
+# bit 2    : device signed build
+# bit 3-4  : reserved for gerrit related test type
+#            01 - pre-submit
+# bit 5    : manually created test job
+TEST_TYPE_DICT = {
+    TEST_TYPE_UNKNOWN: 0,
+    TEST_TYPE_TOT: 1,
+    TEST_TYPE_OTA: 1 << 1,
+    TEST_TYPE_SIGNED: 1 << 2,
+    TEST_TYPE_PRESUBMIT: 1 << 3,
+    TEST_TYPE_MANUAL: 1 << 5
+}
+
+
 def PrioritySortHelper(priority):
     """Helper function to sort jobs based on priority.
 
