@@ -18,8 +18,11 @@
 import datetime
 import webapp2
 
+from google.appengine.ext import ndb
+
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
+from webapp.src.utils import email_util
 from webapp.src.utils import logger
 
 JOB_RESPONSE_TIMEOUT_SECONDS = 300
@@ -54,13 +57,14 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
                     job_timestamp).seconds >= JOB_RESPONSE_TIMEOUT_SECONDS:
                 lost_jobs.append(job)
 
+        lost_jobs_to_put = []
         for job in lost_jobs:
             self.logger.Println("Lost job found")
             self.logger.Println(
                 "[hostname]{} [device]{} [test_name]{}".format(
                     job.hostname, job.device, job.test_name))
             job.status = Status.JOB_STATUS_DICT["infra-err"]
-            job.put()
+            lost_jobs_to_put.append(job)
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial)
@@ -71,6 +75,10 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
                 device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
                     "free"]
                 device.put()
+        if lost_jobs_to_put:
+            ndb.put_multi(lost_jobs_to_put)
+            email_util.send_job_notification(lost_jobs_to_put)
+
 
         self.response.write(
             "<pre>\n" + "\n".join(self.logger.Get()) + "\n</pre>")
