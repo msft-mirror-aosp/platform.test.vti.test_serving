@@ -296,3 +296,16 @@ class JobLeaseResponse(messages.Message):
     """A job lease response proto message."""
     return_code = messages.EnumField(ReturnCodeMessage, 1)
     jobs = messages.MessageField(JobMessage, 2, repeated=True)
+
+
+class KeyValueModel(ndb.Model):
+    """A simple key-value model.
+
+    This class uses name as key and store one value or more than one values
+    to store values which require continuous monitoring such as counters,
+    or flags.
+    """
+    name = ndb.StringProperty()
+    string_value = ndb.StringProperty()
+    integer_value = ndb.IntegerProperty()
+    boolean_value = ndb.BooleanProperty()
