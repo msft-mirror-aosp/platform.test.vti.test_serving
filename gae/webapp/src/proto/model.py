@@ -86,6 +86,8 @@ class ScheduleModel(ndb.Model):
     timestamp = ndb.DateTimeProperty(auto_now=False)
     retry_count = ndb.IntegerProperty()
 
+    children_jobs = ndb.KeyProperty(kind="JobModel", repeated=True)
+
 
 class ScheduleControlInfoMessage(messages.Message):
     """A message for representing a schedule control data entry."""
@@ -235,6 +237,8 @@ class JobModel(ndb.Model):
 
     infra_log_url = ndb.StringProperty()
 
+    parent_schedule = ndb.KeyProperty(kind="ScheduleModel")
+
 
 class JobMessage(messages.Message):
     """A message for representing an individual job entry."""
@@ -292,3 +296,16 @@ class JobLeaseResponse(messages.Message):
     """A job lease response proto message."""
     return_code = messages.EnumField(ReturnCodeMessage, 1)
     jobs = messages.MessageField(JobMessage, 2, repeated=True)
+
+
+class KeyValueModel(ndb.Model):
+    """A simple key-value model.
+
+    This class uses name as key and store one value or more than one values
+    to store values which require continuous monitoring such as counters,
+    or flags.
+    """
+    name = ndb.StringProperty()
+    string_value = ndb.StringProperty()
+    integer_value = ndb.IntegerProperty()
+    boolean_value = ndb.BooleanProperty()

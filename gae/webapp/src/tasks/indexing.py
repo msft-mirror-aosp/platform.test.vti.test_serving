@@ -94,7 +94,51 @@ class IndexingHandler(webapp2.RequestHandler):
                 elif model_type == "lab":
                     pass
                 elif model_type == "job":
-                    pass
+                    if not entity.parent_schedule:
+                        # finds and links to a parent schedule.
+                        parent_schedule_query = model.ScheduleModel.query(
+                            model.ScheduleModel.priority == entity.priority,
+                            model.ScheduleModel.test_name == entity.test_name,
+                            model.ScheduleModel.period == entity.period,
+                            model.ScheduleModel.build_storage_type == (
+                                entity.build_storage_type),
+                            model.ScheduleModel.manifest_branch == (
+                                entity.manifest_branch),
+                            model.ScheduleModel.build_target == (
+                                entity.build_target),
+                            model.ScheduleModel.device_pab_account_id == (
+                                entity.pab_account_id),
+                            model.ScheduleModel.shards == entity.shards,
+                            model.ScheduleModel.retry_count == (
+                                entity.retry_count),
+                            model.ScheduleModel.gsi_storage_type == (
+                                entity.gsi_storage_type),
+                            model.ScheduleModel.gsi_branch == (
+                                entity.gsi_branch),
+                            model.ScheduleModel.gsi_build_target == (
+                                entity.gsi_build_target),
+                            model.ScheduleModel.gsi_pab_account_id == (
+                                entity.gsi_pab_account_id),
+                            model.ScheduleModel.gsi_vendor_version == (
+                                entity.gsi_vendor_version),
+                            model.ScheduleModel.test_storage_type == (
+                                entity.test_storage_type),
+                            model.ScheduleModel.test_branch == (
+                                entity.test_branch),
+                            model.ScheduleModel.test_build_target == (
+                                entity.test_build_target),
+                            model.ScheduleModel.test_pab_account_id == (
+                                entity.test_pab_account_id)
+                        )
+                        parent_schedules = parent_schedule_query.fetch()
+                        if not parent_schedules:
+                            logging.error("Parent not found.")
+                            continue
+
+                        parent_schedule = parent_schedules[0]
+                        parent_schedule.children_jobs.append(entity.key)
+                        entity.parent_schedule = parent_schedule.key
+                        to_put.append(parent_schedule)
                 elif model_type == "schedule":
                     if entity.build_storage_type is None:
                         entity.build_storage_type = Status.STORAGE_TYPE_DICT[
