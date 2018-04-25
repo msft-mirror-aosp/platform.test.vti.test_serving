@@ -19,6 +19,7 @@ import datetime
 
 from webapp.src import vtslab_status
 from webapp.src.handlers import base
+from webapp.src.scheduler import schedule_worker
 from webapp.src.proto import model
 
 
@@ -46,7 +47,34 @@ class JobStats(object):
     unknown = 0
 
 
-class JobPage(base.BaseHandler):
+class JobBase(base.BaseHandler):
+    """Base class for job pages."""
+
+    def _UpdateStats(self, stats, job):
+        """Updates the stats using the state info of a given job.
+
+        Args:
+            stats: JobStats, the stats class to update.
+            job: JobModel, the job to check.
+        """
+        stats.created += 1
+        if job.status == vtslab_status.JOB_STATUS_DICT["complete"]:
+            stats.completed += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["leased"]:
+            stats.running += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["ready"]:
+            stats.ready += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["infra-err"]:
+            stats.infra_error += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["bootup-err"]:
+            stats.boot_error += 1
+        elif job.status == vtslab_status.JOB_STATUS_DICT["expired"]:
+            stats.expired += 1
+        else:
+            stats.unknown += 1
+
+
+class JobPage(JobBase):
     """Main class for /job web page."""
 
     def get(self):
@@ -74,29 +102,6 @@ class JobPage(base.BaseHandler):
 
         self.render(template_values)
 
-    def _UpdateStats(self, stats, job):
-        """Updates the stats using the state info of a given job.
-
-        Args:
-            stats: JobStats, the stats class to update.
-            job: JobModel, the job to check.
-        """
-        stats.created += 1
-        if job.status == vtslab_status.JOB_STATUS_DICT["complete"]:
-            stats.completed += 1
-        elif job.status == vtslab_status.JOB_STATUS_DICT["leased"]:
-            stats.running += 1
-        elif job.status == vtslab_status.JOB_STATUS_DICT["ready"]:
-            stats.ready += 1
-        elif job.status == vtslab_status.JOB_STATUS_DICT["infra-err"]:
-            stats.infra_error += 1
-        elif job.status == vtslab_status.JOB_STATUS_DICT["bootup-err"]:
-            stats.boot_error += 1
-        elif job.status == vtslab_status.JOB_STATUS_DICT["expired"]:
-            stats.expired += 1
-        else:
-            stats.unknown += 1
-
 
 class CreateJobTemplatePage(base.BaseHandler):
     """Main class for /create_job_template web page."""
@@ -108,7 +113,7 @@ class CreateJobTemplatePage(base.BaseHandler):
         self.render(template_values)
 
 
-class CreateJobPage(base.BaseHandler):
+class CreateJobPage(JobBase):
     """Main class for /create_job web page."""
 
     def get(self):
@@ -130,13 +135,14 @@ class CreateJobPage(base.BaseHandler):
                 error_devices.append(device.serial)
 
         if error_devices:
-            message = "Can't create a job because at some devices are not available (%s)." % error_devices
+            message = "Can't create a job because at some devices " \
+                      "are not available (%s)." % error_devices
         else:
             for device in devices:
-                device.scheduling_status = vtslab_status.DEVICE_SCHEDULING_STATUS_DICT[
-                    "reserved"]
+                device.scheduling_status = (
+                    vtslab_status.DEVICE_SCHEDULING_STATUS_DICT["reserved"])
                 device.put()
-            message = "A new job is created! Please click 'Job Queue' menu above to see the new job."
+            message = "A new job is created!"
 
             new_job = model.JobModel()
             new_job.hostname = self.request.get("hostname", default_value="")
@@ -182,13 +188,36 @@ class CreateJobPage(base.BaseHandler):
                                                       default_value="")
             new_job.status = vtslab_status.JOB_STATUS_DICT["ready"]
             new_job.timestamp = datetime.datetime.now()
+
+            test_type = schedule_worker.GetTestVersionType(
+                new_job.manifest_branch, new_job.gsi_branch)
+            if new_job.require_signed_device_build:
+                test_type |= vtslab_status.TEST_TYPE_DICT[
+                    vtslab_status.TEST_TYPE_SIGNED]
+            test_type |= (
+                vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_MANUAL])
+            new_job.test_type = test_type
+
             new_job.put()
 
-            job_query = model.JobModel.query()
-            jobs = job_query.fetch()
+        job_query = model.JobModel.query()
+        jobs = job_query.fetch()
+
+        now = datetime.datetime.now()
+        stats_all = JobStats()
+        stats_24hrs = JobStats()
+        if jobs:
+            for job in jobs:
+                self._UpdateStats(stats_all, job)
+                if now - job.timestamp <= datetime.timedelta(hours=24):
+                    self._UpdateStats(stats_24hrs, job)
 
         template_values = {
-            "message": message
+            "message": message,
+            "jobs": sorted(jobs, key=lambda x: x.timestamp,
+                           reverse=True),
+            "stats_all": stats_all,
+            "stats_24hrs": stats_24hrs
         }
 
         self.render(template_values)
