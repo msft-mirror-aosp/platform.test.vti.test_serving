@@ -82,6 +82,8 @@ class ScheduleInfoApi(remote.Service):
         schedule.test_pab_account_id = request.test_pab_account_id
         schedule.timestamp = datetime.datetime.now()
         schedule.schedule_type = "test"
+        schedule.error_count = 0
+        schedule.suspended = False
         schedule.put()
 
         return model.DefaultResponse(

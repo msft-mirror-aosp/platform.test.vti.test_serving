@@ -15,8 +15,11 @@
 # limitations under the License.
 #
 
+from google.appengine.ext import ndb
+
 from webapp.src.handlers import base
 from webapp.src.proto import model
+from webapp.src.utils import email_util
 
 
 class SchedulePage(base.BaseHandler):
@@ -25,6 +28,22 @@ class SchedulePage(base.BaseHandler):
     def get(self):
         """Generates an HTML page based on the task schedules kept in DB."""
         self.template = "schedule.html"
+
+        resume_key = self.request.get("resume")
+        if resume_key:
+            schedule_key = ndb.key.Key(urlsafe=resume_key)
+            schedule = schedule_key.get()
+            schedule.suspended = False
+            schedule.put()
+            email_util.send_schedule_suspension_notification(schedule)
+
+        suspend_key = self.request.get("suspend")
+        if suspend_key:
+            schedule_key = ndb.key.Key(urlsafe=suspend_key)
+            schedule = schedule_key.get()
+            schedule.suspended = True
+            schedule.put()
+            email_util.send_schedule_suspension_notification(schedule)
 
         toggle = self.request.get("schedule_enable_status_toggle", default_value="0")
 

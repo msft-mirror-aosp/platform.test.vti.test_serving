@@ -152,6 +152,10 @@ class IndexingHandler(webapp2.RequestHandler):
                             to_put.append(parent_schedule)
 
                 elif model_type == "schedule":
+                    if entity.error_count is None:
+                        entity.error_count = 0
+                    if entity.suspended is None:
+                        entity.suspended = False
                     if entity.build_storage_type is None:
                         entity.build_storage_type = Status.STORAGE_TYPE_DICT[
                             "PAB"]

@@ -87,6 +87,8 @@ class ScheduleModel(ndb.Model):
     retry_count = ndb.IntegerProperty()
 
     children_jobs = ndb.KeyProperty(kind="JobModel", repeated=True)
+    error_count = ndb.IntegerProperty()
+    suspended = ndb.BooleanProperty()
 
 
 class ScheduleControlInfoMessage(messages.Message):
@@ -156,8 +158,7 @@ class LabHostInfoMessage(messages.Message):
     hostname = messages.StringField(1, repeated=False)
     ip = messages.StringField(2, repeated=False)
     script = messages.StringField(3)
-    device = messages.MessageField(
-        LabDeviceInfoMessage, 4, repeated=True)
+    device = messages.MessageField(LabDeviceInfoMessage, 4, repeated=True)
     vtslab_version = messages.StringField(5)
 
 
@@ -166,8 +167,7 @@ class LabInfoMessage(messages.Message):
     name = messages.StringField(1)
     owner = messages.StringField(2)
     admin = messages.StringField(4, repeated=True)
-    host = messages.MessageField(
-        LabHostInfoMessage, 3, repeated=True)
+    host = messages.MessageField(LabHostInfoMessage, 3, repeated=True)
 
 
 class DeviceModel(ndb.Model):
@@ -191,8 +191,7 @@ class DeviceInfoMessage(messages.Message):
 class HostInfoMessage(messages.Message):
     """A message for representing an individual host entry."""
     hostname = messages.StringField(1)
-    devices = messages.MessageField(
-        DeviceInfoMessage, 2, repeated=True)
+    devices = messages.MessageField(DeviceInfoMessage, 2, repeated=True)
 
 
 class JobModel(ndb.Model):
