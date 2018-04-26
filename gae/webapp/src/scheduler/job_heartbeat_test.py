@@ -25,6 +25,7 @@ except ImportError:
 
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
+from webapp.src.scheduler import job_heartbeat
 from webapp.src.scheduler import schedule_worker
 
 from google.appengine.ext import ndb
@@ -50,8 +51,6 @@ class JobHeartbeatTest(unittest.TestCase):
         self.testbed.init_mail_stub()
         # Clear cache between tests.
         ndb.get_context().clear_cache()
-        # import job_heartbeat after setting app_id.
-        from webapp.src.scheduler import job_heartbeat
         # Mocking PeriodicJobHeartBeat and essential methods.
         self.job_heartbeat = job_heartbeat.PeriodicJobHeartBeat(mock.Mock())
         self.job_heartbeat.response = mock.Mock()

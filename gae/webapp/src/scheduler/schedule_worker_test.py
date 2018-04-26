@@ -69,12 +69,17 @@ class ScheduleHandlerTest(unittest.TestCase):
         schedule.device = ["test_lab1/product1"]
         schedule.shards = 1
         schedule.build_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
+        schedule.gsi_branch = "gsi_branch"
+        schedule.gsi_build_target = "gsi_build_target"
+        schedule.test_branch = "test_branch"
+        schedule.test_build_target = "test_build_target"
         schedule.require_signed_device_build = False
         schedule.put()
 
         lab = model.LabModel()
         lab.name = "test_lab1"
         lab.hostname = "test_lab1_host1"
+        lab.owner = "test@google.com"
         lab.put()
 
         device = model.DeviceModel()
