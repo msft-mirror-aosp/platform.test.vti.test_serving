@@ -19,6 +19,7 @@ import logging
 
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
+from webapp.src.scheduler import schedule_worker
 
 import webapp2
 from google.appengine.api import taskqueue
@@ -36,6 +37,7 @@ DICT_MODELS = {
 
 class CreateIndex(webapp2.RequestHandler):
     """Cron class for /tasks/indexing/{model}."""
+
     def get(self, arg):
         """Creates a task to re-index, with given URL format."""
         index_list = []
@@ -71,6 +73,7 @@ class CreateIndex(webapp2.RequestHandler):
 
 class IndexingHandler(webapp2.RequestHandler):
     """Task queue handler class to re-index ndb model."""
+
     def post(self):
         """Fetch entities and process model specific jobs."""
         reload(model)
@@ -94,6 +97,16 @@ class IndexingHandler(webapp2.RequestHandler):
                 elif model_type == "lab":
                     pass
                 elif model_type == "job":
+                    if not entity.test_type:
+                        # uses bits 0-1 to indicate version.
+                        test_type = schedule_worker.GetTestVersionType(
+                            entity.manifest_branch, entity.gsi_branch)
+                        # uses bit 2
+                        if entity.require_signed_device_build:
+                            test_type |= (
+                                Status.TEST_TYPE_DICT[Status.TEST_TYPE_SIGNED])
+                        entity.test_type = test_type
+
                     if not entity.parent_schedule:
                         # finds and links to a parent schedule.
                         parent_schedule_query = model.ScheduleModel.query(
@@ -128,17 +141,16 @@ class IndexingHandler(webapp2.RequestHandler):
                             model.ScheduleModel.test_build_target == (
                                 entity.test_build_target),
                             model.ScheduleModel.test_pab_account_id == (
-                                entity.test_pab_account_id)
-                        )
+                                entity.test_pab_account_id))
                         parent_schedules = parent_schedule_query.fetch()
                         if not parent_schedules:
                             logging.error("Parent not found.")
-                            continue
+                        else:
+                            parent_schedule = parent_schedules[0]
+                            parent_schedule.children_jobs.append(entity.key)
+                            entity.parent_schedule = parent_schedule.key
+                            to_put.append(parent_schedule)
 
-                        parent_schedule = parent_schedules[0]
-                        parent_schedule.children_jobs.append(entity.key)
-                        entity.parent_schedule = parent_schedule.key
-                        to_put.append(parent_schedule)
                 elif model_type == "schedule":
                     if entity.build_storage_type is None:
                         entity.build_storage_type = Status.STORAGE_TYPE_DICT[

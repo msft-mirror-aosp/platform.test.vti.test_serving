@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import datetime
+
 from webapp.src.handlers import base
 from webapp.src.proto import model
 
@@ -30,7 +32,9 @@ def ReadBuildInfo(target_branch=""):
         a dict containing device build information,
         a dict containing gsi build information.
     """
-    build_query = model.BuildModel.query()
+    build_query = model.BuildModel.query(
+        model.BuildModel.timestamp >
+        datetime.datetime.now() - datetime.timedelta(days=2))
     builds = build_query.fetch()
 
     test_builds = {}

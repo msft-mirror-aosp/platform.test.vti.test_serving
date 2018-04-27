@@ -19,7 +19,37 @@ import datetime
 
 from webapp.src import vtslab_status
 from webapp.src.handlers import base
+from webapp.src.scheduler import schedule_worker
 from webapp.src.proto import model
+
+
+def test_type_text(test_type, join_str=", "):
+    """Generates text to represent in HTML with given test type.
+
+    Args:
+        test_type: an integer, test type value.
+        join_str: a string, join separator.
+
+    Returns:
+        A string of test type.
+    """
+    text_list = []
+
+    if not test_type:
+        return "Unknown"
+
+    if (test_type & 3) == (
+            vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_UNKNOWN]):
+        return "Unknown"
+
+    if test_type & vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_TOT]:
+        text_list.append("ToT")
+    if test_type & vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_OTA]:
+        text_list.append("OTA")
+    if test_type & vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_SIGNED]:
+        text_list.append("Signed")
+
+    return join_str.join(text_list)
 
 
 class JobStats(object):
@@ -46,33 +76,8 @@ class JobStats(object):
     unknown = 0
 
 
-class JobPage(base.BaseHandler):
-    """Main class for /job web page."""
-
-    def get(self):
-        """Generates an HTML page based on the job queue info kept in DB."""
-        self.template = "job.html"
-
-        job_query = model.JobModel.query()
-        jobs = job_query.fetch()
-
-        now = datetime.datetime.now()
-        stats_all = JobStats()
-        stats_24hrs = JobStats()
-        if jobs:
-            for job in jobs:
-                self._UpdateStats(stats_all, job)
-                if now - job.timestamp <= datetime.timedelta(hours=24):
-                    self._UpdateStats(stats_24hrs, job)
-
-        template_values = {
-            "jobs": sorted(jobs, key=lambda x: x.timestamp,
-                           reverse=True),
-            "stats_all": stats_all,
-            "stats_24hrs": stats_24hrs
-        }
-
-        self.render(template_values)
+class JobBase(base.BaseHandler):
+    """Base class for job pages."""
 
     def _UpdateStats(self, stats, job):
         """Updates the stats using the state info of a given job.
@@ -98,6 +103,36 @@ class JobPage(base.BaseHandler):
             stats.unknown += 1
 
 
+class JobPage(JobBase):
+    """Main class for /job web page."""
+
+    def get(self):
+        """Generates an HTML page based on the job queue info kept in DB."""
+        self.template = "job.html"
+
+        job_query = model.JobModel.query()
+        jobs = job_query.fetch()
+
+        now = datetime.datetime.now()
+        stats_all = JobStats()
+        stats_24hrs = JobStats()
+        if jobs:
+            for job in jobs:
+                self._UpdateStats(stats_all, job)
+                if now - job.timestamp <= datetime.timedelta(hours=24):
+                    self._UpdateStats(stats_24hrs, job)
+
+        template_values = {
+            "jobs": sorted(jobs, key=lambda x: x.timestamp,
+                           reverse=True),
+            "stats_all": stats_all,
+            "stats_24hrs": stats_24hrs,
+            "test_type_text": test_type_text
+        }
+
+        self.render(template_values)
+
+
 class CreateJobTemplatePage(base.BaseHandler):
     """Main class for /create_job_template web page."""
 
@@ -108,7 +143,7 @@ class CreateJobTemplatePage(base.BaseHandler):
         self.render(template_values)
 
 
-class CreateJobPage(base.BaseHandler):
+class CreateJobPage(JobBase):
     """Main class for /create_job web page."""
 
     def get(self):
@@ -130,13 +165,14 @@ class CreateJobPage(base.BaseHandler):
                 error_devices.append(device.serial)
 
         if error_devices:
-            message = "Can't create a job because at some devices are not available (%s)." % error_devices
+            message = "Can't create a job because at some devices " \
+                      "are not available (%s)." % error_devices
         else:
             for device in devices:
-                device.scheduling_status = vtslab_status.DEVICE_SCHEDULING_STATUS_DICT[
-                    "reserved"]
+                device.scheduling_status = (
+                    vtslab_status.DEVICE_SCHEDULING_STATUS_DICT["reserved"])
                 device.put()
-            message = "A new job is created! Please click 'Job Queue' menu above to see the new job."
+            message = "A new job is created!"
 
             new_job = model.JobModel()
             new_job.hostname = self.request.get("hostname", default_value="")
@@ -182,13 +218,37 @@ class CreateJobPage(base.BaseHandler):
                                                       default_value="")
             new_job.status = vtslab_status.JOB_STATUS_DICT["ready"]
             new_job.timestamp = datetime.datetime.now()
+
+            test_type = schedule_worker.GetTestVersionType(
+                new_job.manifest_branch, new_job.gsi_branch)
+            if new_job.require_signed_device_build:
+                test_type |= vtslab_status.TEST_TYPE_DICT[
+                    vtslab_status.TEST_TYPE_SIGNED]
+            test_type |= (
+                vtslab_status.TEST_TYPE_DICT[vtslab_status.TEST_TYPE_MANUAL])
+            new_job.test_type = test_type
+
             new_job.put()
 
-            job_query = model.JobModel.query()
-            jobs = job_query.fetch()
+        job_query = model.JobModel.query()
+        jobs = job_query.fetch()
+
+        now = datetime.datetime.now()
+        stats_all = JobStats()
+        stats_24hrs = JobStats()
+        if jobs:
+            for job in jobs:
+                self._UpdateStats(stats_all, job)
+                if now - job.timestamp <= datetime.timedelta(hours=24):
+                    self._UpdateStats(stats_24hrs, job)
 
         template_values = {
-            "message": message
+            "message": message,
+            "jobs": sorted(jobs, key=lambda x: x.timestamp,
+                           reverse=True),
+            "stats_all": stats_all,
+            "stats_24hrs": stats_24hrs,
+            "test_type_text": test_type_text
         }
 
         self.render(template_values)

@@ -100,6 +100,7 @@ class JobQueueApi(remote.Service):
             job_message.test_build_target = job.test_build_target
             job_message.test_build_id = job.test_build_id
             job_message.test_pab_account_id = job.test_pab_account_id
+            job_message.test_type = job.test_type
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
@@ -164,6 +165,7 @@ class JobQueueApi(remote.Service):
             job_message.status = job.status
             job_message.period = job.period
             job_message.retry_count = job.retry_count
+            job_message.test_type = job.test_type
             job_messages.append(job_message)
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))

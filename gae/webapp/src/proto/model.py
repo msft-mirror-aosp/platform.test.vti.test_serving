@@ -197,6 +197,8 @@ class HostInfoMessage(messages.Message):
 
 class JobModel(ndb.Model):
     """A model for representing an individual job entry."""
+    test_type = ndb.IntegerProperty()
+
     hostname = ndb.StringProperty()
     priority = ndb.StringProperty()
     test_name = ndb.StringProperty()
@@ -242,6 +244,9 @@ class JobModel(ndb.Model):
 
 class JobMessage(messages.Message):
     """A message for representing an individual job entry."""
+    # Next ID = 30
+    test_type = messages.IntegerField(29)
+
     hostname = messages.StringField(1)
     priority = messages.StringField(2)
     test_name = messages.StringField(3)
