@@ -116,6 +116,39 @@
             n/a
             {% endif %}
         <tr>
+          <td>72 Hours
+          <td>{{ stats_72hrs.created }}
+          <td>
+            {% if stats_72hrs.created %}
+            {{ "%0.2f" % (stats_72hrs.completed * 100 / stats_72hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_72hrs.created %}
+            {{ "%0.2f" % ((stats_72hrs.running + stats_72hrs.ready) * 100 / stats_72hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_72hrs.created %}
+            {{ "%0.2f" % (stats_72hrs.boot_error * 100 / stats_72hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_72hrs.created %}
+            {{ "%0.2f" % (stats_72hrs.infra_error * 100 / stats_72hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+          <td>
+            {% if stats_72hrs.created %}
+            {{ "%0.2f" % (stats_72hrs.expired * 100 / stats_72hrs.created)|float }}%
+            {% else %}
+            n/a
+            {% endif %}
+        <tr>
           <td>All
           <td>{{ stats_all.created }}
           <td>

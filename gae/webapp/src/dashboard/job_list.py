@@ -116,17 +116,21 @@ class JobPage(JobBase):
         now = datetime.datetime.now()
         stats_all = JobStats()
         stats_24hrs = JobStats()
+        stats_72hrs = JobStats()
         if jobs:
             for job in jobs:
                 self._UpdateStats(stats_all, job)
                 if now - job.timestamp <= datetime.timedelta(hours=24):
                     self._UpdateStats(stats_24hrs, job)
+                if now - job.timestamp <= datetime.timedelta(hours=72):
+                    self._UpdateStats(stats_72hrs, job)
 
         template_values = {
             "jobs": sorted(jobs, key=lambda x: x.timestamp,
                            reverse=True),
             "stats_all": stats_all,
             "stats_24hrs": stats_24hrs,
+            "stats_72hrs": stats_72hrs,
             "test_type_text": test_type_text
         }
 
@@ -236,11 +240,14 @@ class CreateJobPage(JobBase):
         now = datetime.datetime.now()
         stats_all = JobStats()
         stats_24hrs = JobStats()
+        stats_72hrs = JobStats()
         if jobs:
             for job in jobs:
                 self._UpdateStats(stats_all, job)
                 if now - job.timestamp <= datetime.timedelta(hours=24):
                     self._UpdateStats(stats_24hrs, job)
+                if now - job.timestamp <= datetime.timedelta(hours=72):
+                    self._UpdateStats(stats_72hrs, job)
 
         template_values = {
             "message": message,
@@ -248,6 +255,7 @@ class CreateJobPage(JobBase):
                            reverse=True),
             "stats_all": stats_all,
             "stats_24hrs": stats_24hrs,
+            "stats_72hrs": stats_72hrs,
             "test_type_text": test_type_text
         }
 
