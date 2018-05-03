@@ -20,35 +20,14 @@ import logging
 import os
 import urlparse
 
-import pytz
+from google.appengine.api import users
 import stripe
 import webapp2
-from google.appengine.api import users
 from webapp2_extras import jinja2 as wa2_jinja2
 from webapp2_extras import sessions
 
 import errors
-
-
-def GetTimeWithTimezone(dt, timezone="US/Pacific"):
-    """Converts timezone of datetime.datetime() instance.
-
-    Args:
-        dt: datetime.datetime() instance.
-        timezone: a string representing timezone listed in TZ database.
-
-    Returns:
-        datetime.datetime() instance with the given timezone.
-    """
-    if not dt:
-        return None
-    utc_time = dt.replace(tzinfo=pytz.utc)
-    try:
-        converted_time = utc_time.astimezone(pytz.timezone(timezone))
-    except pytz.UnknownTimeZoneError as e:
-        logging.exception(e)
-        converted_time = dt
-    return converted_time
+from webapp.src.utils import datetime_util
 
 
 class BaseHandler(webapp2.RequestHandler):
@@ -201,7 +180,7 @@ class BaseHandler(webapp2.RequestHandler):
             'user': user,
             'url': url,
             'url_linktext': url_linktext,
-            "convert_time": GetTimeWithTimezone
+            "convert_time": datetime_util.GetTimeWithTimezone
         })
 
         if 'preload' not in resp:
