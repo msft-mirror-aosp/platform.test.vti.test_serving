@@ -23,6 +23,7 @@ from protorpc import remote
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import email_util
+from webapp.src.utils import model_util
 
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
 GCS_URL_PREFIX = "gs://"
@@ -212,8 +213,10 @@ class JobQueueApi(remote.Service):
                     job.infra_log_url = request.infra_log_url
                 else:
                     logging.debug("[heartbeat] Wrong infra_log_url address.")
+
             job.heartbeat_stamp = datetime.datetime.now()
             job.put()
+            model_util.UpdateParentSchedule(job, request.status)
             return model.JobLeaseResponse(
                 return_code=model.ReturnCodeMessage.SUCCESS, jobs=job_messages)
 
