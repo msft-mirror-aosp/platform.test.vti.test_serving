@@ -23,11 +23,10 @@ from google.appengine.api import app_identity
 from google.appengine.api import mail
 
 from webapp.src import vtslab_status as Status
-from webapp.src.handlers import base
 from webapp.src.proto import model
+from webapp.src.utils import datetime_util
 
-SENDER_ADDRESS = "noreply@{}.appspotmail.com".format(
-    app_identity.get_application_id())
+SENDER_ADDRESS = "noreply@{}.appspotmail.com"
 
 SEND_NOTIFICATION_FOOTER = (
     "You are receiving this email because you are "
@@ -44,6 +43,15 @@ SEND_JOB_NOTIFICATION_TITLE = ("[VTS lab] Job error has been occurred in "
                                "lab {} ({})")
 SEND_JOB_NOTIFICATION_HEADER = ("Jobs in lab {} have been completed "
                                 "unexpectedly.")
+SEND_SCHEDULE_SUSPENSION_NOTIFICATION_TITLE = (
+    "[VTS lab] A job schedule has been {}. ({})")
+SEND_SCHEDULE_SUSPENSION_NOTIFICATION_HEADER = ("The below job schedule has "
+                                                "been {}.")
+SEND_SCHEDULE_SUSPENSION_NOTIFICATION_FOOTER = (
+    "You are receiving this email because one or more labs which you are "
+    "listed as an owner or an administrator are affected.\nIf you received "
+    "this email by mistake, please send an email to VTS Lab infra development "
+    "team. Thank you.")
 
 
 def send_device_notification(devices):
@@ -55,7 +63,8 @@ def send_device_notification(devices):
     """
     for lab in devices:
         email_message = mail.EmailMessage()
-        email_message.sender = SENDER_ADDRESS
+        email_message.sender = SENDER_ADDRESS.format(
+            app_identity.get_application_id())
         try:
             email_message.to = verify_recipient_address(
                 devices[lab]["_recipients"])
@@ -64,7 +73,7 @@ def send_device_notification(devices):
             continue
         email_message.subject = SEND_DEVICE_NOTIFICATION_TITLE.format(
             lab,
-            base.GetTimeWithTimezone(
+            datetime_util.GetTimeWithTimezone(
                 datetime.datetime.now()).strftime("%Y-%m-%d"))
         message = ""
         message += SEND_DEVICE_NOTIFICATION_HEADER.format(lab)
@@ -126,7 +135,8 @@ def send_job_notification(jobs):
 
     for lab in labs_to_alert:
         email_message = mail.EmailMessage()
-        email_message.sender = SENDER_ADDRESS
+        email_message.sender = SENDER_ADDRESS.format(
+            app_identity.get_application_id())
         try:
             email_message.to = verify_recipient_address(
                 labs_to_alert[lab]["_recipients"])
@@ -135,7 +145,7 @@ def send_job_notification(jobs):
             continue
         email_message.subject = SEND_JOB_NOTIFICATION_TITLE.format(
             lab,
-            base.GetTimeWithTimezone(
+            datetime_util.GetTimeWithTimezone(
                 datetime.datetime.now()).strftime("%Y-%m-%d"))
         message = ""
         message += SEND_JOB_NOTIFICATION_HEADER.format(lab)
@@ -155,7 +165,7 @@ def send_job_notification(jobs):
             message += "test: branch - {}, target - {}, build_id - {}\n".format(
                 job.test_branch, job.test_build_target, job.test_build_id)
             message += "job created: {}\n".format(
-                base.GetTimeWithTimezone(
+                datetime_util.GetTimeWithTimezone(
                     job.timestamp).strftime("%Y-%m-%d %H:%M:%S %Z"))
             message += "job status: {}\n".format([
                 key for key, value in Status.JOB_STATUS_DICT.items()
@@ -171,6 +181,85 @@ def send_job_notification(jobs):
             email_message.send()
         except mail.MissingRecipientError as e:
             logging.exception(e)
+
+
+def send_schedule_suspension_notification(schedule):
+    """Sends notification when a schedule is suspended, or resumed.
+
+    Args:
+        schedule: a ScheduleModel entity.
+    """
+    if not schedule:
+        return
+
+    if not schedule.device:
+        return
+
+    email_message = mail.EmailMessage()
+    email_message.sender = SENDER_ADDRESS.format(
+        app_identity.get_application_id())
+
+    lab_names = []
+    for device in schedule.device:
+        if not "/" in device:
+            continue
+        lab_name = device.split("/")[0]
+        lab_names.append(lab_name)
+
+    recipients = []
+    for lab_name in lab_names:
+        lab_query = model.LabModel.query(model.LabModel.name == lab_name)
+        labs = lab_query.fetch()
+        if labs:
+            lab = labs[0]
+            if lab.owner not in recipients:
+                recipients.append(lab.owner)
+            recipients.extend([x for x in lab.admin if x not in recipients])
+        else:
+            logging.warning(
+                "Could not find a lab model for lab {}".format(lab_name))
+
+    try:
+        email_message.to = verify_recipient_address(recipients)
+    except ValueError as e:
+        logging.error(e)
+        return
+
+    status_text = "suspended" if schedule.suspended else "resumed"
+    email_message.subject = SEND_SCHEDULE_SUSPENSION_NOTIFICATION_TITLE.format(
+        status_text,
+        datetime_util.GetTimeWithTimezone(
+            datetime.datetime.now()).strftime("%Y-%m-%d"))
+    message = ""
+    message += SEND_SCHEDULE_SUSPENSION_NOTIFICATION_HEADER.format(status_text)
+    message += "\n\n"
+    message += "\n\ndevices\n"
+    message += "\n".join(schedule.device)
+    message += "\n\ndevice branch\n"
+    message += schedule.manifest_branch
+    message += "\n\ndevice build target\n"
+    message += schedule.build_target
+    message += "\n\ngsi branch\n"
+    message += schedule.gsi_branch
+    message += "\n\ngsi build target\n"
+    message += schedule.gsi_build_target
+    message += "\n\ntest branch\n"
+    message += schedule.test_branch
+    message += "\n\ntest build target\n"
+    message += schedule.test_build_target
+    message += "\n\n"
+    message += ("Please see the details in the following link: "
+                "http://{}.appspot.com/schedule".format(
+                    app_identity.get_application_id()))
+    message += "\n\n\n\n"
+    message += SEND_SCHEDULE_SUSPENSION_NOTIFICATION_FOOTER
+
+    try:
+        email_message.body = message
+        email_message.check_initialized()
+        email_message.send()
+    except mail.MissingRecipientError as e:
+        logging.exception(e)
 
 
 def verify_recipient_address(address):
