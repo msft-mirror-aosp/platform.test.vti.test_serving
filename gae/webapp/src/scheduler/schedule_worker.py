@@ -246,6 +246,7 @@ class ScheduleHandler(webapp2.RequestHandler):
                         self.logger.Println("NO BUILD FOUND")
                 elif new_job.build_storage_type == (
                         Status.STORAGE_TYPE_DICT["GCS"]):
+                    self.ReserveDevices(target_device_serials)
                     new_job.status = Status.JOB_STATUS_DICT["ready"]
                     new_job.timestamp = datetime.datetime.now()
                     new_job_key = new_job.put()
