@@ -43,6 +43,8 @@ indexes:
   - name: test_pab_account_id
   - name: timestamp
   - name: children_jobs
+  - name: suspended
+  - name: error_count
 
 - kind: LabModel
   ancestor: no

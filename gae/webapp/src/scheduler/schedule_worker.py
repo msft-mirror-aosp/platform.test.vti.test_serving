@@ -22,6 +22,7 @@ import re
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import logger
+from webapp.src.utils import model_util
 import webapp2
 
 MAX_LOG_CHARACTERS = 10000  # maximum number of characters per each log
@@ -162,7 +163,8 @@ class ScheduleHandler(webapp2.RequestHandler):
 
     def post(self):
         self.logger.Clear()
-        schedule_query = model.ScheduleModel.query()
+        schedule_query = model.ScheduleModel.query(
+            model.ScheduleModel.suspended != True)
         schedules = schedule_query.fetch()
 
         if schedules:
@@ -238,15 +240,18 @@ class ScheduleHandler(webapp2.RequestHandler):
                         new_job.timestamp = datetime.datetime.now()
                         new_job_key = new_job.put()
                         schedule.children_jobs.append(new_job_key)
+                        schedule.put()
                         self.logger.Println("NEW JOB")
                     else:
                         self.logger.Println("NO BUILD FOUND")
                 elif new_job.build_storage_type == (
                         Status.STORAGE_TYPE_DICT["GCS"]):
+                    self.ReserveDevices(target_device_serials)
                     new_job.status = Status.JOB_STATUS_DICT["ready"]
                     new_job.timestamp = datetime.datetime.now()
                     new_job_key = new_job.put()
                     schedule.children_jobs.append(new_job_key)
+                    schedule.put()
                     self.logger.Println("NEW JOB - GCS")
                 else:
                     self.logger.Println("Unexpected storage type (%s)." %
@@ -314,6 +319,7 @@ class ScheduleHandler(webapp2.RequestHandler):
             for job in outdated_ready_jobs:
                 job.status = Status.JOB_STATUS_DICT["infra-err"]
                 job.put()
+                model_util.UpdateParentSchedule(job, job.status)
 
         outdated_leased_jobs = [
             x for x in outdated_jobs

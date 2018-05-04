@@ -25,6 +25,7 @@ from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import email_util
 from webapp.src.utils import logger
+from webapp.src.utils import model_util
 
 JOB_RESPONSE_TIMEOUT_SECONDS = 300
 
@@ -65,6 +66,8 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
                 job.hostname, job.device, job.test_name))
             job.status = Status.JOB_STATUS_DICT["infra-err"]
             lost_jobs_to_put.append(job)
+            model_util.UpdateParentSchedule(job,
+                                            Status.JOB_STATUS_DICT["infra-err"])
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))

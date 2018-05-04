@@ -82,6 +82,7 @@
         <td>param
         <td>priority
         <td>timestamp
+        <td>resume/suspend
       </tr>
       {% set index = 1 %}
       {% for schedule in schedules %}
@@ -112,6 +113,12 @@
           {{ convert_time(schedule.timestamp).strftime("%Y-%m-%d %H:%M:%S") }}
           {% else %}
           {{ schedule.timestamp }}
+          {% endif %}
+        <td>
+          {% if schedule.suspended %}
+          suspended <a href="/schedule?resume={{ schedule.key.urlsafe() }}"><button>resume</button></a>
+          {% else %}
+          error(s): {{ schedule.error_count }} <a href="/schedule?suspend={{ schedule.key.urlsafe() }}"><button>suspend</button></a>
           {% endif %}
       </tr>
       {% endfor %}
