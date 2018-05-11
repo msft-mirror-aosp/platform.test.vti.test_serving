@@ -124,40 +124,41 @@ class ScheduleHandler(webapp2.RequestHandler):
                 "reserved"]
             device.put()
 
-    def FindBuildId(self, new_job):
-        """Finds build ID for a new job.
+    def FindBuildId(self, artifact_type, manifest_branch, target,
+                    signed=False):
+        """Finds a designated build ID.
 
         Args:
-            new_job: JobModel, a new job.
+            artifact_type: a string, build artifact type.
+            manifest_branch: a string, build manifest branch.
+            target: a string which build target and type are joined by '-'.
+            signed: a boolean to get a signed build.
 
         Return:
             string, build ID found.
         """
         build_id = ""
+        if "-" in target:
+            build_target, build_type = target.split("-")
+        else:
+            build_target = target
+            build_type = ""
+        if not artifact_type or not manifest_branch or not build_target:
+            self.logger.Println("The argument format is invalid.")
+            return build_id
         build_query = model.BuildModel.query(
-            model.BuildModel.manifest_branch == new_job.manifest_branch)
+            model.BuildModel.artifact_type == artifact_type,
+            model.BuildModel.manifest_branch == manifest_branch,
+            model.BuildModel.build_target == build_target,
+            model.BuildModel.build_type == build_type)
         builds = build_query.fetch()
 
         if builds:
-            self.logger.Println("-- Find build ID")
-            # Remove builds if build_id info is none
-            build_id_filled = [x for x in builds if x.build_id]
-            sorted_list = sorted(
-                build_id_filled, key=lambda x: int(x.build_id), reverse=True)
-            filtered_list = [
-                x for x in sorted_list
-                if (all(
-                    hasattr(x, attrs)
-                    for attrs in ["build_target", "build_type", "build_id"])
-                    and x.build_target and x.build_type)
-            ]
-            for device_build in filtered_list:
-                candidate_build_target = "-".join(
-                    [device_build.build_target, device_build.build_type])
-                if (new_job.build_target == candidate_build_target
-                        and (not new_job.require_signed_device_build
-                             or device_build.signed)):
-                    build_id = device_build.build_id
+            self.logger.Println("-- Found build ID")
+            builds.sort(key=lambda x: x.build_id, reverse=True)
+            for build in builds:
+                if not signed or build.signed:
+                    build_id = build.build_id
                     break
         return build_id
 
@@ -191,7 +192,6 @@ class ScheduleHandler(webapp2.RequestHandler):
                 self.logger.Println("- Target device: %s" % target_device)
                 self.logger.Println(
                     "- Target serials: %s" % target_device_serials)
-                # TODO: update device status
 
                 # create job and add.
                 new_job = model.JobModel()
@@ -230,32 +230,55 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.test_type = test_type
 
                 new_job.build_id = ""
-
-                if new_job.build_storage_type == (
-                        Status.STORAGE_TYPE_DICT["PAB"]):
-                    new_job.build_id = self.FindBuildId(new_job)
-                    if new_job.build_id:
-                        self.ReserveDevices(target_device_serials)
-                        new_job.status = Status.JOB_STATUS_DICT["ready"]
-                        new_job.timestamp = datetime.datetime.now()
-                        new_job_key = new_job.put()
-                        schedule.children_jobs.append(new_job_key)
-                        schedule.put()
-                        self.logger.Println("NEW JOB")
+                new_job.gsi_build_id = ""
+                new_job.test_build_id = ""
+                for artifact_type in ["device", "gsi", "test"]:
+                    if artifact_type == "device":
+                        storage_type_text = "build_storage_type"
+                        manifest_branch_text = "manifest_branch"
+                        build_target_text = "build_target"
+                        build_id_text = "build_id"
+                        signed = new_job.require_signed_device_build
                     else:
-                        self.logger.Println("NO BUILD FOUND")
-                elif new_job.build_storage_type == (
-                        Status.STORAGE_TYPE_DICT["GCS"]):
+                        storage_type_text = artifact_type + "_storage_type"
+                        manifest_branch_text = artifact_type + "_branch"
+                        build_target_text = artifact_type + "_build_target"
+                        build_id_text = artifact_type + "_build_id"
+                        signed = False
+
+                    manifest_branch = getattr(new_job, manifest_branch_text)
+                    build_target = getattr(new_job, build_target_text)
+                    storage_type = getattr(new_job, storage_type_text)
+                    if storage_type == Status.STORAGE_TYPE_DICT["PAB"]:
+                        build_id = self.FindBuildId(
+                            artifact_type=artifact_type,
+                            manifest_branch=manifest_branch,
+                            target=build_target,
+                            signed=signed)
+                    elif storage_type == Status.STORAGE_TYPE_DICT["GCS"]:
+                        # temp value to distinguish from empty values.
+                        build_id = "gcs"
+                    else:
+                        build_id = ""
+                        self.logger.Println(
+                            "Unexpected storage type (%s)." % storage_type)
+                    setattr(new_job, build_id_text, build_id)
+
+                if (new_job.build_id and new_job.gsi_build_id
+                        and new_job.test_build_id):
+                    new_job.build_id = new_job.build_id.replace("gcs", "")
+                    new_job.gsi_build_id = (new_job.gsi_build_id.replace(
+                        "gcs", ""))
+                    new_job.test_build_id = (new_job.test_build_id.replace(
+                        "gcs", ""))
                     self.ReserveDevices(target_device_serials)
                     new_job.status = Status.JOB_STATUS_DICT["ready"]
                     new_job.timestamp = datetime.datetime.now()
                     new_job_key = new_job.put()
                     schedule.children_jobs.append(new_job_key)
                     schedule.put()
-                    self.logger.Println("NEW JOB - GCS")
-                else:
-                    self.logger.Println("Unexpected storage type (%s)." %
-                                        new_job.build_storage_type)
+                    self.logger.Println("A new job has been created.")
+
                 self.logger.Unindent()
 
         self.logger.Println("Scheduling completed.")
