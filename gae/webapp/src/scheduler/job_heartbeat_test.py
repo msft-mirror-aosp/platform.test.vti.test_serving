@@ -76,7 +76,7 @@ class JobHeartbeatTest(unittest.TestCase):
         gsi_pab_account_id = "1234567890"
         test_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
         test_branch = "gsi_branch"
-        test_build_target = "gsi_build_target-user"
+        test_build_target = "test_build_target-user"
         test_pab_account_id = "1234567890"
 
         lab_name = "test_lab"
@@ -165,7 +165,7 @@ class JobHeartbeatTest(unittest.TestCase):
         scheduler.response = mock.Mock()
         scheduler.response.write = mock.Mock()
 
-        print("Creating jobs...")
+        print("\nCreating jobs...")
         scheduler.post()
         jobs = model.JobModel.query().fetch()
         self.assertEqual(2, len(jobs))
