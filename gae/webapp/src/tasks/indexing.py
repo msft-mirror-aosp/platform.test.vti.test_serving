@@ -159,6 +159,12 @@ class IndexingHandler(webapp2.RequestHandler):
                     if entity.build_storage_type is None:
                         entity.build_storage_type = Status.STORAGE_TYPE_DICT[
                             "PAB"]
+                    # remove None children jobs.
+                    if entity.children_jobs:
+                        entity.children_jobs = [
+                            x for x in entity.children_jobs if x]
+                    else:
+                        entity.children_jobs = []
                 else:
                     pass
                 to_put.append(entity)
