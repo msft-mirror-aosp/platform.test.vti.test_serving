@@ -57,14 +57,17 @@ def GetTestVersionType(manifest_branch, gsi_branch, test_type=0):
         return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_TOT]
 
     gcs_pattern = "^gs://.*/v([0-9.]*)/.*"
-    p_pattern = "(git_)?p.*"
-    o_mr1_pattern = "(git_)?o.*mr1.*"
-    o_pattern = "(git_)?o.*"
-    master_pattern = "(git_)master"
+    q_pattern = "(git_)?(aosp-)?q.*"
+    p_pattern = "(git_)?(aosp-)?p.*"
+    o_mr1_pattern = "(git_)?(aosp-)?o[^-]*-m.*"
+    o_pattern = "(git_)?(aosp-)?o.*"
+    master_pattern = "(git_)?(aosp-)?master"
 
     gcs_search = re.search(gcs_pattern, manifest_branch)
     if gcs_search:
         device_version = gcs_search.group(1)
+    elif re.match(q_pattern, manifest_branch):
+        device_version = "10.0"
     elif re.match(p_pattern, manifest_branch):
         device_version = "9.0"
     elif re.match(o_mr1_pattern, manifest_branch):
@@ -80,6 +83,8 @@ def GetTestVersionType(manifest_branch, gsi_branch, test_type=0):
     gcs_search = re.search(gcs_pattern, gsi_branch)
     if gcs_search:
         gsi_version = gcs_search.group(1)
+    elif re.match(q_pattern, gsi_branch):
+        gsi_version = "10.0"
     elif re.match(p_pattern, gsi_branch):
         gsi_version = "9.0"
     elif re.match(o_mr1_pattern, gsi_branch):
