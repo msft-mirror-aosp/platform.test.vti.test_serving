@@ -264,8 +264,9 @@ class ScheduleHandler(webapp2.RequestHandler):
                             "Unexpected storage type (%s)." % storage_type)
                     setattr(new_job, build_id_text, build_id)
 
-                if (new_job.build_id and new_job.gsi_build_id
-                        and new_job.test_build_id):
+                if ((not new_job.manifest_branch or new_job.build_id) and
+                        (not new_job.gsi_branch or new_job.gsi_build_id) and
+                        (not new_job.test_branch or new_job.test_build_id)):
                     new_job.build_id = new_job.build_id.replace("gcs", "")
                     new_job.gsi_build_id = (new_job.gsi_build_id.replace(
                         "gcs", ""))
