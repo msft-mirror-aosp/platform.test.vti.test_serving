@@ -107,4 +107,7 @@ message TestScheduleConfigMessage {
 
   // whether to disable this schedule.
   optional bool disable = 51 [default = false];
+
+  // Base GCS url for the repack command.
+  optional bytes image_package_repo_base = 61;
 }
