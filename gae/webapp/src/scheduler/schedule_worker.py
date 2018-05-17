@@ -220,6 +220,8 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.test_build_target = schedule.test_build_target
                 new_job.test_pab_account_id = schedule.test_pab_account_id
                 new_job.parent_schedule = schedule.key
+                new_job.image_package_repo_base = (
+                    schedule.image_package_repo_base)
 
                 # uses bit 0-1 to indicate version.
                 test_type = GetTestVersionType(schedule.manifest_branch,

@@ -77,7 +77,8 @@ class ScheduleInfoApi(remote.Service):
             model.ScheduleModel.test_storage_type == request.test_storage_type,
             model.ScheduleModel.test_branch == request.test_branch,
             model.ScheduleModel.test_build_target == request.test_build_target,
-            model.ScheduleModel.test_pab_account_id == request.test_pab_account_id
+            model.ScheduleModel.test_pab_account_id == request.test_pab_account_id,
+            model.ScheduleModel.image_package_repo_base == request.image_package_repo_base
         )
         duplicated_schedules = duplicated_schedule_query.fetch()
 
@@ -110,6 +111,7 @@ class ScheduleInfoApi(remote.Service):
             schedule.schedule_type = "test"
             schedule.error_count = 0
             schedule.suspended = False
+            schedule.image_package_repo_base = request.image_package_repo_base
             schedule.put()
 
         return model.DefaultResponse(
