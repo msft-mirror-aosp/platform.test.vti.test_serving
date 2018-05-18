@@ -16,6 +16,7 @@
 #
 
 import datetime
+import re
 
 from webapp.src.handlers import base
 from webapp.src.proto import model
@@ -41,16 +42,26 @@ def ReadBuildInfo(target_branch=""):
     device_builds = {}
     gsi_builds = {}
 
+    gcs_pattern = "^gs://.*"
+    q_pattern = "(git_)?(aosp-)?q.*"
+    p_pattern = "(git_)?(aosp-)?p.*"
+    o_mr1_pattern = "(git_)?(aosp-)?o[^-]*-m.*"
+    o_pattern = "(git_)?(aosp-)?o.*"
+
     if builds:
         for build in builds:
-            if build.manifest_branch.startswith("git_oc-mr1"):
-                m_branch = "O-MR1"
-            elif build.manifest_branch.startswith("git_oc-"):
-                m_branch = "O"
-            elif build.manifest_branch.startswith("gcs"):
+            if re.match(gcs_pattern, build.manifest_branch):
                 m_branch = "GCS"
-            else:
+            elif re.match(q_pattern, build.manifest_branch):
+                m_branch = "Q"
+            elif re.match(p_pattern, build.manifest_branch):
                 m_branch = "P"
+            elif re.match(o_mr1_pattern, build.manifest_branch):
+                m_branch = "O-MR1"
+            elif re.match(o_pattern, build.manifest_branch):
+                m_branch = "O"
+            else:
+                m_branch = "Unknown"
 
             if target_branch and target_branch != m_branch:
                 continue
@@ -65,14 +76,14 @@ def ReadBuildInfo(target_branch=""):
                     test_builds[m_branch] = [build]
             elif build.artifact_type == "device":
                 if m_branch in device_builds:
-                   device_builds[m_branch].append(build)
+                    device_builds[m_branch].append(build)
                 else:
-                   device_builds[m_branch] = [build]
+                    device_builds[m_branch] = [build]
             elif build.artifact_type == "gsi":
                 if m_branch in gsi_builds:
-                   gsi_builds[m_branch].append(build)
+                    gsi_builds[m_branch].append(build)
                 else:
-                   gsi_builds[m_branch] = [build]
+                    gsi_builds[m_branch] = [build]
             else:
                 print("unknown artifact_type %s" % build.artifact_type)
 
