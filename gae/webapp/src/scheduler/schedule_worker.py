@@ -19,6 +19,8 @@ import datetime
 import logging
 import re
 
+from google.appengine.ext import ndb
+
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import logger
@@ -169,9 +171,16 @@ class ScheduleHandler(webapp2.RequestHandler):
 
     def post(self):
         self.logger.Clear()
-        schedule_query = model.ScheduleModel.query(
-            model.ScheduleModel.suspended != True)
-        schedules = schedule_query.fetch()
+        manual_job = False
+        schedule_key = self.request.get("schedule_key")
+        if schedule_key:
+            key = ndb.key.Key(urlsafe=schedule_key)
+            manual_job = True
+            schedules = [key.get()]
+        else:
+            schedule_query = model.ScheduleModel.query(
+                model.ScheduleModel.suspended != True)
+            schedules = schedule_query.fetch()
 
         if schedules:
             for schedule in schedules:
@@ -182,7 +191,7 @@ class ScheduleHandler(webapp2.RequestHandler):
                 self.logger.Println("Build Target: %s" % schedule.build_target)
                 self.logger.Println("Device: %s" % schedule.device)
                 self.logger.Indent()
-                if not self.NewPeriod(schedule):
+                if not manual_job and not self.NewPeriod(schedule):
                     self.logger.Println("- Skipped")
                     self.logger.Unindent()
                     continue
@@ -235,6 +244,9 @@ class ScheduleHandler(webapp2.RequestHandler):
                 if schedule.require_signed_device_build:
                     test_type |= Status.TEST_TYPE_DICT[Status.TEST_TYPE_SIGNED]
                 new_job.test_type = test_type
+
+                if manual_job:
+                    test_type |= Status.TEST_TYPE_DICT[Status.TEST_TYPE_MANUAL]
 
                 new_job.build_id = ""
                 new_job.gsi_build_id = ""

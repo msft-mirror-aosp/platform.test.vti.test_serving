@@ -73,6 +73,7 @@
         <td>priority
         <td>timestamp
         <td>resume/suspend
+        <td>create a job
       </tr>
       {% set index = 1 %}
       {% for schedule in schedules %}
@@ -109,6 +110,10 @@
           suspended <a href="/schedule?resume={{ schedule.key.urlsafe() }}"><button>resume</button></a>
           {% else %}
           error(s): {{ schedule.error_count }} <a href="/schedule?suspend={{ schedule.key.urlsafe() }}"><button>suspend</button></a>
+          {% endif %}
+        <td>
+          {% if not schedule.suspended %}
+          <a href="/schedule?create_job={{ schedule.key.urlsafe() }}"><button>Create</button></a>
           {% endif %}
       </tr>
       {% endfor %}
