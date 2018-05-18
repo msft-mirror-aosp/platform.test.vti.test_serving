@@ -58,28 +58,38 @@ class LabInfoApi(remote.Service):
         name="set")
     def set(self, request):
         """Sets the lab info based on `request`."""
-        for host in request.host:
-            lab = model.LabModel()
-            lab.name = request.name
-            lab.owner = request.owner
-            lab.admin = request.admin
-            lab.hostname = host.hostname
-            lab.ip = host.ip
-            lab.script = host.script
-            devices = []
-            null_device_count = 0
-            if host.device:
-                for device in host.device:
-                    devices.append("%s=%s" % (device.serial, device.product))
-                    if device.product == "null":
-                        null_device_count += 1
-            if devices:
-                lab.devices = ",".join(devices)
-            lab.timestamp = datetime.datetime.now()
-            lab.put()
+        if "host" in [x.name for x in request.all_fields()]:
+            for host in request.host:
+                duplicate_query = model.LabModel.query(
+                    model.LabModel.name == request.name,
+                    model.LabModel.owner == request.owner,
+                    model.LabModel.hostname == host.hostname
+                )
+                duplicates = duplicate_query.fetch()
+                if duplicates:
+                    lab = duplicates[0]
+                else:
+                    lab = model.LabModel()
+                lab.name = request.name
+                lab.owner = request.owner
+                lab.admin = request.admin
+                lab.hostname = host.hostname
+                lab.ip = host.ip
+                lab.script = host.script
+                devices = []
+                null_device_count = 0
+                if host.device:
+                    for device in host.device:
+                        devices.append("%s=%s" % (device.serial, device.product))
+                        if device.product == "null":
+                            null_device_count += 1
+                if devices:
+                    lab.devices = ",".join(devices)
+                lab.timestamp = datetime.datetime.now()
+                lab.put()
 
-            if null_device_count > 0:
-                host_info.AddNullDevices(host.hostname, null_device_count)
+                if null_device_count > 0:
+                    host_info.AddNullDevices(host.hostname, null_device_count)
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
