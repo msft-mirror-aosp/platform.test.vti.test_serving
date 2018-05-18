@@ -102,6 +102,7 @@ class JobQueueApi(remote.Service):
             job_message.test_build_id = job.test_build_id
             job_message.test_pab_account_id = job.test_pab_account_id
             job_message.test_type = job.test_type
+            job_message.image_package_repo_base = job.image_package_repo_base
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))

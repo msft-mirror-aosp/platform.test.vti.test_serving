@@ -57,14 +57,17 @@ def GetTestVersionType(manifest_branch, gsi_branch, test_type=0):
         return value | Status.TEST_TYPE_DICT[Status.TEST_TYPE_TOT]
 
     gcs_pattern = "^gs://.*/v([0-9.]*)/.*"
-    p_pattern = "(git_)?p.*"
-    o_mr1_pattern = "(git_)?o.*mr1.*"
-    o_pattern = "(git_)?o.*"
-    master_pattern = "(git_)master"
+    q_pattern = "(git_)?(aosp-)?q.*"
+    p_pattern = "(git_)?(aosp-)?p.*"
+    o_mr1_pattern = "(git_)?(aosp-)?o[^-]*-m.*"
+    o_pattern = "(git_)?(aosp-)?o.*"
+    master_pattern = "(git_)?(aosp-)?master"
 
     gcs_search = re.search(gcs_pattern, manifest_branch)
     if gcs_search:
         device_version = gcs_search.group(1)
+    elif re.match(q_pattern, manifest_branch):
+        device_version = "10.0"
     elif re.match(p_pattern, manifest_branch):
         device_version = "9.0"
     elif re.match(o_mr1_pattern, manifest_branch):
@@ -80,6 +83,8 @@ def GetTestVersionType(manifest_branch, gsi_branch, test_type=0):
     gcs_search = re.search(gcs_pattern, gsi_branch)
     if gcs_search:
         gsi_version = gcs_search.group(1)
+    elif re.match(q_pattern, gsi_branch):
+        gsi_version = "10.0"
     elif re.match(p_pattern, gsi_branch):
         gsi_version = "9.0"
     elif re.match(o_mr1_pattern, gsi_branch):
@@ -220,6 +225,8 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.test_build_target = schedule.test_build_target
                 new_job.test_pab_account_id = schedule.test_pab_account_id
                 new_job.parent_schedule = schedule.key
+                new_job.image_package_repo_base = (
+                    schedule.image_package_repo_base)
 
                 # uses bit 0-1 to indicate version.
                 test_type = GetTestVersionType(schedule.manifest_branch,
@@ -264,8 +271,9 @@ class ScheduleHandler(webapp2.RequestHandler):
                             "Unexpected storage type (%s)." % storage_type)
                     setattr(new_job, build_id_text, build_id)
 
-                if (new_job.build_id and new_job.gsi_build_id
-                        and new_job.test_build_id):
+                if ((not new_job.manifest_branch or new_job.build_id) and
+                        (not new_job.gsi_branch or new_job.gsi_build_id) and
+                        (not new_job.test_branch or new_job.test_build_id)):
                     new_job.build_id = new_job.build_id.replace("gcs", "")
                     new_job.gsi_build_id = (new_job.gsi_build_id.replace(
                         "gcs", ""))

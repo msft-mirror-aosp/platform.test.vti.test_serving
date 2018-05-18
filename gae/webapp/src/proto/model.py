@@ -89,6 +89,7 @@ class ScheduleModel(ndb.Model):
     children_jobs = ndb.KeyProperty(kind="JobModel", repeated=True)
     error_count = ndb.IntegerProperty()
     suspended = ndb.BooleanProperty()
+    image_package_repo_base = ndb.StringProperty()
 
 
 class ScheduleControlInfoMessage(messages.Message):
@@ -240,10 +241,12 @@ class JobModel(ndb.Model):
 
     parent_schedule = ndb.KeyProperty(kind="ScheduleModel")
 
+    image_package_repo_base = ndb.StringProperty()
+
 
 class JobMessage(messages.Message):
     """A message for representing an individual job entry."""
-    # Next ID = 30
+    # Next ID = 31
     test_type = messages.IntegerField(29)
 
     hostname = messages.StringField(1)
@@ -283,6 +286,8 @@ class JobMessage(messages.Message):
     retry_count = messages.IntegerField(19)
 
     infra_log_url = messages.StringField(24)
+
+    image_package_repo_base = messages.StringField(30)
 
 
 class ReturnCodeMessage(messages.Enum):

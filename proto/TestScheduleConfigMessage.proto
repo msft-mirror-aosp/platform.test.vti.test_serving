@@ -47,6 +47,12 @@ message BuildScheduleConfigMessage {
   // whether to use signed build.
   optional bool require_signed_device_build = 2;
 
+  // whether the build target has bootloader.img
+  optional bool has_bootloader_img = 3 [default = true];
+
+  // whether the build target has radio.img
+  optional bool has_radio_img = 4 [default = true];
+
   repeated TestScheduleConfigMessage test_schedule = 11;
 }
 
@@ -101,4 +107,7 @@ message TestScheduleConfigMessage {
 
   // whether to disable this schedule.
   optional bool disable = 51 [default = false];
+
+  // Base GCS url for the repack command.
+  optional bytes image_package_repo_base = 61;
 }

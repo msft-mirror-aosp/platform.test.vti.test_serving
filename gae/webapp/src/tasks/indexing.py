@@ -97,15 +97,14 @@ class IndexingHandler(webapp2.RequestHandler):
                 elif model_type == "lab":
                     pass
                 elif model_type == "job":
-                    if not entity.test_type:
-                        # uses bits 0-1 to indicate version.
-                        test_type = schedule_worker.GetTestVersionType(
-                            entity.manifest_branch, entity.gsi_branch)
-                        # uses bit 2
-                        if entity.require_signed_device_build:
-                            test_type |= (
-                                Status.TEST_TYPE_DICT[Status.TEST_TYPE_SIGNED])
-                        entity.test_type = test_type
+                    # uses bits 0-1 to indicate version.
+                    test_type = schedule_worker.GetTestVersionType(
+                        entity.manifest_branch, entity.gsi_branch)
+                    # uses bit 2
+                    if entity.require_signed_device_build:
+                        test_type |= (
+                            Status.TEST_TYPE_DICT[Status.TEST_TYPE_SIGNED])
+                    entity.test_type = test_type
 
                     if not entity.parent_schedule:
                         # finds and links to a parent schedule.

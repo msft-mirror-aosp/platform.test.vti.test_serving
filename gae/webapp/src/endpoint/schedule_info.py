@@ -56,56 +56,41 @@ class ScheduleInfoApi(remote.Service):
         name="set")
     def set(self, request):
         """Sets the schedule info based on `request`."""
-        # device_pab_account_id, param are missing.
-        duplicated_schedule_query = model.ScheduleModel.query(
-            model.ScheduleModel.manifest_branch == request.manifest_branch,
-            model.ScheduleModel.build_storage_type == request.build_storage_type,
-            model.ScheduleModel.build_target == request.build_target,
-            model.ScheduleModel.test_name == request.test_name,
-            model.ScheduleModel.require_signed_device_build == (
-                request.require_signed_device_build),
-            model.ScheduleModel.period == request.period,
-            model.ScheduleModel.priority == request.priority,
-            model.ScheduleModel.device.IN(request.device),
-            model.ScheduleModel.shards == request.shards,
-            model.ScheduleModel.retry_count == request.retry_count,
-            model.ScheduleModel.gsi_storage_type == request.gsi_storage_type,
-            model.ScheduleModel.gsi_branch == request.gsi_branch,
-            model.ScheduleModel.gsi_build_target == request.gsi_build_target,
-            model.ScheduleModel.gsi_vendor_version == request.gsi_vendor_version,
-            model.ScheduleModel.gsi_pab_account_id == request.gsi_pab_account_id,
-            model.ScheduleModel.test_storage_type == request.test_storage_type,
-            model.ScheduleModel.test_branch == request.test_branch,
-            model.ScheduleModel.test_build_target == request.test_build_target,
-            model.ScheduleModel.test_pab_account_id == request.test_pab_account_id
-        )
-        duplicated_schedules = duplicated_schedule_query.fetch()
+        request_fields = request.all_fields()
+        model_attrs = model.ScheduleModel.__dict__.items()
+        model_attr_names = [
+            x[0] for x in model_attrs if not x[0].startswith("_")
+        ]
+        exist_on_both = [
+            x for x in request_fields if x.name in model_attr_names
+        ]
+
+        # check duplicates
+        exclusions = [
+            "name", "schedule_type", "schedule", "param", "timestamp",
+            "children_jobs", "error_count", "suspended"
+        ]
+        # list of protorpc message fields.
+        duplicate_checklist = [
+            x for x in exist_on_both if x.name not in exclusions
+        ]
+        query = model.ScheduleModel.query()
+        for field in duplicate_checklist:
+            if field.repeated:
+                query = query.filter(
+                    getattr(model.ScheduleModel, field.name).IN(
+                        request.get_assigned_value(field.name)))
+            else:
+                query = query.filter(
+                    getattr(model.ScheduleModel, field.name) ==
+                    request.get_assigned_value(field.name))
+        duplicated_schedules = query.fetch()
 
         if not duplicated_schedules:
             schedule = model.ScheduleModel()
-            schedule.manifest_branch = request.manifest_branch
-            schedule.build_storage_type = request.build_storage_type
-            if request.get_assigned_value("device_pab_account_id"):
-                schedule.device_pab_account_id = request.device_pab_account_id
-            schedule.build_target = request.build_target
-            schedule.test_name = request.test_name
-            schedule.require_signed_device_build = (
-                request.require_signed_device_build)
-            schedule.period = request.period
-            schedule.priority = request.priority
-            schedule.device = request.device
-            schedule.shards = request.shards
-            schedule.param = request.param
-            schedule.retry_count = request.retry_count
-            schedule.gsi_storage_type = request.gsi_storage_type
-            schedule.gsi_branch = request.gsi_branch
-            schedule.gsi_build_target = request.gsi_build_target
-            schedule.gsi_vendor_version = request.gsi_vendor_version
-            schedule.gsi_pab_account_id = request.gsi_pab_account_id
-            schedule.test_storage_type = request.test_storage_type
-            schedule.test_branch = request.test_branch
-            schedule.test_build_target = request.test_build_target
-            schedule.test_pab_account_id = request.test_pab_account_id
+            for field in exist_on_both:
+                setattr(schedule, field.name,
+                        request.get_assigned_value(field.name))
             schedule.timestamp = datetime.datetime.now()
             schedule.schedule_type = "test"
             schedule.error_count = 0
