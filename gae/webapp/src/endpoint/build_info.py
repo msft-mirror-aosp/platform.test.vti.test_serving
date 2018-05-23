@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Build Info APIs implemented using Google Cloud Endpoints."""
 
 import datetime
@@ -22,9 +21,7 @@ from protorpc import remote
 
 from webapp.src.proto import model
 
-
-BUILD_INFO_RESOURCE = endpoints.ResourceContainer(
-    model.BuildInfoMessage)
+BUILD_INFO_RESOURCE = endpoints.ResourceContainer(model.BuildInfoMessage)
 
 
 @endpoints.api(name="build_info", version="v1")
@@ -42,14 +39,16 @@ class BuildInfoApi(remote.Service):
         build_query = model.BuildModel.query(
             model.BuildModel.build_id == request.build_id,
             model.BuildModel.build_target == request.build_target,
-            model.BuildModel.build_type == request.build_type
-        )
+            model.BuildModel.build_type == request.build_type,
+            model.BuildModel.artifact_type == request.artifact_type)
         existing_builds = build_query.fetch()
 
         if existing_builds and len(existing_builds) > 1:
-            logging.warning("Duplicated builds found for [build_id]{} "
-                            "[build_target]{} [build_type]{}".format(
-                request.build_id, request.build_target, request.build_type))
+            logging.warning(
+                "Duplicated builds found for [build_id]{} "
+                "[build_target]{} [build_type]{} [artifact_type]{}".format(
+                    request.build_id, request.build_target, request.build_type,
+                    request.artifact_type))
 
         if request.signed and existing_builds:
             # only signed builds need to overwrite the exist entities.
