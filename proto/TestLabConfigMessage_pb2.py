@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='TestLabConfigMessage.proto',
   package='android.test.lab',
   syntax='proto2',
-  serialized_pb=_b('\n\x1aTestLabConfigMessage.proto\x12\x10\x61ndroid.test.lab\"q\n\x10LabConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\r\n\x05owner\x18\x02 \x01(\x0c\x12\r\n\x05\x61\x64min\x18\x03 \x03(\x0c\x12\x31\n\x04host\x18\x0b \x03(\x0b\x32#.android.test.lab.HostConfigMessage\"\x8e\x01\n\x11HostConfigMessage\x12\x10\n\x08hostname\x18\x01 \x01(\x0c\x12\n\n\x02ip\x18\x02 \x01(\x0c\x12\x0e\n\x06script\x18\x03 \x01(\x0c\x12\x14\n\x0csetup_script\x18\x04 \x01(\x0c\x12\x35\n\x06\x64\x65vice\x18\x0b \x03(\x0b\x32%.android.test.lab.DeviceConfigMessage\"E\n\x13\x44\x65viceConfigMessage\x12\x0e\n\x06serial\x18\x01 \x01(\x0c\x12\r\n\x05index\x18\x02 \x01(\x05\x12\x0f\n\x07product\x18\x0b \x01(\x0c')
+  serialized_pb=_b('\n\x1aTestLabConfigMessage.proto\x12\x10\x61ndroid.test.lab\"q\n\x10LabConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12\r\n\x05owner\x18\x02 \x01(\x0c\x12\r\n\x05\x61\x64min\x18\x03 \x03(\x0c\x12\x31\n\x04host\x18\x0b \x03(\x0b\x32#.android.test.lab.HostConfigMessage\"\xa6\x01\n\x11HostConfigMessage\x12\x10\n\x08hostname\x18\x01 \x01(\x0c\x12\n\n\x02ip\x18\x02 \x01(\x0c\x12\x0e\n\x06script\x18\x03 \x01(\x0c\x12\x14\n\x0csetup_script\x18\x04 \x01(\x0c\x12\x16\n\x0ehost_equipment\x18\x05 \x03(\x0c\x12\x35\n\x06\x64\x65vice\x18\x0b \x03(\x0b\x32%.android.test.lab.DeviceConfigMessage\"_\n\x13\x44\x65viceConfigMessage\x12\x0e\n\x06serial\x18\x01 \x01(\x0c\x12\r\n\x05index\x18\x02 \x01(\x05\x12\x0f\n\x07product\x18\x0b \x01(\x0c\x12\x18\n\x10\x64\x65vice_equipment\x18\x15 \x03(\x0c')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -114,7 +114,14 @@ _HOSTCONFIGMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='device', full_name='android.test.lab.HostConfigMessage.device', index=4,
+      name='host_equipment', full_name='android.test.lab.HostConfigMessage.host_equipment', index=4,
+      number=5, type=12, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='device', full_name='android.test.lab.HostConfigMessage.device', index=5,
       number=11, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -133,7 +140,7 @@ _HOSTCONFIGMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=164,
-  serialized_end=306,
+  serialized_end=330,
 )
 
 
@@ -165,6 +172,13 @@ _DEVICECONFIGMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='device_equipment', full_name='android.test.lab.DeviceConfigMessage.device_equipment', index=3,
+      number=21, type=12, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -177,8 +191,8 @@ _DEVICECONFIGMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=308,
-  serialized_end=377,
+  serialized_start=332,
+  serialized_end=427,
 )
 
 _LABCONFIGMESSAGE.fields_by_name['host'].message_type = _HOSTCONFIGMESSAGE
