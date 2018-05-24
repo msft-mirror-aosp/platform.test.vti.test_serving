@@ -36,6 +36,9 @@ message HostConfigMessage {
   optional bytes script = 3;
   optional bytes setup_script = 4;
 
+  // list of equipment installed on this host.
+  repeated bytes host_equipment = 5;
+
   repeated DeviceConfigMessage device = 11;
 }
 
@@ -49,5 +52,8 @@ message DeviceConfigMessage {
 
   // device product type (e.g., taimen or walleye).
   optional bytes product = 11;
+
+  // list of equipment installed on this device.
+  repeated bytes device_equipment = 21;
 }
 
