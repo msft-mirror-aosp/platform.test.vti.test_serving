@@ -14,4 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-python testrunner.py
+if [ -z "$ANDROID_BUILD_TOP" ]; then
+    echo "Missing ANDROID_BUILD_TOP env variable. Run 'lunch' first."
+    exit 1
+fi
+
+# Runs all unit tests under test/vti/test_serving/gae using an e2e_test framework.
+pushd $ANDROID_BUILD_TOP/test/vti/test_serving/gae
+python testing/e2e_test.py
+popd
+
