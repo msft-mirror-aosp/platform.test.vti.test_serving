@@ -72,6 +72,12 @@ message TestScheduleConfigMessage {
   // number of shards (-1 for auto selection?)
   optional int32 shards = 5;
 
+  // required host-side equipment.
+  repeated bytes required_host_equipment = 6;
+
+  // required device-side equipment such as a SIM card.
+  repeated bytes required_device_equipment = 7;
+
   optional bytes param = 11;
 
   // GSI storage type (e.g., PAB or GCS)
