@@ -61,18 +61,30 @@ class ScheduleHandlerTest(unittest.TestCase):
         This test defines that each model only has a single entity, and asserts
         that a job is created.
         """
+
+        manifest_branch = "manifest_branch"
+        build_target = "device_build_target-user"
+        gsi_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
+        gsi_branch = "gsi_branch"
+        gsi_build_target = "gsi_build_target-user"
+        test_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
+        test_branch = "gsi_branch"
+        test_build_target = "test_build_target-user"
+
         schedule = model.ScheduleModel()
         schedule.schedule_type = "test"
         schedule.test_name = "vts/vts"
-        schedule.manifest_branch = "branch1"
-        schedule.build_target = "product1-type1"
+        schedule.manifest_branch = manifest_branch
+        schedule.build_target = build_target
         schedule.device = ["test_lab1/product1"]
         schedule.shards = 1
         schedule.build_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        schedule.gsi_branch = "gsi_branch"
-        schedule.gsi_build_target = "gsi_build_target"
-        schedule.test_branch = "test_branch"
-        schedule.test_build_target = "test_build_target"
+        schedule.gsi_storage_type = gsi_storage_type
+        schedule.gsi_branch = gsi_branch
+        schedule.gsi_build_target = gsi_build_target
+        schedule.test_storage_type = test_storage_type
+        schedule.test_branch = test_branch
+        schedule.test_build_target = test_build_target
         schedule.require_signed_device_build = False
         schedule.put()
 
@@ -90,11 +102,31 @@ class ScheduleHandlerTest(unittest.TestCase):
         device.hostname = "test_lab1_host1"
         device.put()
 
+        # create a device build
         build = model.BuildModel()
-        build.manifest_branch = "branch1"
-        build.build_id = "0000000"
-        build.build_target = "product1"
-        build.build_type = "type1"
+        build.manifest_branch = manifest_branch
+        build.build_id = "1000000"
+        build.build_target = "device_build_target"
+        build.build_type = "user"
+        build.artifact_type = "device"
+        build.put()
+
+        # create a gsi build
+        build = model.BuildModel()
+        build.manifest_branch = gsi_branch
+        build.build_id = "2000000"
+        build.build_target = "gsi_build_target"
+        build.build_type = "user"
+        build.artifact_type = "gsi"
+        build.put()
+
+        # create a test build
+        build = model.BuildModel()
+        build.manifest_branch = gsi_branch
+        build.build_id = "3000000"
+        build.build_target = "test_build_target"
+        build.build_type = "user"
+        build.artifact_type = "test"
         build.put()
 
         self.scheduler.post()
