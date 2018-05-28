@@ -18,20 +18,7 @@
 from webapp.src.handlers import base
 from webapp.src.proto import model
 from webapp.src import vtslab_status
-
-
-class DeviceStats(object):
-    """Device stats class.
-
-    Attributes:
-        total: int, total device count.
-        utilization: int, the device utilization ratio (%).
-        error_ratio: int, the device error ratio (%).
-    """
-
-    total = 0
-    utilization = -1
-    error_ratio = -1
+from webapp.src.dashboard import device_stats
 
 
 class DevicePage(base.BaseHandler):
@@ -47,27 +34,23 @@ class DevicePage(base.BaseHandler):
         lab_query = model.LabModel.query()
         labs = lab_query.fetch()
 
-        stats = DeviceStats()
+        stats = device_stats.DeviceStats()
         if devices:
             devices = sorted(
                 devices, key=lambda x: (x.hostname, x.product, x.status),
                 reverse=False)
-            count_active, count_idle, count_error = 0, 0, 0
             for device in devices:
+                device_product_lowcase = device.product.lower()
                 if device.scheduling_status == vtslab_status.DEVICE_SCHEDULING_STATUS_DICT["free"]:
                     if (device.status == vtslab_status.DEVICE_STATUS_DICT["error"]
                         or device.status == vtslab_status.DEVICE_STATUS_DICT["no-response"]):
-                        count_error += 1
+                        stats.add_error(device_product_lowcase)
                     else:
                         # it shouldn't be in use state.
-                        count_idle += 1
+                        stats.add_idle(device_product_lowcase)
                 else:
                     # includes both use and reserved
-                    count_active += 1
-
-            stats.total = count_active + count_idle + count_error
-            stats.utilization = count_active * 100 / stats.total
-            stats.error_ratio = count_error * 100 / stats.total
+                    stats.add_active(device_product_lowcase)
 
         template_values = {
             "devices": devices,
