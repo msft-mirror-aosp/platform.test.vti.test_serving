@@ -116,4 +116,10 @@ message TestScheduleConfigMessage {
 
   // Base GCS url for the repack command.
   optional bytes image_package_repo_base = 61;
+
+  // the GCS url where test results are uploaded
+  repeated bytes report_bucket = 71;
+
+  // the ID of the spreadsheet where test results are uploaded
+  repeated bytes report_spreadsheet_id = 72;
 }
