@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='TestScheduleConfigMessage.proto',
   package='android.test.lab',
   syntax='proto2',
-  serialized_pb=_b('\n\x1fTestScheduleConfigMessage.proto\x12\x10\x61ndroid.test.lab\"\xe4\x01\n\x15ScheduleConfigMessage\x12\x17\n\x0fmanifest_branch\x18\x01 \x01(\x0c\x12\x16\n\x0epab_account_id\x18\x02 \x01(\x0c\x12V\n\x12\x62uild_storage_type\x18\x03 \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x42\n\x0c\x62uild_target\x18\x0b \x03(\x0b\x32,.android.test.lab.BuildScheduleConfigMessage\"\xd2\x01\n\x1a\x42uildScheduleConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12#\n\x1brequire_signed_device_build\x18\x02 \x01(\x08\x12 \n\x12has_bootloader_img\x18\x03 \x01(\x08:\x04true\x12\x1b\n\rhas_radio_img\x18\x04 \x01(\x08:\x04true\x12\x42\n\rtest_schedule\x18\x0b \x03(\x0b\x32+.android.test.lab.TestScheduleConfigMessage\"\xf1\x04\n\x19TestScheduleConfigMessage\x12\x11\n\ttest_name\x18\x01 \x01(\x0c\x12\x0e\n\x06period\x18\x02 \x01(\x05\x12\x10\n\x08priority\x18\x03 \x01(\x0c\x12\x0e\n\x06\x64\x65vice\x18\x04 \x03(\x0c\x12\x0e\n\x06shards\x18\x05 \x01(\x05\x12\x1f\n\x17required_host_equipment\x18\x06 \x03(\x0c\x12!\n\x19required_device_equipment\x18\x07 \x03(\x0c\x12\r\n\x05param\x18\x0b \x01(\x0c\x12T\n\x10gsi_storage_type\x18\x18 \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x12\n\ngsi_branch\x18\x15 \x01(\x0c\x12\x18\n\x10gsi_build_target\x18\x16 \x01(\x0c\x12\x1a\n\x12gsi_pab_account_id\x18\x17 \x01(\x0c\x12\x1a\n\x12gsi_vendor_version\x18\x19 \x01(\x0c\x12U\n\x11test_storage_type\x18\" \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x13\n\x0btest_branch\x18\x1f \x01(\x0c\x12\x19\n\x11test_build_target\x18  \x01(\x0c\x12\x1b\n\x13test_pab_account_id\x18! \x01(\x0c\x12\x13\n\x0bretry_count\x18) \x01(\x05\x12\x16\n\x07\x64isable\x18\x33 \x01(\x08:\x05\x66\x61lse\x12\x1f\n\x17image_package_repo_base\x18= \x01(\x0c*j\n\x10\x42uildStorageType\x12\x1e\n\x1aUNKNOWN_BUILD_STORAGE_TYPE\x10\x00\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_PAB\x10\x01\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_GCS\x10\x02')
+  serialized_pb=_b('\n\x1fTestScheduleConfigMessage.proto\x12\x10\x61ndroid.test.lab\"\xe4\x01\n\x15ScheduleConfigMessage\x12\x17\n\x0fmanifest_branch\x18\x01 \x01(\x0c\x12\x16\n\x0epab_account_id\x18\x02 \x01(\x0c\x12V\n\x12\x62uild_storage_type\x18\x03 \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x42\n\x0c\x62uild_target\x18\x0b \x03(\x0b\x32,.android.test.lab.BuildScheduleConfigMessage\"\xd2\x01\n\x1a\x42uildScheduleConfigMessage\x12\x0c\n\x04name\x18\x01 \x01(\x0c\x12#\n\x1brequire_signed_device_build\x18\x02 \x01(\x08\x12 \n\x12has_bootloader_img\x18\x03 \x01(\x08:\x04true\x12\x1b\n\rhas_radio_img\x18\x04 \x01(\x08:\x04true\x12\x42\n\rtest_schedule\x18\x0b \x03(\x0b\x32+.android.test.lab.TestScheduleConfigMessage\"\xa7\x05\n\x19TestScheduleConfigMessage\x12\x11\n\ttest_name\x18\x01 \x01(\x0c\x12\x0e\n\x06period\x18\x02 \x01(\x05\x12\x10\n\x08priority\x18\x03 \x01(\x0c\x12\x0e\n\x06\x64\x65vice\x18\x04 \x03(\x0c\x12\x0e\n\x06shards\x18\x05 \x01(\x05\x12\x1f\n\x17required_host_equipment\x18\x06 \x03(\x0c\x12!\n\x19required_device_equipment\x18\x07 \x03(\x0c\x12\r\n\x05param\x18\x0b \x01(\x0c\x12T\n\x10gsi_storage_type\x18\x18 \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x12\n\ngsi_branch\x18\x15 \x01(\x0c\x12\x18\n\x10gsi_build_target\x18\x16 \x01(\x0c\x12\x1a\n\x12gsi_pab_account_id\x18\x17 \x01(\x0c\x12\x1a\n\x12gsi_vendor_version\x18\x19 \x01(\x0c\x12U\n\x11test_storage_type\x18\" \x01(\x0e\x32\".android.test.lab.BuildStorageType:\x16\x42UILD_STORAGE_TYPE_PAB\x12\x13\n\x0btest_branch\x18\x1f \x01(\x0c\x12\x19\n\x11test_build_target\x18  \x01(\x0c\x12\x1b\n\x13test_pab_account_id\x18! \x01(\x0c\x12\x13\n\x0bretry_count\x18) \x01(\x05\x12\x16\n\x07\x64isable\x18\x33 \x01(\x08:\x05\x66\x61lse\x12\x1f\n\x17image_package_repo_base\x18= \x01(\x0c\x12\x15\n\rreport_bucket\x18G \x03(\x0c\x12\x1d\n\x15report_spreadsheet_id\x18H \x03(\x0c*j\n\x10\x42uildStorageType\x12\x1e\n\x1aUNKNOWN_BUILD_STORAGE_TYPE\x10\x00\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_PAB\x10\x01\x12\x1a\n\x16\x42UILD_STORAGE_TYPE_GCS\x10\x02')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -45,8 +45,8 @@ _BUILDSTORAGETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1125,
-  serialized_end=1231,
+  serialized_start=1179,
+  serialized_end=1285,
 )
 _sym_db.RegisterEnumDescriptor(_BUILDSTORAGETYPE)
 
@@ -315,6 +315,20 @@ _TESTSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='report_bucket', full_name='android.test.lab.TestScheduleConfigMessage.report_bucket', index=20,
+      number=71, type=12, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='report_spreadsheet_id', full_name='android.test.lab.TestScheduleConfigMessage.report_spreadsheet_id', index=21,
+      number=72, type=12, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -328,7 +342,7 @@ _TESTSCHEDULECONFIGMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=498,
-  serialized_end=1123,
+  serialized_end=1177,
 )
 
 _SCHEDULECONFIGMESSAGE.fields_by_name['build_storage_type'].enum_type = _BUILDSTORAGETYPE
