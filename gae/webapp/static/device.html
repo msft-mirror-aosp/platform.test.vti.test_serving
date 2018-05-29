@@ -57,8 +57,35 @@
     <div class="container">
       <h1>Device List</h1>
       <!-- [START greetings] -->
+      <h3>Device Utilization</h3>
+      <table border=1>
+        <tr>
+          <td>#
+          <td>Product
+          <td>Utilization
+          <td>Error Ratio
+          <td>Device Count
+        </tr>
+        {% set index = 1 %}
+        {% for product in stats.product_stat %}
+        <tr>
+          <td>
+            {{ index }}
+            {% set index = index + 1 %}
+          <td>
+            {{product}}
+          <td>
+            {{stats[product].utilization}}%
+          <td>
+            {{stats[product].error_ratio}}%
+          <td>
+            {{stats[product].total}}
+        </tr>
+        {% endfor %}
+      </table>
       Utilization: {{ stats.utilization }}%, Error Ratio: {{ stats.error_ratio }}%, Total Device Count: {{ stats.total}}
       (Now: {{ convert_time(now).strftime("%Y-%m-%d %H:%M:%S %Z") }})<br>
+      <h3>Device List</h3>
       <table border=1>
       <tr>
         <td>#
