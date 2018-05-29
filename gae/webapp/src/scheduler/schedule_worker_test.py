@@ -25,35 +25,24 @@ except ImportError:
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.scheduler import schedule_worker
-
-from google.appengine.ext import ndb
-from google.appengine.ext import testbed
+from webapp.src.testing import unittest_base
 
 
-class ScheduleHandlerTest(unittest.TestCase):
+class ScheduleHandlerTest(unittest_base.UnitTestBase):
     """Tests for ScheduleHandler.
 
     Attributes:
-        testbed: A Testbed instance which provides local unit testing.
         scheduler: A mock schedule_worker.ScheduleHandler.
     """
 
     def setUp(self):
         """Initializes test"""
-        # Create the Testbed class instance and initialize service stubs.
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        self.testbed.init_datastore_v3_stub()
-        self.testbed.init_memcache_stub()
-        # Clear cache between tests.
-        ndb.get_context().clear_cache()
+        super(ScheduleHandlerTest, self).setUp()
         # Mocking ScheduleHandler and essential methods.
         self.scheduler = schedule_worker.ScheduleHandler(mock.Mock())
         self.scheduler.response = mock.Mock()
         self.scheduler.response.write = mock.Mock()
-
-    def tearDown(self):
-        self.testbed.deactivate()
+        self.scheduler.request.get = mock.MagicMock(return_value="")
 
     def testSimpleJobCreation(self):
         """Asserts a job is created.
@@ -61,80 +50,26 @@ class ScheduleHandlerTest(unittest.TestCase):
         This test defines that each model only has a single entity, and asserts
         that a job is created.
         """
-
-        manifest_branch = "manifest_branch"
-        build_target = "device_build_target-user"
-        gsi_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        gsi_branch = "gsi_branch"
-        gsi_build_target = "gsi_build_target-user"
-        test_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        test_branch = "gsi_branch"
-        test_build_target = "test_build_target-user"
-
-        schedule = model.ScheduleModel()
-        schedule.schedule_type = "test"
-        schedule.test_name = "vts/vts"
-        schedule.manifest_branch = manifest_branch
-        schedule.build_target = build_target
-        schedule.device = ["test_lab1/product1"]
-        schedule.shards = 1
-        schedule.build_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        schedule.gsi_storage_type = gsi_storage_type
-        schedule.gsi_branch = gsi_branch
-        schedule.gsi_build_target = gsi_build_target
-        schedule.test_storage_type = test_storage_type
-        schedule.test_branch = test_branch
-        schedule.test_build_target = test_build_target
-        schedule.require_signed_device_build = False
-        schedule.put()
-
-        lab = model.LabModel()
-        lab.name = "test_lab1"
-        lab.hostname = "test_lab1_host1"
-        lab.owner = "test@google.com"
+        lab = self.GenerateLabModel()
         lab.put()
 
-        device = model.DeviceModel()
-        device.status = Status.DEVICE_STATUS_DICT["fastboot"]
-        device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT["free"]
-        device.product = "product1"
-        device.serial = "serial1"
-        device.hostname = "test_lab1_host1"
+        device = self.GenerateDeviceModel(hostname=lab.hostname)
         device.put()
 
-        # create a device build
-        build = model.BuildModel()
-        build.manifest_branch = manifest_branch
-        build.build_id = "1000000"
-        build.build_target = "device_build_target"
-        build.build_type = "user"
-        build.artifact_type = "device"
-        build.put()
+        schedule = self.GenerateScheduleModel(
+            device_model=device, lab_model=lab)
+        schedule.put()
 
-        # create a gsi build
-        build = model.BuildModel()
-        build.manifest_branch = gsi_branch
-        build.build_id = "2000000"
-        build.build_target = "gsi_build_target"
-        build.build_type = "user"
-        build.artifact_type = "gsi"
-        build.put()
-
-        # create a test build
-        build = model.BuildModel()
-        build.manifest_branch = gsi_branch
-        build.build_id = "3000000"
-        build.build_target = "test_build_target"
-        build.build_type = "user"
-        build.artifact_type = "test"
-        build.put()
+        build_dict = self.GenerateBuildModel(schedule)
+        for key in build_dict:
+            build_dict[key].put()
 
         self.scheduler.post()
         self.assertEqual(1, len(model.JobModel.query().fetch()))
         print("A job is created successfully.")
 
         device_query = model.DeviceModel.query(
-            model.DeviceModel.serial == "serial1")
+            model.DeviceModel.serial == device.serial)
         device = device_query.fetch()[0]
         self.assertEqual(Status.DEVICE_SCHEDULING_STATUS_DICT["reserved"],
                          device.scheduling_status)
