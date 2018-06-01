@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
 from webapp.src.handlers import base
@@ -44,6 +45,17 @@ class SchedulePage(base.BaseHandler):
             schedule.suspended = True
             schedule.put()
             email_util.send_schedule_suspension_notification(schedule)
+
+        create_job_key = self.request.get("create_job")
+        if create_job_key:
+            taskqueue.add(
+                url="/worker/schedule_handler",
+                target="worker",
+                queue_name="queue-schedule",
+                transactional=False,
+                params={
+                    "schedule_key": create_job_key
+            })
 
         toggle = self.request.get("schedule_enable_status_toggle", default_value="0")
 
