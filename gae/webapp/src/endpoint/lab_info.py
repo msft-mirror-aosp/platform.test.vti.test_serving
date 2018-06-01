@@ -16,19 +16,18 @@
 
 import datetime
 import endpoints
+import logging
 
 from protorpc import remote
 
 from google.appengine.ext import ndb
 
+from webapp.src import vtslab_status as Status
 from webapp.src.endpoint import host_info
 from webapp.src.proto import model
 
-
-LAB_INFO_RESOURCE = endpoints.ResourceContainer(
-    model.LabInfoMessage)
-LAB_HOST_INFO_RESOURCE = endpoints.ResourceContainer(
-    model.LabHostInfoMessage)
+LAB_INFO_RESOURCE = endpoints.ResourceContainer(model.LabInfoMessage)
+LAB_HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.LabHostInfoMessage)
 
 
 @endpoints.api(name='lab_info', version='v1')
@@ -63,8 +62,7 @@ class LabInfoApi(remote.Service):
                 duplicate_query = model.LabModel.query(
                     model.LabModel.name == request.name,
                     model.LabModel.owner == request.owner,
-                    model.LabModel.hostname == host.hostname
-                )
+                    model.LabModel.hostname == host.hostname)
                 duplicates = duplicate_query.fetch()
                 if duplicates:
                     lab = duplicates[0]
@@ -76,15 +74,52 @@ class LabInfoApi(remote.Service):
                 lab.hostname = host.hostname
                 lab.ip = host.ip
                 lab.script = host.script
-                devices = []
+
                 null_device_count = 0
-                if host.device:
-                    for device in host.device:
-                        devices.append("%s=%s" % (device.serial, device.product))
-                        if device.product == "null":
-                            null_device_count += 1
-                if devices:
-                    lab.devices = ",".join(devices)
+                devices_to_put = []
+                for config_device in host.device:
+                    if config_device.product == "null":
+                        null_device_count += 1
+                        continue
+                    if config_device.serial and config_device.product:
+                        device_query = model.DeviceModel.query(
+                            model.DeviceModel.serial == config_device.serial,
+                            model.DeviceModel.product == config_device.product)
+                        devices = device_query.fetch()
+                        if devices:
+                            device = devices[0]
+                            if (device.hostname != host.hostname) and (
+                                device.status !=
+                                Status.DEVICE_STATUS_DICT["no-response"]):
+                                logging.error(
+                                    "{} is alive in another host.".format(
+                                        config_device.serial))
+                                # TODO: send an alert to lab.admin
+                                continue
+                            if device.hostname == host.hostname and set(
+                                device.device_equipment) == set(
+                                config_device.device_equipment):
+                                # no need to update.
+                                continue
+                        else:
+                            device = model.DeviceModel()
+                            device.status = Status.DEVICE_STATUS_DICT[
+                                "no-response"]
+                            device.product = config_device.product
+                            device.serial = config_device.serial
+                            device.hostname = host.hostname
+                            device.scheduling_status = (
+                                Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
+                            device.timestamp = datetime.datetime.now()
+                        device.device_equipment = config_device.device_equipment
+                        devices_to_put.append(device)
+                    else:
+                        logging.error("Lab config does not have device "
+                                      "information correctly; it should "
+                                      "specify device product and serial.")
+                if devices_to_put:
+                    ndb.put_multi(devices_to_put)
+
                 lab.timestamp = datetime.datetime.now()
                 lab.put()
 
@@ -103,8 +138,7 @@ class LabInfoApi(remote.Service):
     def set_version(self, request):
         """Sets vtslab version of the host <hostname>"""
         lab_query = model.LabModel.query(
-            model.LabModel.hostname == request.hostname
-        )
+            model.LabModel.hostname == request.hostname)
         labs = lab_query.fetch()
 
         for lab in labs:
@@ -113,4 +147,3 @@ class LabInfoApi(remote.Service):
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
-

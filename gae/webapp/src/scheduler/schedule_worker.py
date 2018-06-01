@@ -19,6 +19,8 @@ import datetime
 import logging
 import re
 
+from google.appengine.ext import ndb
+
 from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.utils import logger
@@ -169,9 +171,16 @@ class ScheduleHandler(webapp2.RequestHandler):
 
     def post(self):
         self.logger.Clear()
-        schedule_query = model.ScheduleModel.query(
-            model.ScheduleModel.suspended != True)
-        schedules = schedule_query.fetch()
+        manual_job = False
+        schedule_key = self.request.get("schedule_key")
+        if schedule_key:
+            key = ndb.key.Key(urlsafe=schedule_key)
+            manual_job = True
+            schedules = [key.get()]
+        else:
+            schedule_query = model.ScheduleModel.query(
+                model.ScheduleModel.suspended != True)
+            schedules = schedule_query.fetch()
 
         if schedules:
             for schedule in schedules:
@@ -182,7 +191,7 @@ class ScheduleHandler(webapp2.RequestHandler):
                 self.logger.Println("Build Target: %s" % schedule.build_target)
                 self.logger.Println("Device: %s" % schedule.device)
                 self.logger.Indent()
-                if not self.NewPeriod(schedule):
+                if not manual_job and not self.NewPeriod(schedule):
                     self.logger.Println("- Skipped")
                     self.logger.Unindent()
                     continue
@@ -236,6 +245,9 @@ class ScheduleHandler(webapp2.RequestHandler):
                     test_type |= Status.TEST_TYPE_DICT[Status.TEST_TYPE_SIGNED]
                 new_job.test_type = test_type
 
+                if manual_job:
+                    test_type |= Status.TEST_TYPE_DICT[Status.TEST_TYPE_MANUAL]
+
                 new_job.build_id = ""
                 new_job.gsi_build_id = ""
                 new_job.test_build_id = ""
@@ -271,9 +283,10 @@ class ScheduleHandler(webapp2.RequestHandler):
                             "Unexpected storage type (%s)." % storage_type)
                     setattr(new_job, build_id_text, build_id)
 
-                if ((not new_job.manifest_branch or new_job.build_id) and
-                        (not new_job.gsi_branch or new_job.gsi_build_id) and
-                        (not new_job.test_branch or new_job.test_build_id)):
+                if ((not new_job.manifest_branch or new_job.build_id)
+                        and (not new_job.gsi_branch or new_job.gsi_build_id)
+                        and
+                    (not new_job.test_branch or new_job.test_build_id)):
                     new_job.build_id = new_job.build_id.replace("gcs", "")
                     new_job.gsi_build_id = (new_job.gsi_build_id.replace(
                         "gcs", ""))
@@ -396,6 +409,9 @@ class ScheduleHandler(webapp2.RequestHandler):
             available_devices = {}
             if target_labs:
                 for lab in target_labs:
+                    if not (set(schedule.required_host_equipment) <= set(
+                            lab.host_equipment)):
+                        continue
                     self.logger.Println("- Host: %s" % lab.hostname)
                     self.logger.Indent()
                     device_query = model.DeviceModel.query(
@@ -410,7 +426,9 @@ class ScheduleHandler(webapp2.RequestHandler):
                         ]) and (device.scheduling_status ==
                                 Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                                 and device.product.lower() ==
-                                target_product_type.lower()):
+                                target_product_type.lower()
+                                and (set(schedule.required_device_equipment) <=
+                                     set(device.device_equipment))):
                             self.logger.Println("- Found %s %s %s" %
                                                 (device.product, device.status,
                                                  device.serial))

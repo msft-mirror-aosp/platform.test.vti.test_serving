@@ -91,6 +91,9 @@ class ScheduleModel(ndb.Model):
     suspended = ndb.BooleanProperty()
     image_package_repo_base = ndb.StringProperty()
 
+    required_host_equipment = ndb.StringProperty(repeated=True)
+    required_device_equipment = ndb.StringProperty(repeated=True)
+
 
 class ScheduleControlInfoMessage(messages.Message):
     """A message for representing a schedule control data entry."""
@@ -100,7 +103,7 @@ class ScheduleControlInfoMessage(messages.Message):
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
-    # Next ID = 25
+    # Next ID = 27
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -134,6 +137,9 @@ class ScheduleInfoMessage(messages.Message):
     param = messages.StringField(8, repeated=True)
     retry_count = messages.IntegerField(15)
 
+    required_host_equipment = messages.StringField(25, repeated=True)
+    required_device_equipment = messages.StringField(26, repeated=True)
+
 
 class LabModel(ndb.Model):
     """A model for representing an individual lab entry."""
@@ -146,12 +152,14 @@ class LabModel(ndb.Model):
     devices = ndb.StringProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
     vtslab_version = ndb.StringProperty()
+    host_equipment = ndb.StringProperty(repeated=True)
 
 
 class LabDeviceInfoMessage(messages.Message):
     """A message for representing an individual lab host's device entry."""
     serial = messages.StringField(1, repeated=False)
     product = messages.StringField(2, repeated=False)
+    device_equipment = messages.StringField(3, repeated=True)
 
 
 class LabHostInfoMessage(messages.Message):
@@ -161,6 +169,7 @@ class LabHostInfoMessage(messages.Message):
     script = messages.StringField(3)
     device = messages.MessageField(LabDeviceInfoMessage, 4, repeated=True)
     vtslab_version = messages.StringField(5)
+    host_equipment = messages.StringField(6, repeated=True)
 
 
 class LabInfoMessage(messages.Message):
@@ -179,6 +188,7 @@ class DeviceModel(ndb.Model):
     status = ndb.IntegerProperty()
     scheduling_status = ndb.IntegerProperty()
     timestamp = ndb.DateTimeProperty(auto_now=False)
+    device_equipment = ndb.StringProperty(repeated=True)
 
 
 class DeviceInfoMessage(messages.Message):
