@@ -29,6 +29,8 @@ indexes:
   - name: build_target
   - name: test_name
   - name: require_signed_device_build
+  - name: has_bootloader_img
+  - name: has_radio_img
   - name: period
   - name: priority
   - name: device
@@ -45,6 +47,11 @@ indexes:
   - name: children_jobs
   - name: suspended
   - name: error_count
+  - name: image_package_repo_base
+  - name: required_host_equipment
+  - name: required_device_equipment
+  - name: report_bucket
+  - name: report_spreadsheet_id
 
 - kind: LabModel
   ancestor: no
@@ -85,3 +92,9 @@ indexes:
   - name: timestamp
   - name: parent_schedule
   - name: test_type
+  - name: require_signed_device_build
+  - name: has_bootloader_img
+  - name: has_radio_img
+  - name: image_package_repo_base
+  - name: report_bucket
+  - name: report_spreadsheet_id

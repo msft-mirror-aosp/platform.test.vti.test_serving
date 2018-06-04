@@ -236,6 +236,14 @@ class ScheduleHandler(webapp2.RequestHandler):
                 new_job.parent_schedule = schedule.key
                 new_job.image_package_repo_base = (
                     schedule.image_package_repo_base)
+                new_job.required_host_equipment = (
+                    schedule.required_host_equipment)
+                new_job.required_device_equipment = (
+                    schedule.required_device_equipment)
+                new_job.has_bootloader_img = schedule.has_bootloader_img
+                new_job.has_radio_img = schedule.has_radio_img
+                new_job.report_bucket = schedule.report_bucket
+                new_job.report_spreadsheet_id = schedule.report_spreadsheet_id
 
                 # uses bit 0-1 to indicate version.
                 test_type = GetTestVersionType(schedule.manifest_branch,
