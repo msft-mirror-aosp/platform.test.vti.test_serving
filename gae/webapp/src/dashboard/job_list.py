@@ -180,7 +180,7 @@ class CreateJobPage(JobBase):
 
             new_job = model.JobModel()
             new_job.hostname = self.request.get("hostname", default_value="")
-            new_job.priority = str(vtslab_status.PrioritySortHelper(
+            new_job.priority = str(vtslab_status.GetPriorityValue(
                 self.request.get("priority", default_value="high")))
             new_job.test_name = self.request.get("test_name", default_value="")
             new_job.device = self.request.get("device", default_value="")

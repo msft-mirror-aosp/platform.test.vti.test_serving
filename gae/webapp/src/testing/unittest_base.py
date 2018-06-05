@@ -223,6 +223,7 @@ class UnitTestBase(unittest.TestCase):
                                         self.GetRandomString())
         schedule.device = []
         schedule.device.append("/".join([lab, device_product]))
+        schedule.priority_value = Status.GetPriorityValue(schedule.priority)
         return schedule
 
     def GenerateBuildModel(self, schedule, targets=None):
@@ -285,3 +286,42 @@ class UnitTestBase(unittest.TestCase):
             return format_string.format(latest_build_id + 1)
         else:
             return format_string.format(1)
+
+    def PassTime(self, hours=0, minutes=0, seconds=0):
+        """Assumes that a certain amount of time has passed.
+
+        This method changes does not change actual system time but changes all
+        jobs timestamp to assume time has passed.
+
+        Args:
+            hours: an integer, number of hours to pass time.
+            minutes: an integer, number of minutes to pass time.
+            seconds: an integer, number of seconds to pass time.
+        """
+        if not hours and not minutes and not seconds:
+            return
+
+        jobs = model.JobModel.query().fetch()
+        to_put = []
+        for job in jobs:
+            if job.timestamp:
+                job.timestamp -= datetime.timedelta(
+                    hours=hours, minutes=minutes, seconds=seconds)
+            if job.heartbeat_stamp:
+                job.heartbeat_stamp -= datetime.timedelta(
+                    hours=hours, minutes=minutes, seconds=seconds)
+            to_put.append(job)
+        if to_put:
+            ndb.put_multi(to_put)
+
+    def ResetDevices(self):
+        """Resets all devices to ready status."""
+        devices = model.DeviceModel.query().fetch()
+        to_put = []
+        for device in devices:
+            device.status = Status.DEVICE_STATUS_DICT["fastboot"]
+            device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
+                "free"]
+            to_put.append(device)
+        if to_put:
+            ndb.put_multi(to_put)
