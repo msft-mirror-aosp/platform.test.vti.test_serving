@@ -62,8 +62,8 @@ class ScheduleModel(ndb.Model):
     build_target = ndb.StringProperty()  # type:name
     device_pab_account_id = ndb.StringProperty()
     require_signed_device_build = ndb.BooleanProperty()
-    has_bootloader_img = ndb.BooleanProperty()
-    has_radio_img = ndb.BooleanProperty()
+    has_bootloader_img = ndb.BooleanProperty(default=True)
+    has_radio_img = ndb.BooleanProperty(default=True)
 
     # GSI information
     gsi_storage_type = ndb.IntegerProperty()

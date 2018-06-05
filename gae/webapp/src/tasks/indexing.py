@@ -164,6 +164,9 @@ class IndexingHandler(webapp2.RequestHandler):
                             x for x in entity.children_jobs if x]
                     else:
                         entity.children_jobs = []
+                    for attr in ["has_bootloader_img", "has_radio_img"]:
+                        if getattr(entity, attr, None) is None:
+                            setattr(entity, attr, True)
                 else:
                     pass
                 to_put.append(entity)
