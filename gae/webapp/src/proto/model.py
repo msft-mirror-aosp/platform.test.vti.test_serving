@@ -62,6 +62,8 @@ class ScheduleModel(ndb.Model):
     build_target = ndb.StringProperty()  # type:name
     device_pab_account_id = ndb.StringProperty()
     require_signed_device_build = ndb.BooleanProperty()
+    has_bootloader_img = ndb.BooleanProperty()
+    has_radio_img = ndb.BooleanProperty()
 
     # GSI information
     gsi_storage_type = ndb.IntegerProperty()
@@ -94,6 +96,9 @@ class ScheduleModel(ndb.Model):
     required_host_equipment = ndb.StringProperty(repeated=True)
     required_device_equipment = ndb.StringProperty(repeated=True)
 
+    report_bucket = ndb.StringProperty(repeated=True)
+    report_spreadsheet_id = ndb.StringProperty(repeated=True)
+
 
 class ScheduleControlInfoMessage(messages.Message):
     """A message for representing a schedule control data entry."""
@@ -103,7 +108,7 @@ class ScheduleControlInfoMessage(messages.Message):
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
-    # Next ID = 27
+    # Next ID = 31
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -114,7 +119,8 @@ class ScheduleInfoMessage(messages.Message):
     build_target = messages.StringField(2)
     device_pab_account_id = messages.StringField(17)
     require_signed_device_build = messages.BooleanField(20)
-
+    has_bootloader_img = messages.BooleanField(27)
+    has_radio_img = messages.BooleanField(28)
     # GSI information
     gsi_storage_type = messages.IntegerField(22)
     gsi_branch = messages.StringField(9)
@@ -139,6 +145,9 @@ class ScheduleInfoMessage(messages.Message):
 
     required_host_equipment = messages.StringField(25, repeated=True)
     required_device_equipment = messages.StringField(26, repeated=True)
+
+    report_bucket = messages.StringField(29, repeated=True)
+    report_spreadsheet_id = messages.StringField(30, repeated=True)
 
 
 class LabModel(ndb.Model):
@@ -213,6 +222,8 @@ class JobModel(ndb.Model):
     priority = ndb.StringProperty()
     test_name = ndb.StringProperty()
     require_signed_device_build = ndb.BooleanProperty()
+    has_bootloader_img = ndb.BooleanProperty()
+    has_radio_img = ndb.BooleanProperty()
     device = ndb.StringProperty()
     serial = ndb.StringProperty(repeated=True)
 
@@ -253,16 +264,21 @@ class JobModel(ndb.Model):
 
     image_package_repo_base = ndb.StringProperty()
 
+    report_bucket = ndb.StringProperty(repeated=True)
+    report_spreadsheet_id = ndb.StringProperty(repeated=True)
+
 
 class JobMessage(messages.Message):
     """A message for representing an individual job entry."""
-    # Next ID = 31
+    # Next ID = 35
     test_type = messages.IntegerField(29)
 
     hostname = messages.StringField(1)
     priority = messages.StringField(2)
     test_name = messages.StringField(3)
     require_signed_device_build = messages.BooleanField(23)
+    has_bootloader_img = messages.BooleanField(31)
+    has_radio_img = messages.BooleanField(32)
     device = messages.StringField(4)
     serial = messages.StringField(5, repeated=True)
 
@@ -298,6 +314,9 @@ class JobMessage(messages.Message):
     infra_log_url = messages.StringField(24)
 
     image_package_repo_base = messages.StringField(30)
+
+    report_bucket = messages.StringField(33, repeated=True)
+    report_spreadsheet_id = messages.StringField(34, repeated=True)
 
 
 class ReturnCodeMessage(messages.Enum):

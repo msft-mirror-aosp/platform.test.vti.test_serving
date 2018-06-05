@@ -22,15 +22,12 @@ try:
 except ImportError:
     import mock
 
-from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.tasks import indexing
-
-from google.appengine.ext import ndb
-from google.appengine.ext import testbed
+from webapp.src.testing import unittest_base
 
 
-class IndexingHandlerTest(unittest.TestCase):
+class IndexingHandlerTest(unittest_base.UnitTestBase):
     """Tests for IndexingHandler.
 
     Attributes:
@@ -40,60 +37,16 @@ class IndexingHandlerTest(unittest.TestCase):
 
     def setUp(self):
         """Initializes test"""
-        # Create the Testbed class instance and initialize service stubs.
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        self.testbed.init_datastore_v3_stub()
-        self.testbed.init_memcache_stub()
-        # Clear cache between tests.
-        ndb.get_context().clear_cache()
+        super(IndexingHandlerTest, self).setUp()
         # Mocking IndexingHandler.
         self.indexing_handler = indexing.IndexingHandler(mock.Mock())
         self.indexing_handler.request = mock.Mock()
 
-    def tearDown(self):
-        self.testbed.deactivate()
-
     def testSingleJobReindexing(self):
         """Asserts re-indexing links job and schedule successfully."""
-        priority = "top"
-        test_name = "test/test"
-        period = 360
-        build_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        manifest_branch = "manifest_branch"
-        build_target = "device_build_target-user"
-        pab_account_id = "1234567890"
-        shards = 1
-        retry_count = 2
-        gsi_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        gsi_branch = "gsi_branch"
-        gsi_build_target = "gsi_build_target-user"
-        gsi_pab_account_id = "1234567890"
-        test_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        test_branch = "gsi_branch"
-        test_build_target = "gsi_build_target-user"
-        test_pab_account_id = "1234567890"
-        print("\n")
 
-        print("Creating a single schedule...")
-        schedule = model.ScheduleModel()
-        schedule.priority = priority
-        schedule.test_name = test_name
-        schedule.period = period
-        schedule.build_storage_type = build_storage_type
-        schedule.manifest_branch = manifest_branch
-        schedule.build_target = build_target
-        schedule.device_pab_account_id = pab_account_id
-        schedule.shards = shards
-        schedule.retry_count = retry_count
-        schedule.gsi_storage_type = gsi_storage_type
-        schedule.gsi_branch = gsi_branch
-        schedule.gsi_build_target = gsi_build_target
-        schedule.gsi_pab_account_id = gsi_pab_account_id
-        schedule.test_storage_type = test_storage_type
-        schedule.test_branch = test_branch
-        schedule.test_build_target = test_build_target
-        schedule.test_pab_account_id = test_pab_account_id
+        print("\nCreating a single schedule...")
+        schedule = self.GenerateScheduleModel()
         schedule.put()
 
         schedules = model.ScheduleModel.query().fetch()
@@ -161,45 +114,10 @@ class IndexingHandlerTest(unittest.TestCase):
 
     def testMultiJobReindexing(self):
         """Asserts re-indexing links job and schedule successfully."""
-        priority = "top"
-        test_name = ""
-        period = 360
-        build_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        manifest_branch = "manifest_branch"
-        build_target = "device_build_target-user"
-        pab_account_id = "1234567890"
-        shards = 1
-        retry_count = 2
-        gsi_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        gsi_branch = "gsi_branch"
-        gsi_build_target = "gsi_build_target-user"
-        gsi_pab_account_id = "1234567890"
-        test_storage_type = Status.STORAGE_TYPE_DICT["PAB"]
-        test_branch = "gsi_branch"
-        test_build_target = "gsi_build_target-user"
-        test_pab_account_id = "1234567890"
-        print("\n")
-
-        print("Creating four schedules...")
+        print("\nCreating four schedules...")
         for num in xrange(4):
-            schedule = model.ScheduleModel()
-            schedule.priority = priority
-            schedule.test_name = test_name + str(num + 1)
-            schedule.period = period
-            schedule.build_storage_type = build_storage_type
-            schedule.manifest_branch = manifest_branch
-            schedule.build_target = build_target
-            schedule.device_pab_account_id = pab_account_id
-            schedule.shards = shards
-            schedule.retry_count = retry_count
-            schedule.gsi_storage_type = gsi_storage_type
-            schedule.gsi_branch = gsi_branch
-            schedule.gsi_build_target = gsi_build_target
-            schedule.gsi_pab_account_id = gsi_pab_account_id
-            schedule.test_storage_type = test_storage_type
-            schedule.test_branch = test_branch
-            schedule.test_build_target = test_build_target
-            schedule.test_pab_account_id = test_pab_account_id
+            schedule = self.GenerateScheduleModel(test_name=str(num + 1))
+            schedule.put()
             schedule.put()
 
         schedules = model.ScheduleModel.query().fetch()
