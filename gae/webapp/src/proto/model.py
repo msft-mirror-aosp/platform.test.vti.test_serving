@@ -82,6 +82,7 @@ class ScheduleModel(ndb.Model):
     period = ndb.IntegerProperty()
     schedule = ndb.StringProperty()
     priority = ndb.StringProperty()
+    priority_value = ndb.IntegerProperty()
     device = ndb.StringProperty(repeated=True)
     shards = ndb.IntegerProperty()
     param = ndb.StringProperty(repeated=True)

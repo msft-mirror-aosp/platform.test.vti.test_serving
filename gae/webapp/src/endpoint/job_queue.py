@@ -50,7 +50,7 @@ class JobQueueApi(remote.Service):
 
         priority_sorted_jobs = sorted(
             existing_jobs,
-            key=lambda x: (Status.PrioritySortHelper(x.priority), x.timestamp))
+            key=lambda x: (Status.GetPriorityValue(x.priority), x.timestamp))
 
         job_message = model.JobMessage()
         job_message.hostname = ""

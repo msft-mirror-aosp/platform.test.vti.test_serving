@@ -20,6 +20,7 @@ from protorpc import remote
 
 from google.appengine.ext import ndb
 
+from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 
 SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(model.ScheduleInfoMessage)
@@ -104,6 +105,7 @@ class ScheduleInfoApi(remote.Service):
             schedule.schedule_type = "test"
             schedule.error_count = 0
             schedule.suspended = False
+            schedule.priority_value = Status.GetPriorityValue(schedule.priority)
             schedule.put()
 
         return model.DefaultResponse(
