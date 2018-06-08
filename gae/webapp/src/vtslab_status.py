@@ -58,11 +58,11 @@ JOB_STATUS_DICT = {
 }
 
 JOB_PRIORITY_DICT = {
-    "top": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 3,
-    "other": 4
+    "top": 3,
+    "high": 6,
+    "medium": 9,
+    "low": 12,
+    "other": 15
 }
 
 
@@ -99,7 +99,7 @@ TEST_TYPE_DICT = {
 }
 
 
-def PrioritySortHelper(priority):
+def GetPriorityValue(priority):
     """Helper function to sort jobs based on priority.
 
     Args:
@@ -108,7 +108,8 @@ def PrioritySortHelper(priority):
     Returns:
         int, priority order (the lower, the higher)
     """
-    priority = priority.lower()
-    if priority in JOB_PRIORITY_DICT:
-        return JOB_PRIORITY_DICT[priority]
-    return 4
+    if priority:
+        priority = priority.lower()
+        if priority in JOB_PRIORITY_DICT:
+            return JOB_PRIORITY_DICT[priority]
+    return JOB_PRIORITY_DICT["other"]

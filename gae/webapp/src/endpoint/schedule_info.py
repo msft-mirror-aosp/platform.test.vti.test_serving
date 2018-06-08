@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Schedule Info APIs implemented using Google Cloud Endpoints."""
 
 import datetime
@@ -21,11 +20,10 @@ from protorpc import remote
 
 from google.appengine.ext import ndb
 
+from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 
-
-SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(
-    model.ScheduleInfoMessage)
+SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(model.ScheduleInfoMessage)
 
 
 @endpoints.api(name="schedule_info", version="v1")
@@ -41,12 +39,12 @@ class ScheduleInfoApi(remote.Service):
     def clear(self, request):
         """Clears test schedule info in DB."""
         schedule_query = model.ScheduleModel.query(
-            model.ScheduleModel.schedule_type != "green"
-        )
+            model.ScheduleModel.schedule_type != "green")
         existing_schedules = schedule_query.fetch(keys_only=True)
         if existing_schedules and len(existing_schedules) > 0:
             ndb.delete_multi(existing_schedules)
-        return model.DefaultResponse(return_code=model.ReturnCodeMessage.SUCCESS)
+        return model.DefaultResponse(
+            return_code=model.ReturnCodeMessage.SUCCESS)
 
     @endpoints.method(
         SCHEDULE_INFO_RESOURCE,
@@ -64,7 +62,6 @@ class ScheduleInfoApi(remote.Service):
         exist_on_both = [
             x for x in request_fields if x.name in model_attr_names
         ]
-
         # check duplicates
         exclusions = [
             "name", "schedule_type", "schedule", "param", "timestamp",
@@ -74,17 +71,30 @@ class ScheduleInfoApi(remote.Service):
         duplicate_checklist = [
             x for x in exist_on_both if x.name not in exclusions
         ]
+        empty_list_field = []
         query = model.ScheduleModel.query()
         for field in duplicate_checklist:
             if field.repeated:
-                query = query.filter(
-                    getattr(model.ScheduleModel, field.name).IN(
-                        request.get_assigned_value(field.name)))
+                value = request.get_assigned_value(field.name)
+                if value:
+                    query = query.filter(
+                        getattr(model.ScheduleModel, field.name).IN(
+                            request.get_assigned_value(field.name)))
+                else:
+                    # empty list cannot be queried.
+                    empty_list_field.append(field.name)
             else:
                 query = query.filter(
                     getattr(model.ScheduleModel, field.name) ==
                     request.get_assigned_value(field.name))
         duplicated_schedules = query.fetch()
+
+        if empty_list_field:
+            duplicated_schedules = [
+                schedule for schedule in duplicated_schedules
+                if all(
+                    [not getattr(schedule, attr) for attr in empty_list_field])
+            ]
 
         if not duplicated_schedules:
             schedule = model.ScheduleModel()
@@ -95,6 +105,7 @@ class ScheduleInfoApi(remote.Service):
             schedule.schedule_type = "test"
             schedule.error_count = 0
             schedule.suspended = False
+            schedule.priority_value = Status.GetPriorityValue(schedule.priority)
             schedule.put()
 
         return model.DefaultResponse(
@@ -114,12 +125,12 @@ class GreenScheduleInfoApi(remote.Service):
     def clear(self, request):
         """Clears green build schedule info in DB."""
         schedule_query = model.ScheduleModel.query(
-            model.ScheduleModel.schedule_type == "green"
-        )
+            model.ScheduleModel.schedule_type == "green")
         existing_schedules = schedule_query.fetch(keys_only=True)
         if existing_schedules and len(existing_schedules) > 0:
             ndb.delete_multi(existing_schedules)
-        return model.DefaultResponse(return_code=model.ReturnCodeMessage.SUCCESS)
+        return model.DefaultResponse(
+            return_code=model.ReturnCodeMessage.SUCCESS)
 
     @endpoints.method(
         SCHEDULE_INFO_RESOURCE,
