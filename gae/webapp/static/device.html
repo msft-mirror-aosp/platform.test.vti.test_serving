@@ -94,6 +94,7 @@
         <td>Serial
         <td>Status
         <td>Scheduling Status
+        <td>equipment
         <td>Timestamp
       </tr>
       {% set index = 1 %}
@@ -120,6 +121,8 @@
           {{ {0: "free",
               1: "reserved",
               2: "use"}[device.scheduling_status] | default("status key error") }}
+        <td>
+          {{ device.device_equipment }}
         <td>
         {% if device.timestamp %}
         {{ convert_time(device.timestamp).strftime("%Y-%m-%d %H:%M:%S") }}

@@ -71,6 +71,7 @@
         <td>retry_count
         <td>param
         <td>priority
+        <td>required host/device equipment
         <td>timestamp
         <td>resume/suspend
         <td>create a job
@@ -99,6 +100,8 @@
           {{ schedule.param }}
         <td>
           {{ schedule.priority }}
+        <td>
+          {{ schedule.required_host_equipment }} / {{ schedule.required_device_equipment }}
         <td>
           {% if schedule.timestamp %}
           {{ convert_time(schedule.timestamp).strftime("%Y-%m-%d %H:%M:%S") }}
