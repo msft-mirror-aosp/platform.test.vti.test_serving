@@ -27,7 +27,7 @@ from webapp.src.utils import email_util
 from webapp.src.utils import logger
 from webapp.src.utils import model_util
 
-JOB_RESPONSE_TIMEOUT_SECONDS = 300
+JOB_RESPONSE_TIMEOUT_SECONDS = 60 * 60
 
 
 class PeriodicJobHeartBeat(webapp2.RequestHandler):
@@ -66,8 +66,8 @@ class PeriodicJobHeartBeat(webapp2.RequestHandler):
                 job.hostname, job.device, job.test_name))
             job.status = Status.JOB_STATUS_DICT["infra-err"]
             lost_jobs_to_put.append(job)
-            model_util.UpdateParentSchedule(job,
-                                            Status.JOB_STATUS_DICT["infra-err"])
+            model_util.UpdateParentSchedule(
+                job, Status.JOB_STATUS_DICT["infra-err"])
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
