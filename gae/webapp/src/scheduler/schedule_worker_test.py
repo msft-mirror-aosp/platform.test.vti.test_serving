@@ -26,6 +26,7 @@ from webapp.src import vtslab_status as Status
 from webapp.src.proto import model
 from webapp.src.scheduler import schedule_worker
 from webapp.src.testing import unittest_base
+from webapp.src.utils import model_util
 
 
 class ScheduleHandlerTest(unittest_base.UnitTestBase):
@@ -293,6 +294,81 @@ class ScheduleHandlerTest(unittest_base.UnitTestBase):
         # now schedule_1's priority value should be changed.
         self.assertEquals(schedule1_l_original_priority_value - 1,
                           schedule1_l.priority_value)
+
+    def testRetryAfterBootupError(self):
+        """Asserts a schedule's period is shortened after boot-up error."""
+        long_period = 5760
+
+        lab = self.GenerateLabModel()
+        lab.put()
+
+        device = self.GenerateDeviceModel(hostname=lab.hostname)
+        device.put()
+
+        schedule = self.GenerateScheduleModel(
+            device_model=device, lab_model=lab, period=long_period)
+        schedule.put()
+
+        build_dict = self.GenerateBuildModel(schedule)
+        for key in build_dict:
+            build_dict[key].put()
+
+        # a job should be created.
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(1, len(jobs))
+
+        jobs[0].status = Status.JOB_STATUS_DICT["bootup-err"]
+        jobs[0].put()
+        model_util.UpdateParentSchedule(jobs[0],
+                                        Status.JOB_STATUS_DICT["bootup-err"])
+
+        self.PassTime(
+            minutes=schedule_worker.BOOTUP_ERROR_RETRY_INTERVAL_IN_MINS + 1)
+        self.ResetDevices()
+
+        # new job should be created again.
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(2, len(jobs))
+
+        jobs.sort(key=lambda x: x.timestamp, reverse=True)  # latest first
+        jobs[0].status = Status.JOB_STATUS_DICT["bootup-err"]
+        jobs[0].put()
+        model_util.UpdateParentSchedule(jobs[0],
+                                        Status.JOB_STATUS_DICT["bootup-err"])
+
+        self.PassTime(
+            minutes=schedule_worker.BOOTUP_ERROR_RETRY_INTERVAL_IN_MINS - 1)
+        self.ResetDevices()
+
+        # time is not passed enough so there would be no new job.
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(2, len(jobs))
+
+        # if latest job is completed successfully, period should be recovered.
+        jobs[0].status = Status.JOB_STATUS_DICT["complete"]
+        jobs[0].put()
+        model_util.UpdateParentSchedule(jobs[0],
+                                        Status.JOB_STATUS_DICT["complete"])
+
+        # pass time to (period - 1)
+        self.PassTime(minutes=long_period - 1 - (
+            schedule_worker.BOOTUP_ERROR_RETRY_INTERVAL_IN_MINS - 1))
+        self.ResetDevices()
+
+        # then no job will be created.
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(2, len(jobs))
+
+        # pass time to (period + 1)
+        self.PassTime(minutes=2)
+
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(3, len(jobs))
 
 
 if __name__ == "__main__":

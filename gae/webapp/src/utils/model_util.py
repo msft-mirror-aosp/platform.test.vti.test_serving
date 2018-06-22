@@ -49,7 +49,7 @@ def UpdateParentSchedule(job, status):
                 Status.JOB_STATUS_DICT["bootup-err"]
             ]:
                 schedule.error_count += 1
-                if schedule.error_count >= 3:
+                if schedule.error_count >= Status.NUM_ERRORS_FOR_SUSPENSION:
                     schedule.suspended = True
             schedule.put()
             if previous_suspended != schedule.suspended:
