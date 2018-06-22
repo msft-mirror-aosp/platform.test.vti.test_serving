@@ -64,7 +64,9 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
             "gsi_pab_account_id", "gsi_vendor_version", "test_storage_type",
             "test_branch", "test_build_target", "test_build_id",
             "test_pab_account_id", "retry_count", "infra_log_url",
-            "image_package_repo_base", "report_bucket", "report_spreadsheet_id"
+            "image_package_repo_base", "report_bucket",
+            "report_spreadsheet_id", "report_persistent_url",
+            "report_reference_url"
         ]
         job_message = model.JobMessage()
         for attr in attrs:
@@ -86,7 +88,9 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
             "test_branch", "test_build_target", "test_build_id",
             "test_pab_account_id", "timestamp", "heartbeat_stamp",
             "retry_count", "infra_log_url", "parent_schedule",
-            "image_package_repo_base", "report_bucket", "report_spreadsheet_id"
+            "image_package_repo_base", "report_bucket",
+            "report_spreadsheet_id", "report_persistent_url",
+            "report_reference_url"
         ]
         job = model.JobModel()
         for attr in attrs:

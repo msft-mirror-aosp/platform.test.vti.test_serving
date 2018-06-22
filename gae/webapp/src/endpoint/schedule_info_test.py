@@ -66,6 +66,10 @@ class ScheduleInfoTest(unittest_base.UnitTestBase):
                 test_build_target=self.GetRandomString(),
                 test_pab_account_id=self.GetRandomString(),
                 image_package_repo_base=self.GetRandomString(),
+                report_bucket=[self.GetRandomString()],
+                report_spreadsheet_id=[self.GetRandomString()],
+                report_persistent_url=[self.GetRandomString()],
+                report_reference_url=[self.GetRandomString()],
             ))
         api = schedule_info.ScheduleInfoApi()
         response = api.set(container)
@@ -107,6 +111,10 @@ class ScheduleInfoTest(unittest_base.UnitTestBase):
                 test_build_target=self.GetRandomString(),
                 test_pab_account_id=self.GetRandomString(),
                 image_package_repo_base=self.GetRandomString(),
+                report_bucket=[],
+                report_spreadsheet_id=[],
+                report_persistent_url=[],
+                report_reference_url=[],
             ))
         api = schedule_info.ScheduleInfoApi()
         response = api.set(container)
