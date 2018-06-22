@@ -98,6 +98,9 @@ TEST_TYPE_DICT = {
     TEST_TYPE_MANUAL: 1 << 5
 }
 
+# # of errors in a row to suspend a schedule
+NUM_ERRORS_FOR_SUSPENSION = 3
+
 
 def GetPriorityValue(priority):
     """Helper function to sort jobs based on priority.

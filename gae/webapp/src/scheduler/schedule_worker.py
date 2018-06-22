@@ -28,6 +28,7 @@ from webapp.src.utils import logger
 import webapp2
 
 MAX_LOG_CHARACTERS = 10000  # maximum number of characters per each log
+BOOTUP_ERROR_RETRY_INTERVAL_IN_MINS = 60  # retry minutes when boot-up error is occurred
 
 CREATE_JOB_SUCCESS = "success"
 CREATE_JOB_FAILED_NO_BUILD = "no_build"
@@ -268,8 +269,7 @@ class ScheduleHandler(webapp2.RequestHandler):
 
         self.logger.Println("- Target host: %s" % target_host)
         self.logger.Println("- Target device: %s" % target_device)
-        self.logger.Println(
-            "- Target serials: %s" % target_device_serials)
+        self.logger.Println("- Target serials: %s" % target_device_serials)
 
         # create job and add.
         new_job = model.JobModel()
@@ -403,7 +403,8 @@ class ScheduleHandler(webapp2.RequestHandler):
             latest_job = latest_job_key.get()
 
             if datetime.datetime.now() - latest_job.timestamp > (
-                    datetime.timedelta(minutes=schedule.period)):
+                    datetime.timedelta(
+                        minutes=self.GetCorrectedPeriod(schedule))):
                 ret_list.append(schedule)
 
         return ret_list
@@ -490,3 +491,24 @@ class ScheduleHandler(webapp2.RequestHandler):
             return ""
 
         return schedule.device[0].split("/")[1].lower()
+
+    def GetCorrectedPeriod(self, schedule):
+        """Corrects and returns period value based on latest children jobs.
+
+        Args:
+            schedule: a model.ScheduleModel instance containing schedule
+                      information.
+
+        Returns:
+            an integer, corrected schedule period.
+        """
+        if not schedule.error_count or not schedule.children_jobs or (
+                schedule.period <= BOOTUP_ERROR_RETRY_INTERVAL_IN_MINS):
+            return schedule.period
+
+        latest_job = schedule.children_jobs[-1].get()
+
+        if latest_job.status == Status.JOB_STATUS_DICT["bootup-err"]:
+            return BOOTUP_ERROR_RETRY_INTERVAL_IN_MINS
+        else:
+            return schedule.period

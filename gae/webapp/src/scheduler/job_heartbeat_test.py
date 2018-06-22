@@ -80,30 +80,46 @@ class JobHeartbeatTest(unittest_base.UnitTestBase):
         scheduler.response.write = mock.Mock()
         scheduler.request.get = mock.MagicMock(return_value="")
 
-        print("\nCreating jobs...")
+        # Creating jobs.
         scheduler.post()
         jobs = model.JobModel.query().fetch()
         self.assertEqual(2, len(jobs))
 
-        print("Making jobs get old and running heartbeat monitor...")
-        for job in jobs:
-            job.status = Status.JOB_STATUS_DICT["leased"]
-            job.timestamp = (
-                datetime.datetime.now() - datetime.timedelta(minutes=10))
-            job.heartbeat_stamp = (
-                datetime.datetime.now() - datetime.timedelta(minutes=7))
-            job.put()
+        # jobs[0] will get old enough so it will be timed out.
+        jobs[0].status = Status.JOB_STATUS_DICT["leased"]
+        jobs[0].timestamp = (datetime.datetime.now() - datetime.timedelta(
+            seconds=job_heartbeat.JOB_RESPONSE_TIMEOUT_SECONDS + 5))
+        jobs[0].heartbeat_stamp = (
+            datetime.datetime.now() - datetime.timedelta(
+                seconds=job_heartbeat.JOB_RESPONSE_TIMEOUT_SECONDS + 5))
+        jobs[0].put()
 
+        # jobs[1] will not exceed the timeout time.
+        jobs[1].status = Status.JOB_STATUS_DICT["leased"]
+        jobs[1].timestamp = (datetime.datetime.now() - datetime.timedelta(
+            seconds=job_heartbeat.JOB_RESPONSE_TIMEOUT_SECONDS - 5))
+        jobs[1].heartbeat_stamp = (
+            datetime.datetime.now() - datetime.timedelta(
+                seconds=job_heartbeat.JOB_RESPONSE_TIMEOUT_SECONDS - 5))
+        jobs[1].put()
+
+        # Creating jobs.
         self.job_heartbeat.get()
 
+        # One job(job[0]) should be changed to infra-err status.
         jobs = model.JobModel.query().fetch()
-        for job in jobs:
-            self.assertEquals(Status.JOB_STATUS_DICT["infra-err"], job.status)
+        infra_error_jobs = [
+            x for x in jobs if x.status == Status.JOB_STATUS_DICT["infra-err"]
+        ]
+        self.assertEquals(len(infra_error_jobs), 1)
 
-        devices = model.DeviceModel.query().fetch()
+        # job[0]'s devices should be changed to free scheduling status.
+        serials = infra_error_jobs[0].serial
+        devices = model.DeviceModel.query(
+            model.DeviceModel.serial.IN(serials)).fetch()
         for device in devices:
-            self.assertEquals(Status.DEVICE_SCHEDULING_STATUS_DICT["free"],
-                              device.scheduling_status)
+            self.assertEquals(device.scheduling_status,
+                              Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
 
 
 if __name__ == "__main__":
