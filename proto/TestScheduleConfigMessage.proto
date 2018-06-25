@@ -122,4 +122,10 @@ message TestScheduleConfigMessage {
 
   // the ID of the spreadsheet where test results are uploaded
   repeated bytes report_spreadsheet_id = 72;
+
+  // the GCS url where the latest test result is uploaded
+  repeated bytes report_persistent_url = 73;
+
+  // the GCS url where the reference result is.
+  repeated bytes report_reference_url = 74;
 }
