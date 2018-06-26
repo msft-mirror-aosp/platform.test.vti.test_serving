@@ -52,4 +52,5 @@ skip_files:
 - ^script/*$
 - testrunner.py
 - .*_test.py$
+- ^(.*/)?frontend/(.*)
 # [END exclude]
