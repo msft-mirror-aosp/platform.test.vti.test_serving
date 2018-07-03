@@ -34,6 +34,7 @@ class SchedulePage(base.BaseHandler):
         if resume_key:
             schedule_key = ndb.key.Key(urlsafe=resume_key)
             schedule = schedule_key.get()
+            schedule.error_count = 0
             schedule.suspended = False
             schedule.put()
             email_util.send_schedule_suspension_notification(schedule)
