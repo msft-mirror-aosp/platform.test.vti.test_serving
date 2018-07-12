@@ -91,30 +91,41 @@ class UnitTestBase(unittest.TestCase):
 
     def GenerateDeviceModel(
             self,
-            hostname=None,
-            product=None,
-            serial=None,
             status=Status.DEVICE_STATUS_DICT["fastboot"],
-            scheduling_status=Status.DEVICE_SCHEDULING_STATUS_DICT["free"]):
+            scheduling_status=Status.DEVICE_SCHEDULING_STATUS_DICT["free"],
+            **kwargs):
         """Builds model.DeviceModel with given information.
 
         Args:
-            hostname: a string, host name.
-            product: a string, device product name.
-            serial: a string, device serial number.
             status: an integer, device's initial status.
             scheduling_status: an integer, device's initial scheduling status.
+            **kwargs: the optional arguments.
 
         Returns:
             model.DeviceModel instance.
         """
         device = model.DeviceModel()
-        device.hostname = hostname if hostname else self.GetRandomString()
-        device.product = product if product else self.GetRandomString()
-        device.serial = serial if serial else self.GetRandomString()
         device.status = status
         device.scheduling_status = scheduling_status
         device.timestamp = datetime.datetime.now()
+
+        for arg in device._properties:
+            if arg in ["status", "scheduling_status", "timestamp"]:
+                continue
+            if arg in kwargs:
+                value = kwargs[arg]
+            elif isinstance(device._properties[arg], ndb.StringProperty):
+                value = self.GetRandomString()
+            elif isinstance(device._properties[arg], ndb.IntegerProperty):
+                value = 0
+            elif isinstance(device._properties[arg], ndb.BooleanProperty):
+                value = False
+            else:
+                print("A type of property '{}' is not supported.".format(arg))
+                continue
+            if device._properties[arg]._repeated:
+                value = [value]
+            setattr(device, arg, value)
         return device
 
     def GenerateScheduleModel(
@@ -122,49 +133,39 @@ class UnitTestBase(unittest.TestCase):
             device_model=None,
             lab_model=None,
             priority="medium",
-            test_name=None,
             period=360,
             retry_count=1,
             shards=1,
             lab_name=None,
             device_storage_type=Status.STORAGE_TYPE_DICT["PAB"],
-            device_pab_account_id=None,
             device_branch=None,
             device_target=None,
             gsi_storage_type=Status.STORAGE_TYPE_DICT["PAB"],
-            gsi_pab_account_id=None,
-            gsi_branch=None,
             gsi_build_target=None,
             test_storage_type=Status.STORAGE_TYPE_DICT["PAB"],
-            test_pab_account_id=None,
-            test_branch=None,
             test_build_target=None,
-            required_signed_device_build=False):
+            required_signed_device_build=False,
+            **kwargs):
         """Builds model.ScheduleModel with given information.
 
         Args:
             device_model: a model.DeviceModel instance to refer device product.
             lab_model: a model.LabModel instance to refer host name.
             priority: a string, scheduling priority
-            test_name: a string, schedule test name.
             period: an integer, scheduling period.
             retry_count: an integer, scheduling retry count.
             shards: an integer, # ways of device shards.
             lab_name: a string, target lab name.
             device_storage_type: an integer, device storage type
-            device_pab_account_id: a string, device PAB account ID.
             device_branch: a string, device build branch.
             device_target: a string, device build target.
             gsi_storage_type: an integer, GSI storage type
-            gsi_pab_account_id: a string, GSI PAB account ID.
-            gsi_branch: a string, GSI build branch.
             gsi_build_target: a string, GSI build target.
             test_storage_type: an integer, test storage type
-            test_pab_account_id: a string, test PAB account ID.
-            test_branch: a string, test build branch.
             test_build_target: a string, test build target.
             required_signed_device_build: a boolean, True to schedule for signed
                                           device build, False if not.
+            **kwargs: the optional arguments.
 
         Returns:
             model.ScheduleModel instance.
@@ -188,42 +189,57 @@ class UnitTestBase(unittest.TestCase):
 
         schedule = model.ScheduleModel()
         schedule.priority = priority
-        schedule.test_name = test_name if test_name else self.GetRandomString()
+        schedule.priority_value = Status.GetPriorityValue(schedule.priority)
         schedule.period = period
         schedule.shards = shards
         schedule.retry_count = retry_count
-        schedule.build_storage_type = device_storage_type
         schedule.required_signed_device_build = required_signed_device_build
+        schedule.build_storage_type = device_storage_type
         schedule.manifest_branch = (device_branch if device_branch else
                                     self.GetRandomString())
         schedule.build_target = "-".join([device_product, device_target])
-        schedule.device_pab_account_id = (device_pab_account_id
-                                          if device_pab_account_id else
-                                          self.GetRandomString())
+
         schedule.gsi_storage_type = gsi_storage_type
-        schedule.gsi_branch = (gsi_branch
-                               if gsi_branch else self.GetRandomString())
         schedule.gsi_build_target = (gsi_build_target
                                      if gsi_build_target else "-".join([
                                          self.GetRandomString(),
                                          self.GetRandomString(4)
                                      ]))
-        schedule.gsi_pab_account_id = (gsi_pab_account_id if gsi_pab_account_id
-                                       else self.GetRandomString())
         schedule.test_storage_type = test_storage_type
-        schedule.test_branch = (test_branch
-                                if test_branch else self.GetRandomString())
         schedule.test_build_target = (test_build_target
                                       if test_build_target else "-".join([
                                           self.GetRandomString(),
                                           self.GetRandomString(4)
                                       ]))
-        schedule.test_pab_account_id = (test_pab_account_id
-                                        if test_pab_account_id else
-                                        self.GetRandomString())
         schedule.device = []
         schedule.device.append("/".join([lab, device_product]))
-        schedule.priority_value = Status.GetPriorityValue(schedule.priority)
+
+        for arg in schedule._properties:
+            if arg in [
+                    "priority", "priority_value", "period", "shards",
+                    "retry_count", "required_signed_device_build",
+                    "build_storage_type", "manifest_branch", "build_target",
+                    "gsi_storage_type", "gsi_build_target",
+                    "test_storage_type", "test_build_target", "device",
+                    "children_jobs", "timestamp", "required_host_equipment",
+                    "required_device_equipment"
+            ]:
+                continue
+            if arg in kwargs:
+                value = kwargs[arg]
+            elif isinstance(schedule._properties[arg], ndb.StringProperty):
+                value = self.GetRandomString()
+            elif isinstance(schedule._properties[arg], ndb.IntegerProperty):
+                value = 0
+            elif isinstance(schedule._properties[arg], ndb.BooleanProperty):
+                value = False
+            else:
+                print("A type of property '{}' is not supported.".format(arg))
+                continue
+            if schedule._properties[arg]._repeated:
+                value = [value]
+            setattr(schedule, arg, value)
+
         return schedule
 
     def GenerateBuildModel(self, schedule, targets=None):

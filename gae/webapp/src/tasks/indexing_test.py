@@ -68,6 +68,7 @@ class IndexingHandlerTest(unittest_base.UnitTestBase):
             job.gsi_branch = schedule.gsi_branch
             job.gsi_build_target = schedule.gsi_build_target
             job.gsi_pab_account_id = schedule.gsi_pab_account_id
+            job.gsi_vendor_version = schedule.gsi_vendor_version
             job.test_storage_type = schedule.test_storage_type
             job.test_branch = schedule.test_branch
             job.test_build_target = schedule.test_build_target
@@ -140,6 +141,7 @@ class IndexingHandlerTest(unittest_base.UnitTestBase):
                 job.gsi_branch = schedule.gsi_branch
                 job.gsi_build_target = schedule.gsi_build_target
                 job.gsi_pab_account_id = schedule.gsi_pab_account_id
+                job.gsi_vendor_version = schedule.gsi_vendor_version
                 job.test_storage_type = schedule.test_storage_type
                 job.test_branch = schedule.test_branch
                 job.test_build_target = schedule.test_build_target
