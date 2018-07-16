@@ -370,6 +370,135 @@ class ScheduleHandlerTest(unittest_base.UnitTestBase):
         jobs = model.JobModel.query().fetch()
         self.assertEqual(3, len(jobs))
 
+    def testSimpleDevicePriorityWithEquipment(self):
+        """Asserts a scheduler creates a job with minimum device equipment."""
+        equipment_a = "equipment_a"
+        equipment_b = "equipment_b"
+
+        device_product = "device_product"
+        lab = self.GenerateLabModel()
+        lab.put()
+
+        device_a = self.GenerateDeviceModel(
+            product=device_product,
+            hostname=lab.hostname,
+            device_equipment=[equipment_a])
+        device_a.put()
+
+        device_b = self.GenerateDeviceModel(
+            product=device_product,
+            hostname=lab.hostname,
+            device_equipment=[equipment_b])
+        device_b.put()
+
+        device_c = self.GenerateDeviceModel(
+            product=device_product, hostname=lab.hostname)
+        device_c.put()
+
+        schedule = self.GenerateScheduleModel(
+            device_target="{}-test".format(device_product),
+            lab_model=lab,
+            required_device_equipment=[equipment_b])
+        schedule.put()
+
+        build_dict = self.GenerateBuildModel(schedule)
+        for key in build_dict:
+            build_dict[key].put()
+
+        # a job should be created and it should be created with equipment_b
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(1, len(jobs))
+        self.assertIn(device_b.serial, jobs[0].serial)
+
+    def testDevicePriorityWithEquipment(self):
+        """Asserts a scheduler creates a job with minimum device equipment."""
+        lab_1 = "lab_1"
+        lab_2 = "lab_2"
+
+        host_a = "host_a"
+        host_b = "host_b"
+        host_c = "host_c"
+        host_d = "host_d"
+        host_e = "host_e"
+
+        equipment_a = "equipment_a"
+        equipment_b = "equipment_b"
+        equipment_c = "equipment_c"
+
+        correct_product = "correct"
+        wrong_product = "wrong"
+
+        self.GenerateLabModel(lab_name=lab_1, host_name=host_a).put()
+        self.GenerateLabModel(lab_name=lab_1, host_name=host_b).put()
+        self.GenerateLabModel(lab_name=lab_2, host_name=host_c).put()
+        self.GenerateLabModel(lab_name=lab_2, host_name=host_d).put()
+        self.GenerateLabModel(lab_name=lab_2, host_name=host_e).put()
+
+        # setting devices through host a to e.
+        equipments = [[equipment_a], [equipment_a], [equipment_b],
+                      [equipment_a, equipment_b]]
+        for equipment in equipments:
+            device = self.GenerateDeviceModel(
+                product=correct_product, hostname=host_a)
+            device.device_equipment = equipment
+            device.put()
+
+        equipments = [[], [equipment_a], [equipment_a, equipment_b],
+                      [equipment_a, equipment_b]]
+        for equipment in equipments:
+            device = self.GenerateDeviceModel(
+                product=correct_product, hostname=host_b)
+            device.device_equipment = equipment
+            device.put()
+
+        equipments = [[equipment_a], [equipment_a], [equipment_b],
+                      [equipment_b]]
+        for equipment in equipments:
+            device = self.GenerateDeviceModel(
+                product=correct_product, hostname=host_c)
+            device.device_equipment = equipment
+            device.put()
+
+        equipments = [[equipment_a], [equipment_a, equipment_b, equipment_c],
+                      [equipment_a, equipment_b]]
+        for equipment in equipments:
+            device = self.GenerateDeviceModel(
+                product=correct_product, hostname=host_d)
+            device.device_equipment = equipment
+            device.put()
+
+        products = [correct_product, correct_product, wrong_product]
+        for product in products:
+            device = self.GenerateDeviceModel(product=product, hostname=host_e)
+            device.device_equipment = [equipment_a]
+            device.put()
+
+        schedule = self.GenerateScheduleModel(
+            device_target="{}-test".format(correct_product), shards=3)
+        schedule.required_device_equipment = [equipment_a]
+        schedule.device = [
+            "{}/{}".format(lab_1, correct_product), "{}/{}".format(
+                lab_2, correct_product)
+        ]
+        schedule.put()
+
+        build_dict = self.GenerateBuildModel(schedule)
+        for key in build_dict:
+            build_dict[key].put()
+
+        # a job should be created on host_a
+        self.scheduler.post()
+        jobs = model.JobModel.query().fetch()
+        self.assertEqual(1, len(jobs))
+
+        host_a_devices = model.DeviceModel.query(
+            model.DeviceModel.hostname == host_a).fetch()
+        host_a_devices_serial = [x.serial for x in host_a_devices]
+
+        for job_device in jobs[0].serial:
+            self.assertIn(job_device, host_a_devices_serial)
+
 
 if __name__ == "__main__":
     unittest.main()

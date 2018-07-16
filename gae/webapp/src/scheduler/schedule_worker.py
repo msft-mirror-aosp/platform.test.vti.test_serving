@@ -421,59 +421,71 @@ class ScheduleHandler(webapp2.RequestHandler):
             a list of selected devices serial (see whether devices will be
             selected later when the job is picked up.)
         """
+
+        available_devices = []
         for target_device in schedule.device:
             if "/" not in target_device:
-                # device malformed
+                self.logger.Println(
+                    "Device malformed - {}".format(target_device))
                 continue
 
             target_lab, target_product_type = target_device.split("/")
             self.logger.Println("- Lab %s" % target_lab)
             self.logger.Indent()
-            lab_query = model.LabModel.query(model.LabModel.name == target_lab)
-            target_labs = lab_query.fetch()
+            host_query = model.LabModel.query(
+                model.LabModel.name == target_lab)
+            target_hosts = host_query.fetch()
 
-            available_devices = {}
-            if target_labs:
-                for lab in target_labs:
+            if target_hosts:
+                for host in target_hosts:
                     if not (set(schedule.required_host_equipment) <= set(
-                            lab.host_equipment)):
+                            host.host_equipment)):
                         continue
-                    self.logger.Println("- Host: %s" % lab.hostname)
+                    self.logger.Println("- Host: %s" % host.hostname)
                     self.logger.Indent()
                     device_query = model.DeviceModel.query(
-                        model.DeviceModel.hostname == lab.hostname)
+                        model.DeviceModel.hostname == host.hostname,
+                        model.DeviceModel.scheduling_status ==
+                        Status.DEVICE_SCHEDULING_STATUS_DICT["free"],
+                        model.DeviceModel.status.IN([
+                            Status.DEVICE_STATUS_DICT["fastboot"],
+                            Status.DEVICE_STATUS_DICT["online"],
+                            Status.DEVICE_STATUS_DICT["ready"]
+                        ]))
                     host_devices = device_query.fetch()
-
-                    for device in host_devices:
-                        if ((device.status in [
-                                Status.DEVICE_STATUS_DICT["fastboot"],
-                                Status.DEVICE_STATUS_DICT["online"],
-                                Status.DEVICE_STATUS_DICT["ready"]
-                        ]) and (device.scheduling_status ==
-                                Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
-                                and device.product.lower() ==
-                                target_product_type.lower()
-                                and (set(schedule.required_device_equipment) <=
-                                     set(device.device_equipment))):
-                            self.logger.Println("- Found %s %s %s" %
-                                                (device.product, device.status,
-                                                 device.serial))
-                            if device.hostname not in available_devices:
-                                available_devices[device.hostname] = set()
-                            available_devices[device.hostname].add(
-                                device.serial)
-                    self.logger.Unindent()
-                for host in available_devices:
-                    if len(available_devices[host]) >= schedule.shards:
-                        self.logger.Println("All devices found.")
+                    host_devices = [
+                        x for x in host_devices
+                        if x.product.lower() == target_product_type.lower() and
+                        (set(schedule.required_device_equipment) <= set(
+                            x.device_equipment))
+                    ]
+                    if len(host_devices) < schedule.shards:
+                        self.logger.Println(
+                            "A host {} does not have enough devices. "
+                            "# of devices = {}, shards = {}".format(
+                                host.hostname, len(host_devices),
+                                schedule.shards))
                         self.logger.Unindent()
-                        return host, target_device, list(
-                            available_devices[host])[:schedule.shards]
-                self.logger.Println(
-                    "- Not enough devices found, while %s required.\n%s" %
-                    (schedule.shards, available_devices))
+                        continue
+                    host_devices.sort(
+                        key=lambda x: (len(x.device_equipment)
+                                       if x.device_equipment else 0))
+                    available_devices.append(host_devices)
+                    self.logger.Unindent()
+
             self.logger.Unindent()
-        return None, None, []
+
+        if not available_devices:
+            self.logger.Println("No hosts have enough devices for schedule!")
+            return None, None, []
+
+        available_devices.sort(lambda x, y: (
+            sum([len(y.device_equipment) for y in x[:schedule.shards]])))
+        selected_host_devices = available_devices[0]
+        return selected_host_devices[0].hostname, selected_host_devices[
+            0].product, [
+                x.serial for x in selected_host_devices[:schedule.shards]
+            ]
 
     def GetProductName(self, schedule):
         """Gets a product name from schedule instance.
