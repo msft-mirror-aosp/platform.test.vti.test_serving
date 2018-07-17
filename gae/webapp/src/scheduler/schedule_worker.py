@@ -479,7 +479,7 @@ class ScheduleHandler(webapp2.RequestHandler):
             self.logger.Println("No hosts have enough devices for schedule!")
             return None, None, []
 
-        available_devices.sort(lambda x, y: (
+        available_devices.sort(key=lambda x: (
             sum([len(y.device_equipment) for y in x[:schedule.shards]])))
         selected_host_devices = available_devices[0]
         return selected_host_devices[0].hostname, selected_host_devices[
