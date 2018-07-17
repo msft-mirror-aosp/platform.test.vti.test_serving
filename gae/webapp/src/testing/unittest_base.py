@@ -109,8 +109,10 @@ class UnitTestBase(unittest.TestCase):
         device.scheduling_status = scheduling_status
         device.timestamp = datetime.datetime.now()
 
+        skip_list = ["status", "scheduling_status", "timestamp"]
+        set_or_empty = []
         for arg in device._properties:
-            if arg in ["status", "scheduling_status", "timestamp"]:
+            if arg in skip_list or (arg in set_or_empty and arg not in kwargs):
                 continue
             if arg in kwargs:
                 value = kwargs[arg]
@@ -123,7 +125,7 @@ class UnitTestBase(unittest.TestCase):
             else:
                 print("A type of property '{}' is not supported.".format(arg))
                 continue
-            if device._properties[arg]._repeated:
+            if device._properties[arg]._repeated and type(value) is not list:
                 value = [value]
             setattr(device, arg, value)
         return device
@@ -214,16 +216,16 @@ class UnitTestBase(unittest.TestCase):
         schedule.device = []
         schedule.device.append("/".join([lab, device_product]))
 
+        skip_list = [
+            "priority", "priority_value", "period", "shards",
+            "retry_count", "required_signed_device_build",
+            "build_storage_type", "manifest_branch", "build_target",
+            "gsi_storage_type", "gsi_build_target",
+            "test_storage_type", "test_build_target", "device",
+            "children_jobs", "timestamp"]
+        set_or_empty = ["required_host_equipment", "required_device_equipment"]
         for arg in schedule._properties:
-            if arg in [
-                    "priority", "priority_value", "period", "shards",
-                    "retry_count", "required_signed_device_build",
-                    "build_storage_type", "manifest_branch", "build_target",
-                    "gsi_storage_type", "gsi_build_target",
-                    "test_storage_type", "test_build_target", "device",
-                    "children_jobs", "timestamp", "required_host_equipment",
-                    "required_device_equipment"
-            ]:
+            if arg in skip_list or (arg in set_or_empty and arg not in kwargs):
                 continue
             if arg in kwargs:
                 value = kwargs[arg]
@@ -236,7 +238,7 @@ class UnitTestBase(unittest.TestCase):
             else:
                 print("A type of property '{}' is not supported.".format(arg))
                 continue
-            if schedule._properties[arg]._repeated:
+            if schedule._properties[arg]._repeated and type(value) is not list:
                 value = [value]
             setattr(schedule, arg, value)
 
