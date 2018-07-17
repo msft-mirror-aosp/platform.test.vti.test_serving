@@ -18,11 +18,10 @@ import datetime
 import endpoints
 import logging
 
-from protorpc import remote
-
 from google.appengine.ext import ndb
 
 from webapp.src import vtslab_status as Status
+from webapp.src.endpoint import endpoint_base
 from webapp.src.endpoint import host_info
 from webapp.src.proto import model
 
@@ -31,7 +30,7 @@ LAB_HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.LabHostInfoMessage)
 
 
 @endpoints.api(name='lab_info', version='v1')
-class LabInfoApi(remote.Service):
+class LabInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for lab_info."""
 
     @endpoints.method(
