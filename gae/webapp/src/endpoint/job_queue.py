@@ -18,9 +18,8 @@ import endpoints
 import logging
 import re
 
-from protorpc import remote
-
 from webapp.src import vtslab_status as Status
+from webapp.src.endpoint import endpoint_base
 from webapp.src.proto import model
 from webapp.src.utils import email_util
 from webapp.src.utils import model_util
@@ -32,7 +31,7 @@ STORAGE_API_URL = "https://storage.cloud.google.com/"
 
 
 @endpoints.api(name='job_queue', version='v1')
-class JobQueueApi(remote.Service):
+class JobQueueApi(endpoint_base.EndpointBase):
     """Endpoint API for job_queue."""
 
     @endpoints.method(
@@ -105,6 +104,8 @@ class JobQueueApi(remote.Service):
             job_message.image_package_repo_base = job.image_package_repo_base
             job_message.has_bootloader_img = job.has_bootloader_img
             job_message.has_radio_img = job.has_radio_img
+            job_message.report_bucket = job.report_bucket
+            job_message.report_spreadsheet_id = job.report_spreadsheet_id
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))

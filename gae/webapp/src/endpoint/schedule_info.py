@@ -16,18 +16,17 @@
 import datetime
 import endpoints
 
-from protorpc import remote
-
 from google.appengine.ext import ndb
 
 from webapp.src import vtslab_status as Status
+from webapp.src.endpoint import endpoint_base
 from webapp.src.proto import model
 
 SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(model.ScheduleInfoMessage)
 
 
 @endpoints.api(name="schedule_info", version="v1")
-class ScheduleInfoApi(remote.Service):
+class ScheduleInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for schedule_info."""
 
     @endpoints.method(
@@ -54,14 +53,7 @@ class ScheduleInfoApi(remote.Service):
         name="set")
     def set(self, request):
         """Sets the schedule info based on `request`."""
-        request_fields = request.all_fields()
-        model_attrs = model.ScheduleModel.__dict__.items()
-        model_attr_names = [
-            x[0] for x in model_attrs if not x[0].startswith("_")
-        ]
-        exist_on_both = [
-            x for x in request_fields if x.name in model_attr_names
-        ]
+        exist_on_both = self.GetCommonAttributes(request, model.ScheduleModel)
         # check duplicates
         exclusions = [
             "name", "schedule_type", "schedule", "param", "timestamp",
@@ -69,24 +61,24 @@ class ScheduleInfoApi(remote.Service):
         ]
         # list of protorpc message fields.
         duplicate_checklist = [
-            x for x in exist_on_both if x.name not in exclusions
+            x for x in exist_on_both if x not in exclusions
         ]
         empty_list_field = []
         query = model.ScheduleModel.query()
-        for field in duplicate_checklist:
-            if field.repeated:
-                value = request.get_assigned_value(field.name)
+        for attr_name in duplicate_checklist:
+            if model.ScheduleModel._properties[attr_name]._repeated:
+                value = request.get_assigned_value(attr_name)
                 if value:
                     query = query.filter(
-                        getattr(model.ScheduleModel, field.name).IN(
-                            request.get_assigned_value(field.name)))
+                        getattr(model.ScheduleModel, attr_name).IN(
+                            request.get_assigned_value(attr_name)))
                 else:
                     # empty list cannot be queried.
-                    empty_list_field.append(field.name)
+                    empty_list_field.append(attr_name)
             else:
                 query = query.filter(
-                    getattr(model.ScheduleModel, field.name) ==
-                    request.get_assigned_value(field.name))
+                    getattr(model.ScheduleModel, attr_name) ==
+                    request.get_assigned_value(attr_name))
         duplicated_schedules = query.fetch()
 
         if empty_list_field:
@@ -98,9 +90,9 @@ class ScheduleInfoApi(remote.Service):
 
         if not duplicated_schedules:
             schedule = model.ScheduleModel()
-            for field in exist_on_both:
-                setattr(schedule, field.name,
-                        request.get_assigned_value(field.name))
+            for attr_name in exist_on_both:
+                setattr(schedule, attr_name,
+                        request.get_assigned_value(attr_name))
             schedule.timestamp = datetime.datetime.now()
             schedule.schedule_type = "test"
             schedule.error_count = 0
@@ -113,7 +105,7 @@ class ScheduleInfoApi(remote.Service):
 
 
 @endpoints.api(name="green_schedule_info", version="v1")
-class GreenScheduleInfoApi(remote.Service):
+class GreenScheduleInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for green_schedule_info."""
 
     @endpoints.method(

@@ -16,11 +16,10 @@
 import datetime
 import endpoints
 
-from protorpc import remote
-
 from google.appengine.api import users
 
 from webapp.src import vtslab_status as Status
+from webapp.src.endpoint import endpoint_base
 from webapp.src.proto import model
 
 HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.HostInfoMessage)
@@ -57,7 +56,7 @@ def AddNullDevices(hostname, null_device_count):
 
 
 @endpoints.api(name='host_info', version='v1')
-class HostInfoApi(remote.Service):
+class HostInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for host_info."""
 
     @endpoints.method(

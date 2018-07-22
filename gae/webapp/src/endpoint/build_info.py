@@ -17,15 +17,14 @@ import datetime
 import endpoints
 import logging
 
-from protorpc import remote
-
+from webapp.src.endpoint import endpoint_base
 from webapp.src.proto import model
 
 BUILD_INFO_RESOURCE = endpoints.ResourceContainer(model.BuildInfoMessage)
 
 
 @endpoints.api(name="build_info", version="v1")
-class BuildInfoApi(remote.Service):
+class BuildInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for build_info."""
 
     @endpoints.method(
