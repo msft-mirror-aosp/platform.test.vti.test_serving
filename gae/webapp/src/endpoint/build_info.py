@@ -59,14 +59,11 @@ class BuildInfoApi(endpoint_base.EndpointBase):
             build = None
 
         if build:
-            build.manifest_branch = request.manifest_branch
-            build.build_id = request.build_id
-            build.build_target = request.build_target
-            build.build_type = request.build_type
-            build.artifact_type = request.artifact_type
-            build.artifacts = request.artifacts
+            common_attributes = self.GetCommonAttributes(request,
+                                                         model.BuildModel)
+            for attr in common_attributes:
+                setattr(build, attr, getattr(request, attr))
             build.timestamp = datetime.datetime.now()
-            build.signed = request.signed
             build.put()
 
         return model.DefaultResponse(
