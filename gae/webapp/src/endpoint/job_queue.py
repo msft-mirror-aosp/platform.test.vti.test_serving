@@ -51,61 +51,15 @@ class JobQueueApi(endpoint_base.EndpointBase):
             existing_jobs,
             key=lambda x: (Status.GetPriorityValue(x.priority), x.timestamp))
 
-        job_message = model.JobMessage()
-        job_message.hostname = ""
-        job_message.priority = ""
-        job_message.test_name = ""
-        job_message.require_signed_device_build = False
-        job_message.device = ""
-        job_message.serial = [""]
-        job_message.manifest_branch = ""
-        job_message.build_target = ""
-        job_message.shards = 0
-        job_message.param = [""]
-        job_message.build_id = ""
-        job_message.status = 0
-        job_message.period = 0
-        job_message.retry_count = 0
-
         if priority_sorted_jobs:
             job = priority_sorted_jobs[0]
             job.status = Status.JOB_STATUS_DICT["leased"]
             job.put()
 
-            job_message.hostname = job.hostname
-            job_message.priority = job.priority
-            job_message.test_name = job.test_name
-            job_message.require_signed_device_build = (
-                job.require_signed_device_build)
-            job_message.device = job.device
-            job_message.serial = job.serial
-            job_message.build_storage_type = job.build_storage_type
-            job_message.manifest_branch = job.manifest_branch
-            job_message.build_target = job.build_target
-            job_message.shards = job.shards
-            job_message.param = job.param
-            job_message.build_id = job.build_id
-            job_message.pab_account_id = job.pab_account_id
-            job_message.status = job.status
-            job_message.period = job.period
-            job_message.retry_count = job.retry_count
-            job_message.gsi_storage_type = job.gsi_storage_type
-            job_message.gsi_branch = job.gsi_branch
-            job_message.gsi_build_target = job.gsi_build_target
-            job_message.gsi_build_id = job.gsi_build_id
-            job_message.gsi_pab_account_id = job.gsi_pab_account_id
-            job_message.gsi_vendor_version = job.gsi_vendor_version
-            job_message.test_storage_type = job.test_storage_type
-            job_message.test_branch = job.test_branch
-            job_message.test_build_target = job.test_build_target
-            job_message.test_build_id = job.test_build_id
-            job_message.test_pab_account_id = job.test_pab_account_id
-            job_message.test_type = job.test_type
-            job_message.image_package_repo_base = job.image_package_repo_base
-            job_message.has_bootloader_img = job.has_bootloader_img
-            job_message.has_radio_img = job.has_radio_img
-            job_message.report_bucket = job.report_bucket
-            job_message.report_spreadsheet_id = job.report_spreadsheet_id
+            job_message = model.JobMessage()
+            common_attributes = self.GetCommonAttributes(job, model.JobMessage)
+            for attr in common_attributes:
+                setattr(job_message, attr, getattr(job, attr))
 
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
@@ -120,7 +74,7 @@ class JobQueueApi(endpoint_base.EndpointBase):
                 jobs=[job_message])
         else:
             return model.JobLeaseResponse(
-                return_code=model.ReturnCodeMessage.FAIL, jobs=[job_message])
+                return_code=model.ReturnCodeMessage.FAIL, jobs=[])
 
     @endpoints.method(
         JOB_QUEUE_RESOURCE,
@@ -142,9 +96,6 @@ class JobQueueApi(endpoint_base.EndpointBase):
             x for x in existing_jobs if set(x.serial) == set(request.serial)
         ]
 
-        job_message = model.JobMessage()
-        job_messages = []
-
         if len(same_jobs) > 1:
             logging.warning("[heartbeat] more than one job is found!")
             logging.warning(
@@ -155,23 +106,11 @@ class JobQueueApi(endpoint_base.EndpointBase):
 
         if same_jobs:
             job = same_jobs[0]
-            job_message.hostname = job.hostname
-            job_message.priority = job.priority
-            job_message.test_name = job.test_name
-            job_message.require_signed_device_build = (
-                job.require_signed_device_build)
-            job_message.device = job.device
-            job_message.serial = job.serial
-            job_message.manifest_branch = job.manifest_branch
-            job_message.build_target = job.build_target
-            job_message.shards = job.shards
-            job_message.param = job.param
-            job_message.build_id = job.build_id
-            job_message.status = job.status
-            job_message.period = job.period
-            job_message.retry_count = job.retry_count
-            job_message.test_type = job.test_type
-            job_messages.append(job_message)
+            job_message = model.JobMessage()
+            common_attributes = self.GetCommonAttributes(job, model.JobMessage)
+            for attr in common_attributes:
+                setattr(job_message, attr, getattr(job, attr))
+
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
             devices = device_query.fetch()
@@ -222,7 +161,7 @@ class JobQueueApi(endpoint_base.EndpointBase):
             job.put()
             model_util.UpdateParentSchedule(job, request.status)
             return model.JobLeaseResponse(
-                return_code=model.ReturnCodeMessage.SUCCESS, jobs=job_messages)
+                return_code=model.ReturnCodeMessage.SUCCESS, jobs=[job_message])
 
         return model.JobLeaseResponse(
-            return_code=model.ReturnCodeMessage.FAIL, jobs=job_messages)
+            return_code=model.ReturnCodeMessage.FAIL, jobs=[])

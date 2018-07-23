@@ -76,12 +76,14 @@ class EndpointBase(remote.Service):
             if isinstance(value, messages.Message):
                 attrs = [
                     x.name for x in value.all_fields()
-                    if not assigned_only or value.get_assigned_value(x.name)
+                    if not assigned_only or (
+                            value.get_assigned_value(x.name) not in [None, []])
                 ]
             elif isinstance(value, ndb.Model):
                 attrs = [
                     x for x in list(value.to_dict())
-                    if not assigned_only or getattr(value, x, None)
+                    if not assigned_only or (
+                            getattr(value, x, None) not in [None, []])
                 ]
             else:
                 raise ValueError("Only protorpc.messages.Message or ndb.Model "
