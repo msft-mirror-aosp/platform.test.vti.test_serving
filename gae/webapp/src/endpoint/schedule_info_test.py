@@ -29,11 +29,7 @@ from webapp.src.testing import unittest_base
 
 
 class ScheduleInfoTest(unittest_base.UnitTestBase):
-    """A class to test schedule_info endpoint API.
-
-    Attributes:
-        scheduler: A mock schedule_worker.ScheduleHandler.
-    """
+    """A class to test schedule_info endpoint API."""
 
     def setUp(self):
         """Initializes test"""
@@ -74,7 +70,7 @@ class ScheduleInfoTest(unittest_base.UnitTestBase):
         api = schedule_info.ScheduleInfoApi()
         response = api.set(container)
 
-        self.assertTrue(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
 
     def testSetWithEmptyRepeatedField(self):
         """Asserts schedule_info/set API receives a message.
@@ -115,7 +111,7 @@ class ScheduleInfoTest(unittest_base.UnitTestBase):
         api = schedule_info.ScheduleInfoApi()
         response = api.set(container)
 
-        self.assertTrue(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
 
 
 if __name__ == "__main__":

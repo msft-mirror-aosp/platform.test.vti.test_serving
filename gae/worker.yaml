@@ -7,3 +7,16 @@ handlers:
 - url: /.*
   script: webapp.src.worker_main.app
   login: admin
+
+# [START exclude]
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+- ^script/*$
+- .*_test.py$
+- ^(.*/)?frontend/(.*)
+- ^(.*/)?\.idea/(.*)
+# [END exclude]
