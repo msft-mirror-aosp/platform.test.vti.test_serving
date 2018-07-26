@@ -470,7 +470,7 @@ class ScheduleHandler(webapp2.RequestHandler):
                     host_devices.sort(
                         key=lambda x: (len(x.device_equipment)
                                        if x.device_equipment else 0))
-                    available_devices.append(host_devices)
+                    available_devices.append((host_devices, target_device))
                     self.logger.Unindent()
 
             self.logger.Unindent()
@@ -480,12 +480,10 @@ class ScheduleHandler(webapp2.RequestHandler):
             return None, None, []
 
         available_devices.sort(key=lambda x: (
-            sum([len(y.device_equipment) for y in x[:schedule.shards]])))
+            sum([len(y.device_equipment) for y in x[0][:schedule.shards]])))
         selected_host_devices = available_devices[0]
-        return selected_host_devices[0].hostname, selected_host_devices[
-            0].product, [
-                x.serial for x in selected_host_devices[:schedule.shards]
-            ]
+        return selected_host_devices[0][0].hostname, selected_host_devices[
+            1], [x.serial for x in selected_host_devices[0][:schedule.shards]]
 
     def GetProductName(self, schedule):
         """Gets a product name from schedule instance.

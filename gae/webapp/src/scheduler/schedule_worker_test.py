@@ -499,6 +499,25 @@ class ScheduleHandlerTest(unittest_base.UnitTestBase):
         for job_device in jobs[0].serial:
             self.assertIn(job_device, host_a_devices_serial)
 
+    def testSelectTargetLab(self):
+        """Asserts SelectTargetLab() method."""
+        lab = self.GenerateLabModel()
+        lab.put()
+
+        device = self.GenerateDeviceModel(hostname=lab.hostname)
+        device.put()
+
+        schedule = self.GenerateScheduleModel(device_model=device,
+                                              lab_model=lab)
+        schedule.put()
+
+        ret_host, ret_device, ret_serials = (
+            self.scheduler.SelectTargetLab(schedule))
+
+        self.assertEqual(lab.hostname, ret_host)
+        self.assertEqual("{}/{}".format(lab.name, device.product), ret_device)
+        self.assertEqual([device.serial], ret_serials)
+
 
 if __name__ == "__main__":
     unittest.main()
