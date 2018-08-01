@@ -508,8 +508,8 @@ class ScheduleHandlerTest(unittest_base.UnitTestBase):
         device = self.GenerateDeviceModel(hostname=lab.hostname)
         device.put()
 
-        schedule = self.GenerateScheduleModel(device_model=device,
-                                              lab_model=lab)
+        schedule = self.GenerateScheduleModel(
+            device_model=device, lab_model=lab)
         schedule.put()
 
         ret_host, ret_device, ret_serials = (
@@ -544,6 +544,34 @@ class ScheduleHandlerTest(unittest_base.UnitTestBase):
         for build in builds:
             build.timestamp = datetime.datetime.now()
             build.put()
+
+        self.scheduler.post()
+        self.assertEqual(1, len(model.JobModel.query().fetch()))
+
+    def testSimpleJobCreationWithOutdatedSchedule(self):
+        """Asserts an outdated schedule is filtered out."""
+        lab = self.GenerateLabModel()
+        lab.put()
+
+        device = self.GenerateDeviceModel(hostname=lab.hostname)
+        device.put()
+
+        schedule = self.GenerateScheduleModel(
+            device_model=device, lab_model=lab)
+        schedule.timestamp = datetime.datetime.now() - datetime.timedelta(
+            hours=73)
+        schedule.put()
+
+        build_dict = self.GenerateBuildModel(schedule)
+        for key in build_dict:
+            build_dict[key].put()
+
+        self.scheduler.post()
+        self.assertEqual(0, len(model.JobModel.query().fetch()))
+
+        schedule = model.ScheduleModel().query().fetch()[0]
+        schedule.timestamp = datetime.datetime.now()
+        schedule.put()
 
         self.scheduler.post()
         self.assertEqual(1, len(model.JobModel.query().fetch()))
