@@ -169,6 +169,13 @@ class ScheduleHandler(webapp2.RequestHandler):
         builds = build_query.fetch()
 
         if builds:
+            builds = [
+                build for build in builds
+                if (build.timestamp >
+                    datetime.datetime.now() - datetime.timedelta(hours=72))
+            ]
+
+        if builds:
             self.logger.Println("-- Found build ID")
             builds.sort(key=lambda x: x.build_id, reverse=True)
             for build in builds:
