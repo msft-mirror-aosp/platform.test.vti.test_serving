@@ -131,10 +131,13 @@ class ScheduleHandler(webapp2.RequestHandler):
         device_query = model.DeviceModel.query(
             model.DeviceModel.serial.IN(target_device_serials))
         devices = device_query.fetch()
+        devices_to_put = []
         for device in devices:
             device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
                 "reserved"]
-            device.put()
+            devices_to_put.append(device)
+        if devices_to_put:
+            ndb.put_multi(devices_to_put)
 
     def FindBuildId(self, artifact_type, manifest_branch, target,
                     signed=False):

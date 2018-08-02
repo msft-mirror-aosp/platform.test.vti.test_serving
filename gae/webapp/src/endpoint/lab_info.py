@@ -57,6 +57,7 @@ class LabInfoApi(endpoint_base.EndpointBase):
     def set(self, request):
         """Sets the lab info based on `request`."""
         if "host" in [x.name for x in request.all_fields()]:
+            labs_to_put = []
             for host in request.host:
                 duplicate_query = model.LabModel.query(
                     model.LabModel.name == request.name,
@@ -120,10 +121,13 @@ class LabInfoApi(endpoint_base.EndpointBase):
                     ndb.put_multi(devices_to_put)
 
                 lab.timestamp = datetime.datetime.now()
-                lab.put()
+                labs_to_put.append(lab)
 
                 if null_device_count > 0:
                     host_info.AddNullDevices(host.hostname, null_device_count)
+
+            if labs_to_put:
+                ndb.put_multi(labs_to_put)
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
@@ -140,9 +144,12 @@ class LabInfoApi(endpoint_base.EndpointBase):
             model.LabModel.hostname == request.hostname)
         labs = lab_query.fetch()
 
+        labs_to_put = []
         for lab in labs:
             lab.vtslab_version = request.vtslab_version.split(":")[0]
-            lab.put()
+            labs_to_put.append(lab)
+        if labs_to_put:
+            ndb.put_multi(labs_to_put)
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)

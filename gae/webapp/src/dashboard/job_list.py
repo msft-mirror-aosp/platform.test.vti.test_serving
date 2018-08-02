@@ -22,6 +22,8 @@ from webapp.src.handlers import base
 from webapp.src.scheduler import schedule_worker
 from webapp.src.proto import model
 
+from google.appengine.ext import ndb
+
 
 def test_type_text(test_type, join_str=", "):
     """Generates text to represent in HTML with given test type.
@@ -172,10 +174,14 @@ class CreateJobPage(JobBase):
             message = "Can't create a job because at some devices " \
                       "are not available (%s)." % error_devices
         else:
+            devices_to_put = []
             for device in devices:
                 device.scheduling_status = (
                     vtslab_status.DEVICE_SCHEDULING_STATUS_DICT["reserved"])
-                device.put()
+                devices_to_put.append(device)
+            if devices_to_put:
+                ndb.put_multi(devices_to_put)
+
             message = "A new job is created!"
 
             new_job = model.JobModel()
