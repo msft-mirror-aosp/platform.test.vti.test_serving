@@ -142,7 +142,7 @@ class ModelTest(unittest_base.UnitTestBase):
 
         print("Asserting that job creation is blocked...")
         jobs = model.JobModel.query().fetch()
-        self.assertEquals(3, len(jobs))
+        self.assertEqual(3, len(jobs))
 
         for job in jobs:
             job.timestamp = datetime.datetime.now() - datetime.timedelta(
@@ -153,7 +153,7 @@ class ModelTest(unittest_base.UnitTestBase):
 
         # a job should not be created.
         jobs = model.JobModel.query().fetch()
-        self.assertEquals(3, len(jobs))
+        self.assertEqual(3, len(jobs))
 
         print("Asserting that job creation is allowed after resuming...")
         schedule_from_db = model.ScheduleModel.query().fetch()[0]
@@ -163,7 +163,7 @@ class ModelTest(unittest_base.UnitTestBase):
         scheduler.post()
 
         jobs = model.JobModel.query().fetch()
-        self.assertEquals(4, len(jobs))
+        self.assertEqual(4, len(jobs))
 
 
 if __name__ == "__main__":

@@ -292,7 +292,7 @@ class ScheduleHandlerTest(unittest_base.UnitTestBase):
             any([job.test_name == schedule2_m.test_name for job in jobs]))
 
         # now schedule_1's priority value should be changed.
-        self.assertEquals(schedule1_l_original_priority_value - 1,
+        self.assertEqual(schedule1_l_original_priority_value - 1,
                           schedule1_l.priority_value)
 
     def testRetryAfterBootupError(self):

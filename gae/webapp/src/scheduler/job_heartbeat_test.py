@@ -111,14 +111,14 @@ class JobHeartbeatTest(unittest_base.UnitTestBase):
         infra_error_jobs = [
             x for x in jobs if x.status == Status.JOB_STATUS_DICT["infra-err"]
         ]
-        self.assertEquals(len(infra_error_jobs), 1)
+        self.assertEqual(len(infra_error_jobs), 1)
 
         # job[0]'s devices should be changed to free scheduling status.
         serials = infra_error_jobs[0].serial
         devices = model.DeviceModel.query(
             model.DeviceModel.serial.IN(serials)).fetch()
         for device in devices:
-            self.assertEquals(device.scheduling_status,
+            self.assertEqual(device.scheduling_status,
                               Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
 
 
