@@ -87,21 +87,21 @@ class JobQueueTest(unittest_base.UnitTestBase):
         api = job_queue.JobQueueApi()
         response = api.get(container)
 
-        self.assertEquals(response.return_code,
+        self.assertEqual(response.return_code,
                           model.ReturnCodeMessage.SUCCESS)
-        self.assertEquals(len(response.jobs), 1)
+        self.assertEqual(len(response.jobs), 1)
         for key in test_values:
             if key is "status":
-                self.assertEquals(
+                self.assertEqual(
                     getattr(response.jobs[0], key),
                     Status.JOB_STATUS_DICT["leased"])
             else:
-                self.assertEquals(
+                self.assertEqual(
                     getattr(response.jobs[0], key), test_values[key])
 
         devices = model.DeviceModel.query().fetch()
         for device in devices:
-            self.assertEquals(device.scheduling_status,
+            self.assertEqual(device.scheduling_status,
                               Status.DEVICE_SCHEDULING_STATUS_DICT["use"])
 
         # test job heartbeat api
@@ -115,12 +115,12 @@ class JobQueueTest(unittest_base.UnitTestBase):
         ))
         api = job_queue.JobQueueApi()
         response = api.heartbeat(container)
-        self.assertEquals(response.return_code,
+        self.assertEqual(response.return_code,
                           model.ReturnCodeMessage.SUCCESS)
 
         jobs = model.JobModel.query().fetch()
-        self.assertEquals(len(jobs), 1)
-        self.assertEquals(jobs[0].status, Status.JOB_STATUS_DICT["leased"])
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].status, Status.JOB_STATUS_DICT["leased"])
         self.assertTrue(datetime.datetime.now() - jobs[0].heartbeat_stamp <
                         datetime.timedelta(seconds=1))
 
@@ -135,18 +135,18 @@ class JobQueueTest(unittest_base.UnitTestBase):
         ))
         api = job_queue.JobQueueApi()
         response = api.heartbeat(container)
-        self.assertEquals(response.return_code,
+        self.assertEqual(response.return_code,
                           model.ReturnCodeMessage.SUCCESS)
 
         jobs = model.JobModel.query().fetch()
-        self.assertEquals(len(jobs), 1)
-        self.assertEquals(jobs[0].status, Status.JOB_STATUS_DICT["complete"])
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].status, Status.JOB_STATUS_DICT["complete"])
         self.assertTrue(datetime.datetime.now() - jobs[0].heartbeat_stamp <
                         datetime.timedelta(seconds=1))
 
         devices = model.DeviceModel.query().fetch()
         for device in devices:
-            self.assertEquals(device.scheduling_status,
+            self.assertEqual(device.scheduling_status,
                               Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
 
 
