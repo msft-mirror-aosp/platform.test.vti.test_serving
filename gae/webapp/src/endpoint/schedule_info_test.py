@@ -70,7 +70,7 @@ class ScheduleInfoTest(unittest_base.UnitTestBase):
         api = schedule_info.ScheduleInfoApi()
         response = api.set(container)
 
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
 
     def testSetWithEmptyRepeatedField(self):
         """Asserts schedule_info/set API receives a message.
@@ -111,7 +111,7 @@ class ScheduleInfoTest(unittest_base.UnitTestBase):
         api = schedule_info.ScheduleInfoApi()
         response = api.set(container)
 
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
 
 
 if __name__ == "__main__":

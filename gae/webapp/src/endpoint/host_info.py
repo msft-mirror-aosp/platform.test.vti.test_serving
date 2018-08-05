@@ -17,6 +17,7 @@ import datetime
 import endpoints
 
 from google.appengine.api import users
+from google.appengine.ext import ndb
 
 from webapp.src import vtslab_status as Status
 from webapp.src.endpoint import endpoint_base
@@ -43,6 +44,7 @@ def AddNullDevices(hostname, null_device_count):
     existing_null_device_count = len(null_devices)
 
     if existing_null_device_count < null_device_count:
+        devices_to_put = []
         for _ in range(null_device_count - existing_null_device_count):
             device = model.DeviceModel()
             device.hostname = hostname
@@ -52,7 +54,9 @@ def AddNullDevices(hostname, null_device_count):
             device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
                 "free"]
             device.timestamp = datetime.datetime.now()
-            device.put()
+            devices_to_put.append(device)
+        if devices_to_put:
+            ndb.put_multi(devices_to_put)
 
 
 @endpoints.api(name='host_info', version='v1')
@@ -72,6 +76,7 @@ class HostInfoApi(endpoint_base.EndpointBase):
         else:
             username = "anonymous"
 
+        devices_to_put = []
         for request_device in request.devices:
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial == request_device.serial
@@ -89,7 +94,9 @@ class HostInfoApi(endpoint_base.EndpointBase):
             device.product = request_device.product
             device.status = request_device.status
             device.timestamp = datetime.datetime.now()
-            device.put()
+            devices_to_put.append(device)
+        if devices_to_put:
+            ndb.put_multi(devices_to_put)
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)

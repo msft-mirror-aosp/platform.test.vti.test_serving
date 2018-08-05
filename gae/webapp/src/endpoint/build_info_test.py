@@ -37,7 +37,7 @@ class BuildInfoTest(unittest_base.UnitTestBase):
     def testSetNewBuildModel(self):
         """Asserts build_info/set API receives a new build."""
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 0)
+        self.assertEqual(len(builds), 0)
         container = (
             build_info.BUILD_INFO_RESOURCE.combined_message_class(
                 manifest_branch=self.GetRandomString(),
@@ -49,9 +49,9 @@ class BuildInfoTest(unittest_base.UnitTestBase):
         api = build_info.BuildInfoApi()
         response = api.set(container)
 
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 1)
+        self.assertEqual(len(builds), 1)
 
     def testSetDuplicatedBuildModel(self):
         """Asserts build_info/set API receives a duplicated build."""
@@ -62,7 +62,7 @@ class BuildInfoTest(unittest_base.UnitTestBase):
         artifact_type = self.GetRandomString()
 
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 0)
+        self.assertEqual(len(builds), 0)
         container = (
             build_info.BUILD_INFO_RESOURCE.combined_message_class(
                 manifest_branch=manifest_branch,
@@ -74,9 +74,9 @@ class BuildInfoTest(unittest_base.UnitTestBase):
         api = build_info.BuildInfoApi()
         response = api.set(container)
 
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 1)
+        self.assertEqual(len(builds), 1)
 
         container = (
             build_info.BUILD_INFO_RESOURCE.combined_message_class(
@@ -88,9 +88,9 @@ class BuildInfoTest(unittest_base.UnitTestBase):
             ))
         api = build_info.BuildInfoApi()
         response = api.set(container)
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 1)
+        self.assertEqual(len(builds), 1)
 
     def testUpdateSignedBuildModel(self):
         """Asserts build_info/set API receives a duplicated build."""
@@ -101,7 +101,7 @@ class BuildInfoTest(unittest_base.UnitTestBase):
         artifact_type = self.GetRandomString()
 
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 0)
+        self.assertEqual(len(builds), 0)
         container = (
             build_info.BUILD_INFO_RESOURCE.combined_message_class(
                 manifest_branch=manifest_branch,
@@ -114,9 +114,9 @@ class BuildInfoTest(unittest_base.UnitTestBase):
         api = build_info.BuildInfoApi()
         response = api.set(container)
 
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 1)
+        self.assertEqual(len(builds), 1)
 
         container = (
             build_info.BUILD_INFO_RESOURCE.combined_message_class(
@@ -129,10 +129,10 @@ class BuildInfoTest(unittest_base.UnitTestBase):
             ))
         api = build_info.BuildInfoApi()
         response = api.set(container)
-        self.assertEquals(response.return_code, model.ReturnCodeMessage.SUCCESS)
+        self.assertEqual(response.return_code, model.ReturnCodeMessage.SUCCESS)
         builds = model.BuildModel.query().fetch()
-        self.assertEquals(len(builds), 1)
-        self.assertEquals(builds[0].signed, True)
+        self.assertEqual(len(builds), 1)
+        self.assertEqual(builds[0].signed, True)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,8 @@ from webapp.src.proto import model
 from webapp.src.utils import email_util
 from webapp.src.utils import model_util
 
+from google.appengine.ext import ndb
+
 JOB_QUEUE_RESOURCE = endpoints.ResourceContainer(model.JobMessage)
 GCS_URL_PREFIX = "gs://"
 HTTP_HTTPS_REGEX = "^https?://"
@@ -64,10 +66,13 @@ class JobQueueApi(endpoint_base.EndpointBase):
             device_query = model.DeviceModel.query(
                 model.DeviceModel.serial.IN(job.serial))
             devices = device_query.fetch()
+            devices_to_put = []
             for device in devices:
                 device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
                     "use"]
-                device.put()
+                devices_to_put.append(device)
+            if devices_to_put:
+                ndb.put_multi(devices_to_put)
 
             return model.JobLeaseResponse(
                 return_code=model.ReturnCodeMessage.SUCCESS,
@@ -121,12 +126,13 @@ class JobQueueApi(endpoint_base.EndpointBase):
                 request.status))
             logging.debug("[heartbeat]  - devices = {}".format(
                 ", ".join([device.serial for device in devices])))
+            devices_to_put = []
             if request.status == Status.JOB_STATUS_DICT["complete"]:
                 job.status = request.status
                 for device in devices:
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
-                    device.put()
+                    devices_to_put.append(device)
             elif (request.status in [Status.JOB_STATUS_DICT["infra-err"],
                                      Status.JOB_STATUS_DICT["bootup-err"]]):
                 job.status = request.status
@@ -135,16 +141,18 @@ class JobQueueApi(endpoint_base.EndpointBase):
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                     device.status = Status.DEVICE_STATUS_DICT["unknown"]
-                    device.put()
+                    devices_to_put.append(device)
             elif request.status == Status.JOB_STATUS_DICT["leased"]:
                 job.status = request.status
                 for device in devices:
                     device.timestamp = datetime.datetime.now()
-                    device.put()
+                    devices_to_put.append(device)
             else:
                 logging.error(
                     "[heartbeat] Unexpected job status is received. - {}".
                     format(request.serial))
+            if devices_to_put:
+                ndb.put_multi(devices_to_put)
 
             if request.infra_log_url:
                 if request.infra_log_url.startswith(GCS_URL_PREFIX):

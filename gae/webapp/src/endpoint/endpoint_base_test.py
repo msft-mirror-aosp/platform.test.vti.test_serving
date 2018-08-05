@@ -41,7 +41,7 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
             setattr(job_message, attr, attr)
         eb = endpoint_base.EndpointBase()
         result = eb.GetAttributes(job_message, assigned_only=True)
-        self.assertEquals(set(attrs), set(result))
+        self.assertEqual(set(attrs), set(result))
 
     def testGetAssignedModelAttributes(self):
         attrs = ["hostname", "priority", "test_branch"]
@@ -50,7 +50,7 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
             setattr(job, attr, attr)
         eb = endpoint_base.EndpointBase()
         result = eb.GetAttributes(job, assigned_only=True)
-        self.assertEquals(set(attrs), set(result))
+        self.assertEqual(set(attrs), set(result))
 
     def testGetAllMessagesAttributes(self):
         attrs = ["hostname", "priority", "test_branch"]
