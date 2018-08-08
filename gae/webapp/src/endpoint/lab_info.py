@@ -83,8 +83,7 @@ class LabInfoApi(endpoint_base.EndpointBase):
                         continue
                     if config_device.serial and config_device.product:
                         device_query = model.DeviceModel.query(
-                            model.DeviceModel.serial == config_device.serial,
-                            model.DeviceModel.product == config_device.product)
+                            model.DeviceModel.serial == config_device.serial)
                         devices = device_query.fetch()
                         if devices:
                             device = devices[0]
