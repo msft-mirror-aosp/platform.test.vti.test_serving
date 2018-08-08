@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'app-job',
+  templateUrl: './job.component.html',
+  providers: [],
+  styleUrls: ['./job.component.scss'],
 })
-export class AppComponent {
+export class JobComponent {
 }

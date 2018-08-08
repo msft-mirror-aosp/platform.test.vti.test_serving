@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Component } from '@angular/core';
 
+import { MENUS } from '../../menu/menu-items';
+
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'app-nav-bar',
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.scss']
 })
-export class AppComponent {
+export class NavBarComponent {
+  get menus() {
+    return MENUS;
+  }
 }

@@ -12,9 +12,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<header>
-  <div>
-    <app-nav-bar id="nav-bar"></app-nav-bar>
-  </div>
-</header>
-<router-outlet id="router-outlet"></router-outlet>
+<mat-toolbar class="mat-elevation-z6 main-toolbar" color="primary">
+  <mat-nav-list>
+    <a mat-list-item *ngFor="let menu of (menus | dict)" [routerLink]="menu.value">{{ menu.key }}</a>
+  </mat-nav-list>
+  <span class="flex-spacer"></span>
+</mat-toolbar>
