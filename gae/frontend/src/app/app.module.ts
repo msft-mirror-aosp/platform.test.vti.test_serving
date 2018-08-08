@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 // Angular modules.
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+
+// Angular Material modules
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 
 // User components.
 import { AppComponent } from './app.component';
@@ -53,8 +59,12 @@ const appRoutes: Routes = [
     ScheduleComponent,
   ],
   imports: [
+    BrowserAnimationsModule,
     BrowserModule,
     HttpClientModule,
+    MatPaginatorModule,
+    MatTableModule,
+    MatTabsModule,
     NavModule,
     RouterModule.forRoot(
       appRoutes

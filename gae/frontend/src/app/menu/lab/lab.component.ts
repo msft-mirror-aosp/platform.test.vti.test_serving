@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 import { Component } from '@angular/core';
+import { MatTableDataSource } from '@angular/material';
 
+import { Host } from '../../model/host';
+import { Lab } from '../../model/lab';
 import { LabService } from './lab.service';
+import { MenuBaseClass } from '../menu_base';
 
 
 @Component({
@@ -24,7 +28,28 @@ import { LabService } from './lab.service';
   providers: [ LabService ],
   styleUrls: ['./lab.component.scss'],
 })
-export class LabComponent {
+export class LabComponent extends MenuBaseClass {
+  labColumnTitles = [
+    '_index',
+    'admin',
+    'hostCount',
+    'name',
+    'owner',
+  ];
+  hostColumnTitles = [
+    '_index',
+    'host_equipment',
+    'hostname',
+    'ip',
+    'name',
+    'vtslab_version',
+  ];
+  labCount = -1;
+
   constructor(private labService: LabService) {
+    super();
   }
+
+  labDataSource = new MatTableDataSource<Lab>();
+  hostDataSource = new MatTableDataSource<Host>();
 }

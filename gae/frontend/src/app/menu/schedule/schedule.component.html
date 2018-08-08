@@ -12,4 +12,82 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-Schedule page
+<div class="mat-elevation-z2 entity-table">
+  <mat-table [dataSource]="dataSource">
+    <!-- Index Column -->
+    <ng-container matColumnDef="_index">
+      <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
+      <mat-cell *matCellDef="let i = index"> {{i+1+pageSize*pageIndex}} </mat-cell>
+    </ng-container>
+
+    <!-- Test Name Column -->
+    <ng-container matColumnDef="test_name">
+      <mat-header-cell *matHeaderCellDef>Test Name</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.test_name}} </mat-cell>
+    </ng-container>
+
+    <!-- Device Column -->
+    <ng-container matColumnDef="device">
+      <mat-header-cell *matHeaderCellDef>Device</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.device.join('\n')}} </mat-cell>
+    </ng-container>
+
+    <!-- Manifest Branch Column -->
+    <ng-container matColumnDef="manifest_branch">
+      <mat-header-cell *matHeaderCellDef>Manifest Branch</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.manifest_branch}}</mat-cell>
+    </ng-container>
+
+    <!-- Build Target Column -->
+    <ng-container matColumnDef="build_target">
+      <mat-header-cell *matHeaderCellDef>Build Target</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.build_target}} </mat-cell>
+    </ng-container>
+
+    <!-- GSI Branch Column -->
+    <ng-container matColumnDef="gsi_branch">
+      <mat-header-cell *matHeaderCellDef>GSI Branch</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.gsi_branch}} </mat-cell>
+    </ng-container>
+
+    <!-- GSI Build Target Column -->
+    <ng-container matColumnDef="gsi_build_target">
+      <mat-header-cell *matHeaderCellDef>GSI Build Target</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.gsi_build_target}} </mat-cell>
+    </ng-container>
+
+    <!-- Test Branch Column -->
+    <ng-container matColumnDef="test_branch">
+      <mat-header-cell *matHeaderCellDef>Test Branch</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.test_branch}} </mat-cell>
+    </ng-container>
+
+    <!-- Test Build Target Column -->
+    <ng-container matColumnDef="test_build_target">
+      <mat-header-cell *matHeaderCellDef>Test Build Target</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.test_build_target}}</mat-cell>
+    </ng-container>
+
+    <!-- Period Column -->
+    <ng-container matColumnDef="period">
+      <mat-header-cell *matHeaderCellDef>Period</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.period}}</mat-cell>
+    </ng-container>
+
+    <!-- Timestamp Column -->
+    <ng-container matColumnDef="timestamp">
+      <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.timestamp}}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="columnTitles"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: columnTitles;"></mat-row>
+  </mat-table>
+
+  <mat-paginator [length]="count"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="pageSizeOptions"
+                 [pageIndex]="pageIndex"
+                 (page)="pageEvent = onPageEvent($event)">
+  </mat-paginator>
+</div>
