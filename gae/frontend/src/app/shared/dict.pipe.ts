@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Pipe, PipeTransform} from '@angular/core';
 
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
-})
-export class AppComponent {
+@Pipe({name: 'dict'})
+export class DictPipe implements PipeTransform {
+  transform(value: Object): any {
+    const dict = [];
+    for (const key in value) {
+      if (value.hasOwnProperty(key)) {
+        dict.push({key: key, value: value[key]});
+      }
+    }
+    return dict;
+  }
 }
