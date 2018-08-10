@@ -102,3 +102,52 @@ class HostInfoApi(endpoint_base.EndpointBase):
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
+
+    @endpoints.method(
+        endpoint_base.GET_REQUEST_RESOURCE,
+        model.DeviceResponseMessage,
+        path="get",
+        http_method="GET",
+        name="get")
+    def get(self, request):
+        """Gets the devices from datastore."""
+        size = request.size if request.size else endpoint_base.MAX_QUERY_SIZE
+        offset = request.offset if request.offset else 0
+
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.DeviceModel)
+
+        devices, more = self.Fetch(
+            metaclass=model.DeviceModel,
+            size=size,
+            filters=filters,
+            offset=offset,
+            sort_key=request.sort,
+            direction=request.direction,
+        )
+
+        return_list = []
+        for device in devices:
+            _device = {}
+            assigned_attributes = self.GetCommonAttributes(
+                resource=device, reference=model.DeviceInfoMessage)
+            for attr in assigned_attributes:
+                _device[attr] = getattr(device, attr, None)
+            return_list.append(_device)
+
+        return model.DeviceResponseMessage(devices=return_list, has_next=more)
+
+    @endpoints.method(
+        endpoint_base.COUNT_REQUEST_RESOURCE,
+        model.CountResponseMessage,
+        path="count",
+        http_method="GET",
+        name="count")
+    def count(self, request):
+        """Gets total number of DeviceModel entities stored in datastore."""
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.DeviceModel)
+
+        count = self.Count(metaclass=model.DeviceModel, filters=filters)
+
+        return model.CountResponseMessage(count=count)

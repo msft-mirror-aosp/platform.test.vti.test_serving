@@ -12,14 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import inspect
+import logging
+import json
 
+import endpoints
 from protorpc import messages
 from protorpc import remote
 from google.appengine.ext import ndb
 
 from webapp.src import vtslab_status as Status
+from webapp.src.proto import model
+
+MAX_QUERY_SIZE = 1000
+
+COUNT_REQUEST_RESOURCE = endpoints.ResourceContainer(model.CountRequestMessage)
+GET_REQUEST_RESOURCE = endpoints.ResourceContainer(model.GetRequestMessage)
 
 
 class EndpointBase(remote.Service):
@@ -243,3 +251,24 @@ class EndpointBase(remote.Service):
                 query = query.order(getattr(metaclass, sort_key))
 
         return query
+
+    def CreateFilterList(self, filter_string, metaclass):
+        """Creates a list of filters.
+
+        Args:
+            filter_string: a string, stringified JSON which contains 'key',
+                           'method', 'value' to build filter information.
+            metaclass: a metaclass for ndb model.
+
+        Returns:
+            a list of tuples where each tuple consists of three values:
+            key, method, and value.
+        """
+        model_properties = self.GetAttributes(metaclass)
+        filters = []
+        if filter_string:
+            filters = json.loads(filter_string)
+            for _filter in filters:
+                if _filter["key"] not in model_properties:
+                    filters.remove(_filter)
+        return filters

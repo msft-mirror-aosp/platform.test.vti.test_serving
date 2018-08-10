@@ -68,3 +68,51 @@ class BuildInfoApi(endpoint_base.EndpointBase):
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
+
+    @endpoints.method(
+        endpoint_base.GET_REQUEST_RESOURCE,
+        model.BuildResponseMessage,
+        path="get",
+        http_method="GET",
+        name="get")
+    def get(self, request):
+        """Gets the builds from datastore."""
+        size = request.size if request.size else endpoint_base.MAX_QUERY_SIZE
+        offset = request.offset if request.offset else 0
+
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.BuildModel)
+
+        builds, more = self.Fetch(
+            metaclass=model.BuildModel,
+            size=size,
+            filters=filters,
+            offset=offset,
+            sort_key=request.sort,
+            direction=request.direction,
+        )
+
+        return_list = []
+        for build in builds:
+            _build = {}
+            assigned_attributes = self.GetCommonAttributes(
+                resource=build, reference=model.BuildInfoMessage)
+            for attr in assigned_attributes:
+                _build[attr] = getattr(build, attr, None)
+            return_list.append(_build)
+
+        return model.BuildResponseMessage(builds=return_list, has_next=more)
+
+    @endpoints.method(
+        endpoint_base.COUNT_REQUEST_RESOURCE,
+        model.CountResponseMessage,
+        path="count",
+        http_method="GET",
+        name="count")
+    def count(self, request):
+        """Gets total number of BuildModel entities stored in datastore."""
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.BuildModel)
+        count = self.Count(metaclass=model.BuildModel, filters=filters)
+
+        return model.CountResponseMessage(count=count)

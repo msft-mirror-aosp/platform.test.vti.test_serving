@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Lab Info APIs implemented using Google Cloud Endpoints."""
 
 import datetime
@@ -88,16 +87,16 @@ class LabInfoApi(endpoint_base.EndpointBase):
                         if devices:
                             device = devices[0]
                             if (device.hostname != host.hostname) and (
-                                device.status !=
-                                Status.DEVICE_STATUS_DICT["no-response"]):
+                                    device.status !=
+                                    Status.DEVICE_STATUS_DICT["no-response"]):
                                 logging.error(
                                     "{} is alive in another host.".format(
                                         config_device.serial))
                                 # TODO: send an alert to lab.admin
                                 continue
                             if device.hostname == host.hostname and set(
-                                device.device_equipment) == set(
-                                config_device.device_equipment):
+                                    device.device_equipment) == set(
+                                        config_device.device_equipment):
                                 # no need to update.
                                 continue
                         else:
@@ -152,3 +151,48 @@ class LabInfoApi(endpoint_base.EndpointBase):
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
+
+    @endpoints.method(
+        endpoint_base.GET_REQUEST_RESOURCE,
+        model.LabResponseMessage,
+        path="get",
+        http_method="GET",
+        name="get")
+    def get(self, request):
+        """Gets the labs from datastore."""
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.LabModel)
+
+        labs, more = self.Fetch(
+            metaclass=model.LabModel,
+            size=0,
+            filters=filters,
+            sort_key=request.sort,
+            direction=request.direction,
+        )
+
+        return_list = []
+        for lab in labs:
+            _lab = {}
+            assigned_attributes = self.GetCommonAttributes(
+                resource=lab, reference=model.LabMessage)
+            for attr in assigned_attributes:
+                _lab[attr] = getattr(lab, attr, None)
+            return_list.append(_lab)
+
+        return model.LabResponseMessage(labs=return_list, has_next=more)
+
+    @endpoints.method(
+        endpoint_base.COUNT_REQUEST_RESOURCE,
+        model.CountResponseMessage,
+        path="count",
+        http_method="GET",
+        name="count")
+    def count(self, request):
+        """Gets total number of BuildModel entities stored in datastore."""
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.LabModel)
+
+        count = self.Count(metaclass=model.LabModel, filters=filters)
+
+        return model.CountResponseMessage(count=count)

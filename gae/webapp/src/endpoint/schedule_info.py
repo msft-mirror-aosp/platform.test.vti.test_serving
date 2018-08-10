@@ -60,9 +60,7 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
             "children_jobs", "error_count", "suspended"
         ]
         # list of protorpc message fields.
-        duplicate_checklist = [
-            x for x in exist_on_both if x not in exclusions
-        ]
+        duplicate_checklist = [x for x in exist_on_both if x not in exclusions]
         empty_list_field = []
         query = model.ScheduleModel.query()
         for attr_name in duplicate_checklist:
@@ -97,11 +95,62 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
             schedule.schedule_type = "test"
             schedule.error_count = 0
             schedule.suspended = False
-            schedule.priority_value = Status.GetPriorityValue(schedule.priority)
+            schedule.priority_value = Status.GetPriorityValue(
+                schedule.priority)
             schedule.put()
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
+
+    @endpoints.method(
+        endpoint_base.GET_REQUEST_RESOURCE,
+        model.ScheduleResponseMessage,
+        path="get",
+        http_method="GET",
+        name="get")
+    def get(self, request):
+        """Gets the schedules from datastore."""
+        size = request.size if request.size else self.MAX_QUERY_SIZE
+        offset = request.offset if request.offset else 0
+
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.ScheduleModel)
+
+        schedules, more = self.Fetch(
+            metaclass=model.ScheduleModel,
+            size=size,
+            filters=filters,
+            offset=offset,
+            sort_key=request.sort,
+            direction=request.direction,
+        )
+
+        return_list = []
+        for schedule in schedules:
+            _schedule = {}
+            assigned_attributes = self.GetCommonAttributes(
+                resource=schedule, reference=model.ScheduleInfoMessage)
+            for attr in assigned_attributes:
+                _schedule[attr] = getattr(schedule, attr, None)
+            return_list.append(_schedule)
+
+        return model.ScheduleResponseMessage(
+            schedules=return_list, has_next=more)
+
+    @endpoints.method(
+        endpoint_base.COUNT_REQUEST_RESOURCE,
+        model.CountResponseMessage,
+        path="count",
+        http_method="GET",
+        name="count")
+    def count(self, request):
+        """Gets total number of ScheduleModel entities stored in datastore."""
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.ScheduleModel)
+
+        count = self.Count(metaclass=model.ScheduleModel, filters=filters)
+
+        return model.CountResponseMessage(count=count)
 
 
 @endpoints.api(name="green_schedule_info", version="v1")

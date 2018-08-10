@@ -196,6 +196,18 @@ class LabInfoMessage(messages.Message):
     host = messages.MessageField(LabHostInfoMessage, 3, repeated=True)
 
 
+class LabMessage(messages.Message):
+    """A model for representing a LabModel entity."""
+    name = messages.StringField(1)
+    owner = messages.StringField(2)
+    admin = messages.StringField(3, repeated=True)
+    hostname = messages.StringField(4)
+    ip = messages.StringField(5)
+    devices = messages.StringField(6)
+    vtslab_version = messages.StringField(7)
+    host_equipment = messages.StringField(8, repeated=True)
+
+
 class DeviceModel(ndb.Model):
     """A model for representing an individual device entry."""
     hostname = ndb.StringProperty()
@@ -358,3 +370,52 @@ class KeyValueModel(ndb.Model):
     string_value = ndb.StringProperty()
     integer_value = ndb.IntegerProperty()
     boolean_value = ndb.BooleanProperty()
+
+
+class GetRequestMessage(messages.Message):
+    """A message to request entities through /get endpoints."""
+    size = messages.IntegerField(1)
+    offset = messages.IntegerField(2)
+    filter = messages.StringField(3)
+    sort = messages.StringField(4)
+    direction = messages.StringField(5)
+
+
+class BuildResponseMessage(messages.Message):
+    """A message containing build entities to respond to /get endpoints."""
+    builds = messages.MessageField(BuildInfoMessage, 1, repeated=True)
+    has_next = messages.BooleanField(2)
+
+
+class DeviceResponseMessage(messages.Message):
+    """A message containing device entities to respond to /get endpoints."""
+    devices = messages.MessageField(DeviceInfoMessage, 1, repeated=True)
+    has_next = messages.BooleanField(2)
+
+
+class JobResponseMessage(messages.Message):
+    """A message containing job entities to respond to /get endpoints."""
+    jobs = messages.MessageField(JobMessage, 1, repeated=True)
+    has_next = messages.BooleanField(2)
+
+
+class LabResponseMessage(messages.Message):
+    """A message containing lab entities to respond to /get endpoints."""
+    labs = messages.MessageField(LabMessage, 1, repeated=True)
+    has_next = messages.BooleanField(2)
+
+
+class ScheduleResponseMessage(messages.Message):
+    """A message containing schedule entities to respond to /get endpoints."""
+    schedules = messages.MessageField(ScheduleInfoMessage, 1, repeated=True)
+    has_next = messages.BooleanField(2)
+
+
+class CountRequestMessage(messages.Message):
+    """A message to request a count of entities through /count endpoints."""
+    filter = messages.StringField(1)
+
+
+class CountResponseMessage(messages.Message):
+    """A message of a count of entities to respond to /count endpoints."""
+    count = messages.IntegerField(1)
