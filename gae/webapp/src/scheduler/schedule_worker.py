@@ -308,6 +308,8 @@ class ScheduleHandler(webapp2.RequestHandler):
         new_job.has_radio_img = schedule.has_radio_img
         new_job.report_bucket = schedule.report_bucket
         new_job.report_spreadsheet_id = schedule.report_spreadsheet_id
+        new_job.report_persistent_url = schedule.report_persistent_url
+        new_job.report_reference_url = schedule.report_reference_url
 
         # uses bit 0-1 to indicate version.
         test_type = GetTestVersionType(schedule.manifest_branch,

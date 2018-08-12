@@ -101,6 +101,25 @@ TEST_TYPE_DICT = {
 # # of errors in a row to suspend a schedule
 NUM_ERRORS_FOR_SUSPENSION = 3
 
+# filter methods
+FILTER_EqualTo = "EqualTo"
+FILTER_LessThan = "LessThan"
+FILTER_GreaterThan = "GreaterThan"
+FILTER_LessThanOrEqualTo = "LessThanOrEqualTo"
+FILTER_GreaterThanOrEqualTo = "GreaterThanOrEqualTo"
+FILTER_NotEqualTo = "NotEqualTo"
+FILTER_Has = "Has"
+
+FILTER_METHOD = {
+    FILTER_EqualTo: 1,
+    FILTER_LessThan: 2,
+    FILTER_GreaterThan: 3,
+    FILTER_LessThanOrEqualTo: 4,
+    FILTER_GreaterThanOrEqualTo: 5,
+    FILTER_NotEqualTo: 6,
+    FILTER_Has: 7,
+}
+
 
 def GetPriorityValue(priority):
     """Helper function to sort jobs based on priority.

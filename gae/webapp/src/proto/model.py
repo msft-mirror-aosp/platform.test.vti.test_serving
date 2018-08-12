@@ -99,6 +99,8 @@ class ScheduleModel(ndb.Model):
 
     report_bucket = ndb.StringProperty(repeated=True)
     report_spreadsheet_id = ndb.StringProperty(repeated=True)
+    report_persistent_url = ndb.StringProperty(repeated=True)
+    report_reference_url = ndb.StringProperty(repeated=True)
 
 
 class ScheduleControlInfoMessage(messages.Message):
@@ -149,6 +151,8 @@ class ScheduleInfoMessage(messages.Message):
 
     report_bucket = messages.StringField(29, repeated=True)
     report_spreadsheet_id = messages.StringField(30, repeated=True)
+    report_persistent_url = messages.StringField(32, repeated=True)
+    report_reference_url = messages.StringField(33, repeated=True)
 
     image_package_repo_base = messages.StringField(31)
 
@@ -269,6 +273,8 @@ class JobModel(ndb.Model):
 
     report_bucket = ndb.StringProperty(repeated=True)
     report_spreadsheet_id = ndb.StringProperty(repeated=True)
+    report_persistent_url = ndb.StringProperty(repeated=True)
+    report_reference_url = ndb.StringProperty(repeated=True)
 
 
 class JobMessage(messages.Message):
@@ -320,6 +326,8 @@ class JobMessage(messages.Message):
 
     report_bucket = messages.StringField(33, repeated=True)
     report_spreadsheet_id = messages.StringField(34, repeated=True)
+    report_persistent_url = messages.StringField(35, repeated=True)
+    report_reference_url = messages.StringField(36, repeated=True)
 
 
 class ReturnCodeMessage(messages.Enum):

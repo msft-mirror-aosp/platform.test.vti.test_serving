@@ -71,6 +71,10 @@ class JobQueueTest(unittest_base.UnitTestBase):
             "retry_count": 2,
             "infra_log_url": self.GetRandomString(),
             "image_package_repo_base": self.GetRandomString(),
+            "report_bucket": [self.GetRandomString()],
+            "report_spreadsheet_id": [self.GetRandomString()],
+            "report_persistent_url": [self.GetRandomString()],
+            "report_reference_url": [self.GetRandomString()],
         }
 
         for serial in test_values["serial"]:

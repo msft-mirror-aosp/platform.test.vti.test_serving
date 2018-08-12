@@ -53,6 +53,8 @@ indexes:
   - name: required_device_equipment
   - name: report_bucket
   - name: report_spreadsheet_id
+  - name: report_persistent_url
+  - name: report_reference_url
 
 - kind: LabModel
   ancestor: no
@@ -99,3 +101,5 @@ indexes:
   - name: image_package_repo_base
   - name: report_bucket
   - name: report_spreadsheet_id
+  - name: report_persistent_url
+  - name: report_reference_url
