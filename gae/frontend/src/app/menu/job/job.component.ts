@@ -15,11 +15,16 @@
  */
 import { Component } from '@angular/core';
 
+import { JobService } from './job.service';
+
+
 @Component({
   selector: 'app-job',
   templateUrl: './job.component.html',
-  providers: [],
+  providers: [ JobService ],
   styleUrls: ['./job.component.scss'],
 })
 export class JobComponent {
+  constructor(private jobService: JobService) {
+  }
 }

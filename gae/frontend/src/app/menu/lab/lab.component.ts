@@ -15,11 +15,16 @@
  */
 import { Component } from '@angular/core';
 
+import { LabService } from './lab.service';
+
+
 @Component({
   selector: 'app-lab',
   templateUrl: './lab.component.html',
-  providers: [],
+  providers: [ LabService ],
   styleUrls: ['./lab.component.scss'],
 })
 export class LabComponent {
+  constructor(private labService: LabService) {
+  }
 }

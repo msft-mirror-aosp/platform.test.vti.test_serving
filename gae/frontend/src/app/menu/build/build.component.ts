@@ -15,11 +15,16 @@
  */
 import { Component } from '@angular/core';
 
+import { BuildService } from './build.service';
+
+
 @Component({
   selector: 'app-build',
   templateUrl: './build.component.html',
-  providers: [],
+  providers: [ BuildService ],
   styleUrls: ['./build.component.scss'],
 })
 export class BuildComponent {
+  constructor(private buildService: BuildService) {
+  }
 }
