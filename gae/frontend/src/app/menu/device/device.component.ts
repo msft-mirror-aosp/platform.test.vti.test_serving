@@ -15,11 +15,16 @@
  */
 import { Component } from '@angular/core';
 
+import { DeviceService } from './device.service';
+
+
 @Component({
   selector: 'app-device',
   templateUrl: './device.component.html',
-  providers: [],
+  providers: [ DeviceService ],
   styleUrls: ['./device.component.scss'],
 })
 export class DeviceComponent {
+  constructor(private deviceService: DeviceService) {
+  }
 }

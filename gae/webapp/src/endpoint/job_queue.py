@@ -43,6 +43,16 @@ class JobQueueApi(endpoint_base.EndpointBase):
         http_method='POST',
         name='get')
     def get(self, request):
+        # TODO(jongmok): This will be deprecated and replaced with /lease.
+        return self.lease(request)
+
+    @endpoints.method(
+        JOB_QUEUE_RESOURCE,
+        model.JobLeaseResponse,
+        path='get',
+        http_method='POST',
+        name='get')
+    def lease(self, request):
         """Gets the job(s) based on the condition specified in `request`."""
         job_query = model.JobModel.query(
             model.JobModel.hostname == request.hostname,
@@ -133,8 +143,10 @@ class JobQueueApi(endpoint_base.EndpointBase):
                     device.scheduling_status = (
                         Status.DEVICE_SCHEDULING_STATUS_DICT["free"])
                     devices_to_put.append(device)
-            elif (request.status in [Status.JOB_STATUS_DICT["infra-err"],
-                                     Status.JOB_STATUS_DICT["bootup-err"]]):
+            elif (request.status in [
+                    Status.JOB_STATUS_DICT["infra-err"],
+                    Status.JOB_STATUS_DICT["bootup-err"]
+            ]):
                 job.status = request.status
                 email_util.send_job_notification(job)
                 for device in devices:
@@ -169,7 +181,56 @@ class JobQueueApi(endpoint_base.EndpointBase):
             job.put()
             model_util.UpdateParentSchedule(job, request.status)
             return model.JobLeaseResponse(
-                return_code=model.ReturnCodeMessage.SUCCESS, jobs=[job_message])
+                return_code=model.ReturnCodeMessage.SUCCESS,
+                jobs=[job_message])
 
         return model.JobLeaseResponse(
             return_code=model.ReturnCodeMessage.FAIL, jobs=[])
+
+    @endpoints.method(
+        endpoint_base.GET_REQUEST_RESOURCE,
+        model.JobResponseMessage,
+        path="get",
+        http_method="GET",
+        name="get")
+    def get(self, request):
+        """Gets the jobs from datastore."""
+        size = request.size if request.size else self.MAX_QUERY_SIZE
+        offset = request.offset if request.offset else 0
+
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.JobModel)
+
+        jobs, more = self.Fetch(
+            metaclass=model.JobModel,
+            size=size,
+            filters=filters,
+            offset=offset,
+            sort_key=request.sort,
+            direction=request.direction,
+        )
+
+        return_list = []
+        for job in jobs:
+            common_properties = self.GetCommonAttributes(
+                resource=job, reference=model.JobMessage)
+            _job = {}
+            for _property in common_properties:
+                _job[_property] = getattr(job, _property)
+            return_list.append(_job)
+
+        return model.JobResponseMessage(jobs=return_list, has_next=more)
+
+    @endpoints.method(
+        endpoint_base.COUNT_REQUEST_RESOURCE,
+        model.CountResponseMessage,
+        path="count",
+        http_method="GET",
+        name="count")
+    def count(self, request):
+        """Gets total number of JobModel entities stored in datastore."""
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=model.JobModel)
+        count = self.Count(metaclass=model.JobModel, filters=filters)
+
+        return model.CountResponseMessage(count=count)

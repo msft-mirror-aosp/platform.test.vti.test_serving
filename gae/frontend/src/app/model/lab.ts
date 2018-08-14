@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
+import {Host} from './host';
 
-import { BuildService } from './build.service';
-
-
-@Component({
-  selector: 'app-build',
-  templateUrl: './build.component.html',
-  providers: [ BuildService ],
-  styleUrls: ['./build.component.scss'],
-})
-export class BuildComponent {
-  constructor(private buildService: BuildService) {
-  }
+export class Lab {
+  name: string = void 0;
+  owner: string = void 0;
+  admin: string[] = void 0;
+  hosts: Host[] = void 0;
 }

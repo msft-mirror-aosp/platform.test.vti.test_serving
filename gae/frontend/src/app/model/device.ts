@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
-
-import { BuildService } from './build.service';
-
-
-@Component({
-  selector: 'app-build',
-  templateUrl: './build.component.html',
-  providers: [ BuildService ],
-  styleUrls: ['./build.component.scss'],
-})
-export class BuildComponent {
-  constructor(private buildService: BuildService) {
-  }
+export class Device {
+  serial: string = void 0;
+  product: string = void 0;
+  status: number = void 0;
+  scheduling_status: number = void 0;
+  hostname: string = void 0;
+  device_equipment: string[] = void 0;
 }

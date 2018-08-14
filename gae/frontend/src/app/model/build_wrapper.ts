@@ -13,18 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
+import {Build} from './build';
 
-import { BuildService } from './build.service';
-
-
-@Component({
-  selector: 'app-build',
-  templateUrl: './build.component.html',
-  providers: [ BuildService ],
-  styleUrls: ['./build.component.scss'],
-})
-export class BuildComponent {
-  constructor(private buildService: BuildService) {
-  }
+export interface BuildWrapper {
+  builds: Build[];
+  has_next: boolean;
 }

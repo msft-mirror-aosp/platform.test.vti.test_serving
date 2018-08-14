@@ -15,11 +15,16 @@
  */
 import { Component } from '@angular/core';
 
+import { ScheduleService } from './schedule.service';
+
+
 @Component({
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
-  providers: [],
+  providers: [ ScheduleService ],
   styleUrls: ['./schedule.component.scss'],
 })
 export class ScheduleComponent {
+  constructor(private scheduleService: ScheduleService) {
+  }
 }
