@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 import { Component } from '@angular/core';
+import { MatTableDataSource, PageEvent } from '@angular/material';
 
+import { MenuBaseClass } from '../menu_base';
+import { Schedule } from '../../model/schedule';
 import { ScheduleService } from './schedule.service';
 
 
@@ -24,7 +27,30 @@ import { ScheduleService } from './schedule.service';
   providers: [ ScheduleService ],
   styleUrls: ['./schedule.component.scss'],
 })
-export class ScheduleComponent {
+export class ScheduleComponent extends MenuBaseClass {
+  columnTitles = [
+    '_index',
+    'build_target',
+    'device',
+    'gsi_branch',
+    'gsi_build_target',
+    'manifest_branch',
+    'period',
+    'test_branch',
+    'test_build_target',
+    'test_name',
+    'timestamp',
+  ];
+  dataSource = new MatTableDataSource<Schedule>();
+  pageEvent: PageEvent;
+
   constructor(private scheduleService: ScheduleService) {
+    super();
+  }
+
+  onPageEvent(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    return event;
   }
 }

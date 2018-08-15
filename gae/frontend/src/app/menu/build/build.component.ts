@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 import { Component } from '@angular/core';
+import { MatTableDataSource, PageEvent } from '@angular/material';
 
+import { Build } from '../../model/build';
 import { BuildService } from './build.service';
+import { MenuBaseClass } from '../menu_base';
 
 
 @Component({
@@ -24,7 +27,25 @@ import { BuildService } from './build.service';
   providers: [ BuildService ],
   styleUrls: ['./build.component.scss'],
 })
-export class BuildComponent {
+export class BuildComponent extends MenuBaseClass {
+  columnTitles = [
+    '_index',
+    'artifact_type',
+    'build_id',
+    'build_target',
+    'build_type',
+    'manifest_branch',
+    'signed'];
+  dataSource = new MatTableDataSource<Build>();
+  pageEvent: PageEvent;
+
   constructor(private buildService: BuildService) {
+    super();
+  }
+
+  onPageEvent(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    return event;
   }
 }

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 import { Component } from '@angular/core';
+import { MatTableDataSource, PageEvent } from '@angular/material';
 
+import { Device } from '../../model/device';
 import { DeviceService } from './device.service';
+import { MenuBaseClass } from '../menu_base';
 
 
 @Component({
@@ -24,7 +27,26 @@ import { DeviceService } from './device.service';
   providers: [ DeviceService ],
   styleUrls: ['./device.component.scss'],
 })
-export class DeviceComponent {
+export class DeviceComponent extends MenuBaseClass {
+  columnTitles = [
+    '_index',
+    'device_equipment',
+    'hostname',
+    'product',
+    'scheduling_status',
+    'serial',
+    'status',
+  ];
+  dataSource = new MatTableDataSource<Device>();
+  pageEvent: PageEvent;
+
   constructor(private deviceService: DeviceService) {
+    super();
+  }
+
+  onPageEvent(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    return event;
   }
 }
