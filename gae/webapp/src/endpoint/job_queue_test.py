@@ -89,7 +89,7 @@ class JobQueueTest(unittest_base.UnitTestBase):
         container = (job_queue.JOB_QUEUE_RESOURCE.combined_message_class(
             hostname=test_values["hostname"]))
         api = job_queue.JobQueueApi()
-        response = api.get(container)
+        response = api.lease(container)
 
         self.assertEqual(response.return_code,
                           model.ReturnCodeMessage.SUCCESS)

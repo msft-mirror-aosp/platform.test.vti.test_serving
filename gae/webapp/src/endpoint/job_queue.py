@@ -41,17 +41,7 @@ class JobQueueApi(endpoint_base.EndpointBase):
         model.JobLeaseResponse,
         path='get',
         http_method='POST',
-        name='get')
-    def get(self, request):
-        # TODO(jongmok): This will be deprecated and replaced with /lease.
-        return self.lease(request)
-
-    @endpoints.method(
-        JOB_QUEUE_RESOURCE,
-        model.JobLeaseResponse,
-        path='get',
-        http_method='POST',
-        name='get')
+        name='lease')
     def lease(self, request):
         """Gets the job(s) based on the condition specified in `request`."""
         job_query = model.JobModel.query(
