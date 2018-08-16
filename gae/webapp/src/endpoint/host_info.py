@@ -15,6 +15,7 @@
 
 import datetime
 import endpoints
+import logging
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -89,7 +90,7 @@ class HostInfoApi(endpoint_base.EndpointBase):
                 device.serial = request_device.serial
                 device.scheduling_status = Status.DEVICE_SCHEDULING_STATUS_DICT[
                     "free"]
-            if not device.product or request_device.product is not "error":
+            if not device.product or request_device.product != "error":
                 device.product = request_device.product
 
             device.username = username
