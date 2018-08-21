@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource, PageEvent } from '@angular/material';
 
 import { MenuBaseClass } from '../menu_base';
 import { Schedule } from '../../model/schedule';
 import { ScheduleService } from './schedule.service';
 
-
+/** Component that handles schedule menu. */
 @Component({
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
   providers: [ ScheduleService ],
   styleUrls: ['./schedule.component.scss'],
 })
-export class ScheduleComponent extends MenuBaseClass {
+export class ScheduleComponent extends MenuBaseClass implements OnInit {
   columnTitles = [
     '_index',
     'build_target',
@@ -48,9 +48,67 @@ export class ScheduleComponent extends MenuBaseClass {
     super();
   }
 
+  ngOnInit(): void {
+    this.getCount();
+    this.getSchedules(this.pageSize, this.pageSize * this.pageIndex);
+  }
+
+  /** Gets a total count of schedules. */
+  getCount(observer = this.getDefaultCountObservable()) {
+    const filterJSON = '';
+    this.scheduleService.getCount(filterJSON).subscribe(observer);
+  }
+
+  /** Gets schedules.
+   * @param size A number, at most this many results will be returned.
+   * @param offset A Number of results to skip.
+   */
+  getSchedules(size = 0, offset = 0) {
+    this.loading = true;
+    const filterJSON = '';
+    this.scheduleService.getSchedules(size, offset, filterJSON, '', '')
+      .subscribe(
+        (response) => {
+          this.loading = false;
+          if (this.count >= 0) {
+            let length = 0;
+            if (response.body.schedules) {
+              length = response.body.schedules.length;
+            }
+            const total = length + offset;
+            if (response.body.has_next) {
+              if (length !== this.pageSize) {
+                console.log('Received unexpected number of entities.');
+              } else if (this.count <= total) {
+                this.getCount();
+              }
+            } else {
+              if (this.count !== total) {
+                if (length !== this.count) {
+                  this.getCount();
+                } else if (this.count > total) {
+                  const countObservable = this.getDefaultCountObservable([
+                    () => {
+                      this.pageIndex = Math.floor(this.count / this.pageSize);
+                      this.getSchedules(this.pageSize, this.pageSize * this.pageIndex);
+                    }
+                  ]);
+                  this.getCount(countObservable);
+                }
+              }
+            }
+          }
+          this.dataSource.data = response.body.schedules;
+        },
+        (error) => console.log(`[${error.status}] ${error.name}`)
+      );
+  }
+
+  /** Hooks a page event and handles properly. */
   onPageEvent(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.pageIndex = event.pageIndex;
+    this.getSchedules(this.pageSize, this.pageSize * this.pageIndex);
     return event;
   }
 }
