@@ -53,6 +53,10 @@ export class Schedule {
 
   report_bucket: string[] = void 0;
   report_spreadsheet_id: string[] = void 0;
+  report_persistent_url: string[] = void 0;
+  report_reference_url: string[] = void 0;
 
+  image_package_repo_base: string = void 0;
   timestamp = void 0;
+  owner: string[] = void 0;
 }

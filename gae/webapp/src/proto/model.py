@@ -18,6 +18,7 @@
 from google.appengine.ext import ndb
 
 from protorpc import messages
+from protorpc import message_types
 
 
 class BuildModel(ndb.Model):
@@ -102,6 +103,8 @@ class ScheduleModel(ndb.Model):
     report_persistent_url = ndb.StringProperty(repeated=True)
     report_reference_url = ndb.StringProperty(repeated=True)
 
+    owner = ndb.StringProperty(repeated=True)
+
 
 class ScheduleControlInfoMessage(messages.Message):
     """A message for representing a schedule control data entry."""
@@ -111,7 +114,7 @@ class ScheduleControlInfoMessage(messages.Message):
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
-    # Next ID = 32
+    # Next ID = 36
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -124,6 +127,7 @@ class ScheduleInfoMessage(messages.Message):
     require_signed_device_build = messages.BooleanField(20)
     has_bootloader_img = messages.BooleanField(27)
     has_radio_img = messages.BooleanField(28)
+
     # GSI information
     gsi_storage_type = messages.IntegerField(22)
     gsi_branch = messages.StringField(9)
@@ -155,6 +159,8 @@ class ScheduleInfoMessage(messages.Message):
     report_reference_url = messages.StringField(33, repeated=True)
 
     image_package_repo_base = messages.StringField(31)
+    timestamp = message_types.DateTimeField(34)
+    owner = messages.StringField(35, repeated=True)
 
 
 class LabModel(ndb.Model):
