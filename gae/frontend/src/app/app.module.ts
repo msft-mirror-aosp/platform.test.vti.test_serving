@@ -22,6 +22,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 // Angular Material modules
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -48,6 +49,24 @@ const appRoutes: Routes = [
   { path: '**', redirectTo: '/', pathMatch: 'full' }
 ];
 
+
+@NgModule({
+  imports: [
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTabsModule,
+  ],
+  exports: [
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTabsModule,
+  ]
+})
+export class MaterialModule {}
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -62,9 +81,7 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     BrowserModule,
     HttpClientModule,
-    MatPaginatorModule,
-    MatTableModule,
-    MatTabsModule,
+    MaterialModule,
     NavModule,
     RouterModule.forRoot(
       appRoutes

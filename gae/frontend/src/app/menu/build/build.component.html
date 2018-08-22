@@ -12,7 +12,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<div class="mat-elevation-z2 entity-table">
+<div class="mat-elevation-z2 entity-table" [ngStyle]="{'opacity': (loading) ? 0.2 : 1 }">
   <mat-table #table [dataSource]="dataSource">
     <!-- Index Column -->
     <ng-container matColumnDef="_index">
@@ -66,4 +66,7 @@
                  [pageIndex]="pageIndex"
                  (page)="pageEvent = onPageEvent($event)">
   </mat-paginator>
+</div>
+<div class="loading-spinner" *ngIf="loading">
+  <mat-spinner color="primary"></mat-spinner>
 </div>
