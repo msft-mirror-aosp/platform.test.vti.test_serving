@@ -377,6 +377,13 @@ class ScheduleHandler(webapp2.RequestHandler):
                 model.LabModel.hostname == target_host).fetch()
             return CREATE_JOB_SUCCESS, labs[0].name
         else:
+            self.logger.Println("Cannot find builds to create a job.")
+            self.logger.Println("- Device branch / build - {} / {}".format(
+                new_job.manifest_branch, new_job.build_id))
+            self.logger.Println("- GSI branch / build - {} / {}".format(
+                new_job.gsi_branch, new_job.gsi_build_id))
+            self.logger.Println("- Test branch / build - {} / {}".format(
+                new_job.test_branch, new_job.test_build_id))
             return CREATE_JOB_FAILED_NO_BUILD, ""
 
     def FilterWithPeriod(self, schedules):
