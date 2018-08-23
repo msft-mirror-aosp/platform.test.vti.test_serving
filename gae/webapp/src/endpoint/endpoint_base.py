@@ -272,3 +272,43 @@ class EndpointBase(remote.Service):
                 if _filter["key"] not in model_properties:
                     filters.remove(_filter)
         return filters
+
+    def Get(self, request, metaclass, message):
+        """Handles a request through /get endpoints API to retrieves entities.
+
+        Args:
+            request: a request body message received through /get API.
+            metaclass: a metaclass for ndb model. This method will fetch the
+                       'metaclass' type of model from datastore.
+            message: a Protocol RPC message class. Fetched entities will be
+                     converted to this message class instances.
+
+        Returns:
+            a list of fetched entities.
+            a boolean, True if there is next page or False if not.
+        """
+        size = request.size if request.size else MAX_QUERY_SIZE
+        offset = request.offset if request.offset else 0
+
+        filters = self.CreateFilterList(
+            filter_string=request.filter, metaclass=metaclass)
+
+        entities, more = self.Fetch(
+            metaclass=metaclass,
+            size=size,
+            filters=filters,
+            offset=offset,
+            sort_key=request.sort,
+            direction=request.direction,
+        )
+
+        return_list = []
+        for entity in entities:
+            entity_dict = {}
+            assigned_attributes = self.GetCommonAttributes(
+                resource=entity, reference=message)
+            for attr in assigned_attributes:
+                entity_dict[attr] = getattr(entity, attr, None)
+            return_list.append(entity_dict)
+
+        return return_list, more

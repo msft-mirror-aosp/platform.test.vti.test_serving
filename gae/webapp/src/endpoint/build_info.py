@@ -77,30 +77,9 @@ class BuildInfoApi(endpoint_base.EndpointBase):
         name="get")
     def get(self, request):
         """Gets the builds from datastore."""
-        size = request.size if request.size else endpoint_base.MAX_QUERY_SIZE
-        offset = request.offset if request.offset else 0
-
-        filters = self.CreateFilterList(
-            filter_string=request.filter, metaclass=model.BuildModel)
-
-        builds, more = self.Fetch(
-            metaclass=model.BuildModel,
-            size=size,
-            filters=filters,
-            offset=offset,
-            sort_key=request.sort,
-            direction=request.direction,
-        )
-
-        return_list = []
-        for build in builds:
-            _build = {}
-            assigned_attributes = self.GetCommonAttributes(
-                resource=build, reference=model.BuildInfoMessage)
-            for attr in assigned_attributes:
-                _build[attr] = getattr(build, attr, None)
-            return_list.append(_build)
-
+        return_list, more = self.Get(request=request,
+                                     metaclass=model.BuildModel,
+                                     message=model.BuildInfoMessage)
         return model.BuildResponseMessage(builds=return_list, has_next=more)
 
     @endpoints.method(
