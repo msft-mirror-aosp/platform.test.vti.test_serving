@@ -112,29 +112,9 @@ class HostInfoApi(endpoint_base.EndpointBase):
         name="get")
     def get(self, request):
         """Gets the devices from datastore."""
-        size = request.size if request.size else endpoint_base.MAX_QUERY_SIZE
-        offset = request.offset if request.offset else 0
-
-        filters = self.CreateFilterList(
-            filter_string=request.filter, metaclass=model.DeviceModel)
-
-        devices, more = self.Fetch(
-            metaclass=model.DeviceModel,
-            size=size,
-            filters=filters,
-            offset=offset,
-            sort_key=request.sort,
-            direction=request.direction,
-        )
-
-        return_list = []
-        for device in devices:
-            _device = {}
-            assigned_attributes = self.GetCommonAttributes(
-                resource=device, reference=model.DeviceInfoMessage)
-            for attr in assigned_attributes:
-                _device[attr] = getattr(device, attr, None)
-            return_list.append(_device)
+        return_list, more = self.Get(request=request,
+                                     metaclass=model.DeviceModel,
+                                     message=model.DeviceInfoMessage)
 
         return model.DeviceResponseMessage(devices=return_list, has_next=more)
 

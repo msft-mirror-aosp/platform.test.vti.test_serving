@@ -110,29 +110,9 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
         name="get")
     def get(self, request):
         """Gets the schedules from datastore."""
-        size = request.size if request.size else self.MAX_QUERY_SIZE
-        offset = request.offset if request.offset else 0
-
-        filters = self.CreateFilterList(
-            filter_string=request.filter, metaclass=model.ScheduleModel)
-
-        schedules, more = self.Fetch(
-            metaclass=model.ScheduleModel,
-            size=size,
-            filters=filters,
-            offset=offset,
-            sort_key=request.sort,
-            direction=request.direction,
-        )
-
-        return_list = []
-        for schedule in schedules:
-            _schedule = {}
-            assigned_attributes = self.GetCommonAttributes(
-                resource=schedule, reference=model.ScheduleInfoMessage)
-            for attr in assigned_attributes:
-                _schedule[attr] = getattr(schedule, attr, None)
-            return_list.append(_schedule)
+        return_list, more = self.Get(request=request,
+                                     metaclass=model.ScheduleModel,
+                                     message=model.ScheduleInfoMessage)
 
         return model.ScheduleResponseMessage(
             schedules=return_list, has_next=more)
