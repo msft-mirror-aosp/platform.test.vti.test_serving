@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
-import { MatTableDataSource } from '@angular/material';
+import { Component, OnInit } from '@angular/core';
+import {MatTableDataSource, PageEvent} from '@angular/material';
 
 import { Host } from '../../model/host';
 import { Lab } from '../../model/lab';
 import { LabService } from './lab.service';
 import { MenuBaseClass } from '../menu_base';
 
-
+/** Component that handles lab and host menu. */
 @Component({
   selector: 'app-lab',
   templateUrl: './lab.component.html',
   providers: [ LabService ],
   styleUrls: ['./lab.component.scss'],
 })
-export class LabComponent extends MenuBaseClass {
+export class LabComponent extends MenuBaseClass implements OnInit {
   labColumnTitles = [
     '_index',
     'admin',
@@ -45,6 +45,7 @@ export class LabComponent extends MenuBaseClass {
     'vtslab_version',
   ];
   labCount = -1;
+  labPageIndex = 0;
 
   constructor(private labService: LabService) {
     super();
@@ -52,4 +53,49 @@ export class LabComponent extends MenuBaseClass {
 
   labDataSource = new MatTableDataSource<Lab>();
   hostDataSource = new MatTableDataSource<Host>();
+
+  ngOnInit(): void {
+    // For labs and hosts, it does not use query pagination.
+    this.getHosts();
+  }
+
+  /** Gets hosts.
+   * @param size A number, at most this many results will be returned.
+   * @param offset A Number of results to skip.
+   */
+  getHosts(size = 0, offset = 0) {
+    this.loading = true;
+    // Labs will not use filter for query.
+    const filterJSON = '';
+    this.labService.getLabs(size, offset, filterJSON, '', '')
+      .subscribe(
+        (response) => {
+          this.loading = false;
+          if (response.body.labs) {
+            this.count = response.body.labs.length;
+            this.hostDataSource.data = response.body.labs;
+            this.setLabs(response.body.labs);
+          }
+        },
+        (error) => console.log(`[${error.status}] ${error.name}`)
+      );
+  }
+
+  /** Sets labs from given hosts.
+   * @param hosts A list of Host instances.
+   */
+  setLabs(hosts: Host[]) {
+    if (hosts == null || hosts.length === 0) { return; }
+    const labMap = new Map();
+    hosts.forEach(function(host) {
+      if (labMap.has(host.name)) {
+        labMap.get(host.name).hosts.push(host);
+      } else {
+        labMap.set(host.name, {name: host.name, owner: host.owner, admin: host.admin, hosts: [host]});
+      }
+    });
+    const labs: Lab[] = [];
+    labMap.forEach((value) => labs.push(value));
+    this.labDataSource.data = labs;
+  }
 }
