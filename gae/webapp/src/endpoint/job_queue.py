@@ -185,29 +185,9 @@ class JobQueueApi(endpoint_base.EndpointBase):
         name="get")
     def get(self, request):
         """Gets the jobs from datastore."""
-        size = request.size if request.size else self.MAX_QUERY_SIZE
-        offset = request.offset if request.offset else 0
-
-        filters = self.CreateFilterList(
-            filter_string=request.filter, metaclass=model.JobModel)
-
-        jobs, more = self.Fetch(
-            metaclass=model.JobModel,
-            size=size,
-            filters=filters,
-            offset=offset,
-            sort_key=request.sort,
-            direction=request.direction,
-        )
-
-        return_list = []
-        for job in jobs:
-            common_properties = self.GetCommonAttributes(
-                resource=job, reference=model.JobMessage)
-            _job = {}
-            for _property in common_properties:
-                _job[_property] = getattr(job, _property)
-            return_list.append(_job)
+        return_list, more = self.Get(request=request,
+                                     metaclass=model.JobModel,
+                                     message=model.JobMessage)
 
         return model.JobResponseMessage(jobs=return_list, has_next=more)
 

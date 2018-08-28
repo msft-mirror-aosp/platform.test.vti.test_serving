@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import endpoints
+import json
 import unittest
 
 try:
@@ -22,25 +24,30 @@ try:
 except ImportError:
     import mock
 
+from webapp.src import vtslab_status as Status
 from webapp.src.endpoint import endpoint_base
 from webapp.src.proto import model
 from webapp.src.testing import unittest_base
 
 
 class EndpointBaseTest(unittest_base.UnitTestBase):
-    """A class to test endpoint_base.EndpointBase class. """
+    """A class to test endpoint_base.EndpointBase class.
+
+    Attributes:
+        eb: An EndpointBase class instance.
+    """
 
     def setUp(self):
         """Initializes test"""
         super(EndpointBaseTest, self).setUp()
+        self.eb = endpoint_base.EndpointBase()
 
     def testGetAssignedMessagesAttributes(self):
         attrs = ["hostname", "priority", "test_branch"]
         job_message = model.JobMessage()
         for attr in attrs:
             setattr(job_message, attr, attr)
-        eb = endpoint_base.EndpointBase()
-        result = eb.GetAttributes(job_message, assigned_only=True)
+        result = self.eb.GetAttributes(job_message, assigned_only=True)
         self.assertEqual(set(attrs), set(result))
 
     def testGetAssignedModelAttributes(self):
@@ -48,8 +55,7 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
         job = model.JobModel()
         for attr in attrs:
             setattr(job, attr, attr)
-        eb = endpoint_base.EndpointBase()
-        result = eb.GetAttributes(job, assigned_only=True)
+        result = self.eb.GetAttributes(job, assigned_only=True)
         self.assertEqual(set(attrs), set(result))
 
     def testGetAllMessagesAttributes(self):
@@ -71,8 +77,7 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
         job_message = model.JobMessage()
         for attr in attrs:
             setattr(job_message, attr, attr)
-        eb = endpoint_base.EndpointBase()
-        result = eb.GetAttributes(job_message, assigned_only=False)
+        result = self.eb.GetAttributes(job_message, assigned_only=False)
         self.assertTrue(set(full_attrs) <= set(result))
 
     def testGetAllModelAttributes(self):
@@ -95,9 +100,156 @@ class EndpointBaseTest(unittest_base.UnitTestBase):
         job = model.JobModel()
         for attr in attrs:
             setattr(job, attr, attr)
-        eb = endpoint_base.EndpointBase()
-        result = eb.GetAttributes(job, assigned_only=False)
+        result = self.eb.GetAttributes(job, assigned_only=False)
         self.assertTrue(set(full_attrs) <= set(result))
+
+    def testGetSingleEntity(self):
+        """Asserts to get a single entity."""
+        device = self.GenerateDeviceModel()
+        device.put()
+
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=0,
+                offset=0,
+                filter="",
+                sort="",
+                direction="",
+            ))
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 1)
+        self.assertFalse(more)
+
+    def testGetHundredEntities(self):
+        """Asserts to get hundred entities."""
+        for _ in xrange(100):
+            device = self.GenerateDeviceModel()
+            device.put()
+
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=0,
+                offset=0,
+                filter="",
+                sort="",
+                direction="",
+            ))
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 100)
+        self.assertFalse(more)
+
+    def testGetEntitiesWithPagination(self):
+        """Asserts to get entities with pagination."""
+        for _ in xrange(100):
+            device = self.GenerateDeviceModel()
+            device.put()
+
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=60,
+                offset=0,
+                filter="",
+                sort="",
+                direction="",
+            ))
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 60)
+        self.assertTrue(more)
+
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=100,
+                offset=60,
+                filter="",
+                sort="",
+                direction="",
+            ))
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 40)
+        self.assertFalse(more)
+
+    def testGetWithFilter(self):
+        """Asserts to get entities with filter."""
+        for _ in xrange(50):
+            device = self.GenerateDeviceModel()
+            device.put()
+
+        for _ in xrange(50):
+            device = self.GenerateDeviceModel(product="product")
+            device.put()
+
+        filter = [{
+            "key": "product",
+            "method": Status.FILTER_METHOD[Status.FILTER_EqualTo],
+            "value": "product"
+        }]
+        filter_string = json.dumps(filter)
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=0,
+                offset=0,
+                filter=filter_string,
+                sort="",
+                direction="",
+            ))
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 50)
+        self.assertFalse(more)
+
+    def testGetWithSort(self):
+        """Asserts to get entities with sort."""
+        for _ in xrange(100):
+            device = self.GenerateDeviceModel()
+            device.put()
+
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=0,
+                offset=0,
+                filter="",
+                sort="serial",
+                direction="asc",
+            ))
+
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 100)
+        for i in xrange(len(result) - 1):
+            self.assertTrue(result[i]["serial"] < result[i + 1]["serial"])
+
+        request_body = (endpoints.ResourceContainer(
+            model.GetRequestMessage).combined_message_class(
+                size=0,
+                offset=0,
+                filter="",
+                sort="serial",
+                direction="desc",
+            ))
+
+        result, more = self.eb.Get(
+            request=request_body,
+            metaclass=model.DeviceModel,
+            message=model.DeviceInfoMessage)
+        self.assertEqual(len(result), 100)
+        for i in xrange(len(result) - 1):
+            self.assertTrue(result[i]["serial"] > result[i + 1]["serial"])
 
 
 if __name__ == "__main__":

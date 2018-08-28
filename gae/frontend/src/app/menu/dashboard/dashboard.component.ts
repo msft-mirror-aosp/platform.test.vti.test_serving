@@ -15,6 +15,7 @@
  */
 import { Component } from '@angular/core';
 
+/** Component that handles dashboard. */
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',

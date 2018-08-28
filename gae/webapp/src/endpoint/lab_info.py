@@ -160,25 +160,9 @@ class LabInfoApi(endpoint_base.EndpointBase):
         name="get")
     def get(self, request):
         """Gets the labs from datastore."""
-        filters = self.CreateFilterList(
-            filter_string=request.filter, metaclass=model.LabModel)
-
-        labs, more = self.Fetch(
-            metaclass=model.LabModel,
-            size=0,
-            filters=filters,
-            sort_key=request.sort,
-            direction=request.direction,
-        )
-
-        return_list = []
-        for lab in labs:
-            _lab = {}
-            assigned_attributes = self.GetCommonAttributes(
-                resource=lab, reference=model.LabMessage)
-            for attr in assigned_attributes:
-                _lab[attr] = getattr(lab, attr, None)
-            return_list.append(_lab)
+        return_list, more = self.Get(request=request,
+                                     metaclass=model.LabModel,
+                                     message=model.LabMessage)
 
         return model.LabResponseMessage(labs=return_list, has_next=more)
 
