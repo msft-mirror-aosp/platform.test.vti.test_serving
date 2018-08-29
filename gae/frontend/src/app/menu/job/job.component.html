@@ -47,7 +47,7 @@
     <!-- Serial Column -->
     <ng-container matColumnDef="serial">
       <mat-header-cell *matHeaderCellDef>Serial</mat-header-cell>
-      <mat-cell *matCellDef="let job"> {{job.serial.join('\n')}} </mat-cell>
+      <mat-cell *matCellDef="let job"> {{job.serial ? job.serial.join('\n') : ""}} </mat-cell>
     </ng-container>
 
     <!-- Device Branch Column -->
