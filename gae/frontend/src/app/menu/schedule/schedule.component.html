@@ -29,7 +29,7 @@
     <!-- Device Column -->
     <ng-container matColumnDef="device">
       <mat-header-cell *matHeaderCellDef>Device</mat-header-cell>
-      <mat-cell *matCellDef="let schedule"> {{schedule.device.join('\n')}} </mat-cell>
+      <mat-cell *matCellDef="let schedule"> {{schedule.device ? schedule.device.join('\n') : ""}} </mat-cell>
     </ng-container>
 
     <!-- Manifest Branch Column -->
