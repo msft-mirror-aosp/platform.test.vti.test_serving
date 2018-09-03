@@ -156,7 +156,7 @@ class LabInfoApi(endpoint_base.EndpointBase):
         endpoint_base.GET_REQUEST_RESOURCE,
         model.LabResponseMessage,
         path="get",
-        http_method="GET",
+        http_method="POST",
         name="get")
     def get(self, request):
         """Gets the labs from datastore."""
@@ -170,7 +170,7 @@ class LabInfoApi(endpoint_base.EndpointBase):
         endpoint_base.COUNT_REQUEST_RESOURCE,
         model.CountResponseMessage,
         path="count",
-        http_method="GET",
+        http_method="POST",
         name="count")
     def count(self, request):
         """Gets total number of BuildModel entities stored in datastore."""
