@@ -32,7 +32,7 @@ HTTP_HTTPS_REGEX = "^https?://"
 STORAGE_API_URL = "https://storage.cloud.google.com/"
 
 
-@endpoints.api(name='job_queue', version='v1')
+@endpoints.api(name='job', version='v1')
 class JobQueueApi(endpoint_base.EndpointBase):
     """Endpoint API for job_queue."""
 

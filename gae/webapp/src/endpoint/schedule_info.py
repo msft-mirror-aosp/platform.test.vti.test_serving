@@ -25,7 +25,7 @@ from webapp.src.proto import model
 SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(model.ScheduleInfoMessage)
 
 
-@endpoints.api(name="schedule_info", version="v1")
+@endpoints.api(name="schedule", version="v1")
 class ScheduleInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for schedule_info."""
 

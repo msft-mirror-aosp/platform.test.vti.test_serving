@@ -28,7 +28,7 @@ LAB_INFO_RESOURCE = endpoints.ResourceContainer(model.LabInfoMessage)
 LAB_HOST_INFO_RESOURCE = endpoints.ResourceContainer(model.LabHostInfoMessage)
 
 
-@endpoints.api(name='lab_info', version='v1')
+@endpoints.api(name='lab', version='v1')
 class LabInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for lab_info."""
 

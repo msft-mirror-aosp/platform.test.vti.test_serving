@@ -23,7 +23,7 @@ from webapp.src.proto import model
 BUILD_INFO_RESOURCE = endpoints.ResourceContainer(model.BuildInfoMessage)
 
 
-@endpoints.api(name="build_info", version="v1")
+@endpoints.api(name="build", version="v1")
 class BuildInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for build_info."""
 
