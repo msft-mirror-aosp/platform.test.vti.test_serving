@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { catchError } from 'rxjs/operators';
@@ -28,21 +28,16 @@ import { ServiceBase } from '../../shared/servicebase';
 export class DeviceService extends ServiceBase {
   constructor(public httpClient: HttpClient) {
     super(httpClient);
-    this.url = environment['baseURL'] + '/host_info/v1/';
+    this.url = environment['baseURL'] + '/host/v1/';
   }
 
   getDevices(size: number,
              offset: number,
              filterInfo: string,
              sort: string,
-             direction: string): Observable<HttpResponse<DeviceWrapper>> {
+             direction: string): Observable<DeviceWrapper> {
     const url = this.url + 'get';
-    return this.httpClient.get<DeviceWrapper>(url,  {observe: 'response', params: new HttpParams()
-        .append('size', String(size))
-        .append('offset', String(offset))
-        .append('filter', filterInfo)
-        .append('sort', sort)
-        .append('direction', direction)})
+    return this.httpClient.post<DeviceWrapper>(url,  {size: size, offset: offset, filter: filterInfo, sort: sort, direction: direction})
       .pipe(catchError(this.handleError));
   }
 }

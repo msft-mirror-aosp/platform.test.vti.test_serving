@@ -67,11 +67,11 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
           this.loading = false;
           if (this.count >= 0) {
             let length = 0;
-            if (response.body.builds) {
-              length = response.body.builds.length;
+            if (response.builds) {
+              length = response.builds.length;
             }
             const total = length + offset;
-            if (response.body.has_next) {
+            if (response.has_next) {
               if (length !== this.pageSize) {
                 console.log('Received unexpected number of entities.');
               } else if (this.count <= total) {
@@ -93,7 +93,7 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
               }
             }
           }
-          this.dataSource.data = response.body.builds;
+          this.dataSource.data = response.builds;
         },
         (error) => console.log(`[${error.status}] ${error.name}`)
       );
