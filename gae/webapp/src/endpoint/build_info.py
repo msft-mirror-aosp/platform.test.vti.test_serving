@@ -49,22 +49,20 @@ class BuildInfoApi(endpoint_base.EndpointBase):
                     request.build_id, request.build_target, request.build_type,
                     request.artifact_type))
 
-        if request.signed and existing_builds:
-            # only signed builds need to overwrite the exist entities.
+        if existing_builds:
             build = existing_builds[0]
-        elif not existing_builds:
-            build = model.BuildModel()
+            if request.signed:
+                # only signed builds need to overwrite the exist entities.
+                build.signed = request.signed
         else:
-            # the same build existed and request is not signed build.
-            build = None
-
-        if build:
+            build = model.BuildModel()
             common_attributes = self.GetCommonAttributes(request,
                                                          model.BuildModel)
             for attr in common_attributes:
                 setattr(build, attr, getattr(request, attr))
-            build.timestamp = datetime.datetime.now()
-            build.put()
+
+        build.timestamp = datetime.datetime.now()
+        build.put()
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
