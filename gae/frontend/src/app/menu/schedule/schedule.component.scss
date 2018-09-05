@@ -1,0 +1,28 @@
+.mat-header-cell {
+  padding: 0 10px 0 10px;
+}
+
+.mat-cell {
+  padding: 0 10px 0 10px;
+}
+
+.element-row {
+  position: relative;
+  overflow: hidden;
+}
+
+.element-row:not(.expanded) {
+  cursor: pointer;
+}
+
+.element-row:not(.expanded):hover {
+  background: #f5f5f5;
+}
+
+.element-row.expanded {
+  border-bottom-color: transparent;
+}
+
+.div-expandable {
+  padding: 10px 20px 30px 20px;
+}
