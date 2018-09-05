@@ -19,15 +19,36 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-if [ $1 = "prod" ]; then
-  SERVICE="vtslab-schedule-prod"
-elif [ $1 = "test" ]; then
-  SERVICE="vtslab-schedule-test"
-elif [ $1 = "public" ]; then
+if [ $1 = "public" ]; then
   SERVICE="vtslab-schedule"
-else
+elif [ $1 = "local" ]; then
   dev_appserver.py ./
   exit 0
+else
+  SERVICE="vtslab-schedule-$1"
+fi
+
+echo "Fetching endpoints service version of $SERVICE ..."
+ENDPOINTS=$(gcloud endpoints configs list --service=$SERVICE.appspot.com)
+arr=($ENDPOINTS)
+
+if [ ${#arr[@]} -lt 4 ]; then
+  echo "You need to deploy endpoints first."
+  exit 0
+else
+  VERSION=${arr[2]}
+  NAME=${arr[3]}
+  echo "ENDPOINTS_SERVICE_NAME: $NAME"
+  echo "ENDPOINTS_SERVICE_VERSION: $VERSION"
+fi
+
+echo "Updating app.yaml ..."
+if [ "$(uname)" == "Darwin" ]; then
+  sed -i "" "s/ENDPOINTS_SERVICE_NAME:.*/ENDPOINTS_SERVICE_NAME: $NAME/g" app.yaml
+  sed -i "" "s/ENDPOINTS_SERVICE_VERSION:.*/ENDPOINTS_SERVICE_VERSION: $VERSION/g" app.yaml
+else
+  sed -i "s/ENDPOINTS_SERVICE_NAME:.*/ENDPOINTS_SERVICE_NAME: $NAME/g" app.yaml
+  sed -i "s/ENDPOINTS_SERVICE_VERSION:.*/ENDPOINTS_SERVICE_VERSION: $VERSION/g" app.yaml
 fi
 
 echo "Deploying the web app to $SERVICE ..."
