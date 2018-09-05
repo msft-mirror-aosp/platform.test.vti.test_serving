@@ -60,7 +60,7 @@ def AddNullDevices(hostname, null_device_count):
             ndb.put_multi(devices_to_put)
 
 
-@endpoints.api(name='host_info', version='v1')
+@endpoints.api(name='host', version='v1')
 class HostInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for host_info."""
 
