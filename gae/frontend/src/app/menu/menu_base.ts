@@ -34,7 +34,7 @@ export abstract class MenuBaseClass {
   getDefaultCountObservable(additionalOperations: any[] = []) {
     return {
       next: (response) => {
-        this.count = response.body.count;
+        this.count = response.count;
         for (const operation of additionalOperations) {
           operation(response);
         }

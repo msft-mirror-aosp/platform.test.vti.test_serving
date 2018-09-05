@@ -71,10 +71,10 @@ export class LabComponent extends MenuBaseClass implements OnInit {
       .subscribe(
         (response) => {
           this.loading = false;
-          if (response.body.labs) {
-            this.count = response.body.labs.length;
-            this.hostDataSource.data = response.body.labs;
-            this.setLabs(response.body.labs);
+          if (response.labs) {
+            this.count = response.labs.length;
+            this.hostDataSource.data = response.labs;
+            this.setLabs(response.labs);
           }
         },
         (error) => console.log(`[${error.status}] ${error.name}`)

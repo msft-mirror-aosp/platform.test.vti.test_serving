@@ -79,11 +79,11 @@ export class JobComponent extends MenuBaseClass implements OnInit {
           this.loading = false;
           if (this.count >= 0) {
             let length = 0;
-            if (response.body.jobs) {
-              length = response.body.jobs.length;
+            if (response.jobs) {
+              length = response.jobs.length;
             }
             const total = length + offset;
-            if (response.body.has_next) {
+            if (response.has_next) {
               if (length !== this.pageSize) {
                 console.log('Received unexpected number of entities.');
               } else if (this.count <= total) {
@@ -105,7 +105,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
               }
             }
           }
-          this.dataSource.data = response.body.jobs;
+          this.dataSource.data = response.jobs;
         },
         (error) => console.log(`[${error.status}] ${error.name}`)
       );

@@ -72,11 +72,11 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
           this.loading = false;
           if (this.count >= 0) {
             let length = 0;
-            if (response.body.schedules) {
-              length = response.body.schedules.length;
+            if (response.schedules) {
+              length = response.schedules.length;
             }
             const total = length + offset;
-            if (response.body.has_next) {
+            if (response.has_next) {
               if (length !== this.pageSize) {
                 console.log('Received unexpected number of entities.');
               } else if (this.count <= total) {
@@ -98,7 +98,7 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
               }
             }
           }
-          this.dataSource.data = response.body.schedules;
+          this.dataSource.data = response.schedules;
         },
         (error) => console.log(`[${error.status}] ${error.name}`)
       );
