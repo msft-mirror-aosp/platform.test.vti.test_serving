@@ -297,7 +297,7 @@ class JobModel(ndb.Model):
 
 class JobMessage(messages.Message):
     """A message for representing an individual job entry."""
-    # Next ID = 35
+    # Next ID = 38
     test_type = messages.IntegerField(29)
 
     hostname = messages.StringField(1)
@@ -346,6 +346,8 @@ class JobMessage(messages.Message):
     report_spreadsheet_id = messages.StringField(34, repeated=True)
     report_persistent_url = messages.StringField(35, repeated=True)
     report_reference_url = messages.StringField(36, repeated=True)
+
+    timestamp = message_types.DateTimeField(37)
 
 
 class ReturnCodeMessage(messages.Enum):
