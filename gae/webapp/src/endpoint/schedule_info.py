@@ -86,18 +86,20 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
                     [not getattr(schedule, attr) for attr in empty_list_field])
             ]
 
-        if not duplicated_schedules:
+        if duplicated_schedules:
+            schedule = duplicated_schedules[0]
+        else:
             schedule = model.ScheduleModel()
             for attr_name in exist_on_both:
                 setattr(schedule, attr_name,
                         request.get_assigned_value(attr_name))
-            schedule.timestamp = datetime.datetime.now()
             schedule.schedule_type = "test"
             schedule.error_count = 0
             schedule.suspended = False
-            schedule.priority_value = Status.GetPriorityValue(
-                schedule.priority)
-            schedule.put()
+            schedule.priority_value = Status.GetPriorityValue(schedule.priority)
+
+        schedule.timestamp = datetime.datetime.now()
+        schedule.put()
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
