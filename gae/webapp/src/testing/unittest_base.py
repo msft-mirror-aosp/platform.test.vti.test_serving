@@ -216,13 +216,15 @@ class UnitTestBase(unittest.TestCase):
         schedule.device = []
         schedule.device.append("/".join([lab, device_product]))
 
+        schedule.timestamp = datetime.datetime.now()
+
         skip_list = [
             "priority", "priority_value", "period", "shards",
             "retry_count", "required_signed_device_build",
             "build_storage_type", "manifest_branch", "build_target",
             "gsi_storage_type", "gsi_build_target",
             "test_storage_type", "test_build_target", "device",
-            "children_jobs", "timestamp"]
+            "children_jobs"]
         set_or_empty = ["required_host_equipment", "required_device_equipment"]
         for arg in schedule._properties:
             if arg in skip_list or (arg in set_or_empty and arg not in kwargs):

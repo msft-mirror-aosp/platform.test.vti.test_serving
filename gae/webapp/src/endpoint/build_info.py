@@ -23,7 +23,7 @@ from webapp.src.proto import model
 BUILD_INFO_RESOURCE = endpoints.ResourceContainer(model.BuildInfoMessage)
 
 
-@endpoints.api(name="build_info", version="v1")
+@endpoints.api(name="build", version="v1")
 class BuildInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for build_info."""
 
@@ -49,22 +49,20 @@ class BuildInfoApi(endpoint_base.EndpointBase):
                     request.build_id, request.build_target, request.build_type,
                     request.artifact_type))
 
-        if request.signed and existing_builds:
-            # only signed builds need to overwrite the exist entities.
+        if existing_builds:
             build = existing_builds[0]
-        elif not existing_builds:
-            build = model.BuildModel()
+            if request.signed:
+                # only signed builds need to overwrite the exist entities.
+                build.signed = request.signed
         else:
-            # the same build existed and request is not signed build.
-            build = None
-
-        if build:
+            build = model.BuildModel()
             common_attributes = self.GetCommonAttributes(request,
                                                          model.BuildModel)
             for attr in common_attributes:
                 setattr(build, attr, getattr(request, attr))
-            build.timestamp = datetime.datetime.now()
-            build.put()
+
+        build.timestamp = datetime.datetime.now()
+        build.put()
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
@@ -73,7 +71,7 @@ class BuildInfoApi(endpoint_base.EndpointBase):
         endpoint_base.GET_REQUEST_RESOURCE,
         model.BuildResponseMessage,
         path="get",
-        http_method="GET",
+        http_method="POST",
         name="get")
     def get(self, request):
         """Gets the builds from datastore."""
@@ -86,7 +84,7 @@ class BuildInfoApi(endpoint_base.EndpointBase):
         endpoint_base.COUNT_REQUEST_RESOURCE,
         model.CountResponseMessage,
         path="count",
-        http_method="GET",
+        http_method="POST",
         name="count")
     def count(self, request):
         """Gets total number of BuildModel entities stored in datastore."""

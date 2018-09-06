@@ -25,7 +25,7 @@ from webapp.src.proto import model
 SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(model.ScheduleInfoMessage)
 
 
-@endpoints.api(name="schedule_info", version="v1")
+@endpoints.api(name="schedule", version="v1")
 class ScheduleInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for schedule_info."""
 
@@ -86,18 +86,20 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
                     [not getattr(schedule, attr) for attr in empty_list_field])
             ]
 
-        if not duplicated_schedules:
+        if duplicated_schedules:
+            schedule = duplicated_schedules[0]
+        else:
             schedule = model.ScheduleModel()
             for attr_name in exist_on_both:
                 setattr(schedule, attr_name,
                         request.get_assigned_value(attr_name))
-            schedule.timestamp = datetime.datetime.now()
             schedule.schedule_type = "test"
             schedule.error_count = 0
             schedule.suspended = False
-            schedule.priority_value = Status.GetPriorityValue(
-                schedule.priority)
-            schedule.put()
+            schedule.priority_value = Status.GetPriorityValue(schedule.priority)
+
+        schedule.timestamp = datetime.datetime.now()
+        schedule.put()
 
         return model.DefaultResponse(
             return_code=model.ReturnCodeMessage.SUCCESS)
@@ -106,7 +108,7 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
         endpoint_base.GET_REQUEST_RESOURCE,
         model.ScheduleResponseMessage,
         path="get",
-        http_method="GET",
+        http_method="POST",
         name="get")
     def get(self, request):
         """Gets the schedules from datastore."""
@@ -121,7 +123,7 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
         endpoint_base.COUNT_REQUEST_RESOURCE,
         model.CountResponseMessage,
         path="count",
-        http_method="GET",
+        http_method="POST",
         name="count")
     def count(self, request):
         """Gets total number of ScheduleModel entities stored in datastore."""

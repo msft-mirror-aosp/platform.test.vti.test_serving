@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { catchError } from 'rxjs/operators';
@@ -29,21 +29,16 @@ export class JobService extends ServiceBase {
   // url: string;
   constructor(public httpClient: HttpClient) {
     super(httpClient);
-    this.url = environment['baseURL'] + '/job_queue/v1/';
+    this.url = environment['baseURL'] + '/job/v1/';
   }
 
   getJobs(size: number,
           offset: number,
           filterInfo: string,
           sort: string,
-          direction: string): Observable<HttpResponse<JobWrapper>> {
+          direction: string): Observable<JobWrapper> {
     const url = this.url + 'get';
-    return this.httpClient.get<JobWrapper>(url,  {observe: 'response', params: new HttpParams()
-        .append('size', String(size))
-        .append('offset', String(offset))
-        .append('filter', filterInfo)
-        .append('sort', sort)
-        .append('direction', direction)})
+    return this.httpClient.post<JobWrapper>(url,  {size: size, offset: offset, filter: filterInfo, sort: sort, direction: direction})
       .pipe(catchError(this.handleError));
   }
 }

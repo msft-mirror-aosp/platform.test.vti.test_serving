@@ -169,6 +169,13 @@ class ScheduleHandler(webapp2.RequestHandler):
         builds = build_query.fetch()
 
         if builds:
+            builds = [
+                build for build in builds
+                if (build.timestamp >
+                    datetime.datetime.now() - datetime.timedelta(hours=72))
+            ]
+
+        if builds:
             self.logger.Println("-- Found build ID")
             builds.sort(key=lambda x: x.build_id, reverse=True)
             for build in builds:
@@ -191,6 +198,12 @@ class ScheduleHandler(webapp2.RequestHandler):
             schedules = schedule_query.fetch()
 
         if schedules:
+            # filter out the schedules which are not updated within 72 hours.
+            schedules = [
+                schedule for schedule in schedules
+                if (schedule.timestamp >
+                    datetime.datetime.now() - datetime.timedelta(hours=72))
+            ]
             schedules = self.FilterWithPeriod(schedules)
 
         if schedules:

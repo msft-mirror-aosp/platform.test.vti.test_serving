@@ -35,10 +35,8 @@ export class ServiceBase {
     return throwError(
       'Something bad happened; please try again later.');
   }
-  public getCount(filterInfo: string): Observable<HttpResponse<number>> {
+  public getCount(filterInfo: string): Observable<number> {
     const url = this.url + 'count';
-    return this.httpClient.get<number>(url, {observe: 'response', params: new HttpParams()
-        .append('filter', filterInfo)
-    });
+    return this.httpClient.post<number>(url, {filter: filterInfo});
   }
 }

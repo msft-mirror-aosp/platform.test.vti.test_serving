@@ -32,14 +32,14 @@ HTTP_HTTPS_REGEX = "^https?://"
 STORAGE_API_URL = "https://storage.cloud.google.com/"
 
 
-@endpoints.api(name='job_queue', version='v1')
+@endpoints.api(name='job', version='v1')
 class JobQueueApi(endpoint_base.EndpointBase):
     """Endpoint API for job_queue."""
 
     @endpoints.method(
         JOB_QUEUE_RESOURCE,
         model.JobLeaseResponse,
-        path='get',
+        path='lease',
         http_method='POST',
         name='lease')
     def lease(self, request):
@@ -181,7 +181,7 @@ class JobQueueApi(endpoint_base.EndpointBase):
         endpoint_base.GET_REQUEST_RESOURCE,
         model.JobResponseMessage,
         path="get",
-        http_method="GET",
+        http_method="POST",
         name="get")
     def get(self, request):
         """Gets the jobs from datastore."""
@@ -195,7 +195,7 @@ class JobQueueApi(endpoint_base.EndpointBase):
         endpoint_base.COUNT_REQUEST_RESOURCE,
         model.CountResponseMessage,
         path="count",
-        http_method="GET",
+        http_method="POST",
         name="count")
     def count(self, request):
         """Gets total number of JobModel entities stored in datastore."""

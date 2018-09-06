@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { catchError } from 'rxjs/operators';
@@ -29,21 +29,16 @@ export class ScheduleService extends ServiceBase {
   // url: string;
   constructor(public httpClient: HttpClient) {
     super(httpClient);
-    this.url = environment['baseURL'] + '/schedule_info/v1/';
+    this.url = environment['baseURL'] + '/schedule/v1/';
   }
 
   getSchedules(size: number,
                offset: number,
                filterInfo: string,
                sort: string,
-               direction: string): Observable<HttpResponse<ScheduleWrapper>> {
+               direction: string): Observable<ScheduleWrapper> {
     const url = this.url + 'get';
-    return this.httpClient.get<ScheduleWrapper>(url,  {observe: 'response', params: new HttpParams()
-        .append('size', String(size))
-        .append('offset', String(offset))
-        .append('filter', filterInfo)
-        .append('sort', sort)
-        .append('direction', direction)})
+    return this.httpClient.post<ScheduleWrapper>(url,  {size: size, offset: offset, filter: filterInfo, sort: sort, direction: direction})
       .pipe(catchError(this.handleError));
   }
 }

@@ -60,7 +60,7 @@ def AddNullDevices(hostname, null_device_count):
             ndb.put_multi(devices_to_put)
 
 
-@endpoints.api(name='host_info', version='v1')
+@endpoints.api(name='host', version='v1')
 class HostInfoApi(endpoint_base.EndpointBase):
     """Endpoint API for host_info."""
 
@@ -108,7 +108,7 @@ class HostInfoApi(endpoint_base.EndpointBase):
         endpoint_base.GET_REQUEST_RESOURCE,
         model.DeviceResponseMessage,
         path="get",
-        http_method="GET",
+        http_method="POST",
         name="get")
     def get(self, request):
         """Gets the devices from datastore."""
@@ -122,7 +122,7 @@ class HostInfoApi(endpoint_base.EndpointBase):
         endpoint_base.COUNT_REQUEST_RESOURCE,
         model.CountResponseMessage,
         path="count",
-        http_method="GET",
+        http_method="POST",
         name="count")
     def count(self, request):
         """Gets total number of DeviceModel entities stored in datastore."""
