@@ -21,7 +21,7 @@ import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
 import { Job } from '../../model/job';
 import { JobService } from './job.service';
-import { JobStatus } from '../../shared/vtslab_status';
+import { JobStatus, TestType } from '../../shared/vtslab_status';
 
 import * as moment from 'moment-timezone';
 
@@ -65,6 +65,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
   dataSource = new MatTableDataSource<Job>();
   statDataSource = new MatTableDataSource();
   pageEvent: PageEvent;
+  jobStatusEnum = JobStatus;
 
   constructor(private jobService: JobService) {
     super();
@@ -160,12 +161,26 @@ export class JobComponent extends MenuBaseClass implements OnInit {
     return {
       hours: title,
       created: jobs.length,
-      completed: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.complete).length,
+      completed: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Complete).length,
       running: jobs.filter(job => job.status != null &&
-        (Number(job.status) === JobStatus.leased || Number(job.status) === JobStatus.ready)).length,
-      bootup_err: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.bootup_err).length,
-      infra_err: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.infra_err).length,
-      expired: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.expired).length,
+        (Number(job.status) === JobStatus.Leased || Number(job.status) === JobStatus.Ready)).length,
+      bootup_err: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Bootup_err).length,
+      infra_err: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Infra_err).length,
+      expired: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Expired).length,
     };
+  }
+
+  /** Generates text to represent in HTML with given test type. */
+  getTestTypeText(status: number) {
+    if (status === undefined || status & TestType.Unknown) {
+      return TestType[TestType.Unknown];
+    }
+
+    const text_list = [];
+    [TestType.ToT, TestType.OTA, TestType.Signed, TestType.Manual].forEach(function (value) {
+      if (status & value) { text_list.push(TestType[value]); }
+    });
+
+    return text_list.join(', ');
   }
 }

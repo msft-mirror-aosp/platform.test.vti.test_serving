@@ -64,7 +64,7 @@
     <!-- Test Type Column -->
     <ng-container matColumnDef="test_type">
       <mat-header-cell *matHeaderCellDef>Test Type</mat-header-cell>
-      <mat-cell *matCellDef="let job"> {{job.test_type}} </mat-cell>
+      <mat-cell *matCellDef="let job"> {{getTestTypeText(job.test_type)}} </mat-cell>
     </ng-container>
 
     <!-- Test Name Column -->
@@ -148,7 +148,7 @@
     <!-- Status Column -->
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let job"> {{job.status}} </mat-cell>
+      <mat-cell *matCellDef="let job"> {{jobStatusEnum[job.status]}} </mat-cell>
     </ng-container>
 
     <!-- Timestamp Column -->

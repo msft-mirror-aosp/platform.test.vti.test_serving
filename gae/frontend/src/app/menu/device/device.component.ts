@@ -18,6 +18,7 @@ import { MatTableDataSource, PageEvent } from '@angular/material';
 
 import { Device } from '../../model/device';
 import { DeviceService } from './device.service';
+import { DeviceStatus, SchedulingStatus } from '../../shared/vtslab_status';
 import { MenuBaseClass } from '../menu_base';
 
 /** Component that handles device menu. */
@@ -39,6 +40,8 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   ];
   dataSource = new MatTableDataSource<Device>();
   pageEvent: PageEvent;
+  deviceStatusEnum = DeviceStatus;
+  schedulingStatusEnum = SchedulingStatus;
 
   constructor(private deviceService: DeviceService) {
     super();

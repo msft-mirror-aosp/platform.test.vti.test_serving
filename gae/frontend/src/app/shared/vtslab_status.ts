@@ -13,11 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export class JobStatus {
-  static readonly ready = 0;
-  static readonly leased = 1;
-  static readonly complete = 2;
-  static readonly infra_err = 3;
-  static readonly expired = 4;
-  static readonly bootup_err = 5;
+export enum JobStatus {
+  Ready = 0,
+  Leased,
+  Complete,
+  Infra_err,
+  Expired,
+  Bootup_err,
+}
+
+export enum DeviceStatus {
+  Unknown = 0,
+  Fastboot,
+  Online,
+  Ready,
+  Use,
+  Error,
+  No_response,
+}
+
+export enum SchedulingStatus {
+  Free = 0,
+  Reserved,
+  Use,
+}
+
+/**
+ * bit 0-1  : version related test type
+ *            00 - Unknown
+ *            01 - ToT
+ *            10 - OTA
+ * bit 2    : device signed build
+ * bit 3-4  : reserved for gerrit related test type
+ *            01 - pre-submit
+ * bit 5    : manually created test job
+ */
+export enum TestType {
+  Unknown = 0,
+  ToT = 1,
+  OTA = 1 << 1,
+  Signed = 1 << 2,
+  Presubmit = 1 << 3,
+  Manual = 1 << 5,
 }
