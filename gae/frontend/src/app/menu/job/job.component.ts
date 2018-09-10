@@ -147,7 +147,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
       .subscribe(
         (response) => {
           const stats_72hrs = this.buildStatisticsData('72 Hours', response.jobs);
-          const jobs_24hrs = response.jobs.filter(
+          const jobs_24hrs = (response.jobs == null || response.jobs.length === 0) ? undefined : response.jobs.filter(
             job => (moment() - moment.tz(job.timestamp, 'YYYY-MM-DDThh:mm:ss', 'UTC')) / 3600000 < 24);
           const stats_24hrs = this.buildStatisticsData('24 Hours', jobs_24hrs);
           this.statDataSource.data = [stats_24hrs, stats_72hrs];
@@ -158,6 +158,9 @@ export class JobComponent extends MenuBaseClass implements OnInit {
 
   /** Builds statistics from given jobs list */
   buildStatisticsData(title, jobs) {
+    if (jobs == null || jobs.length === 0) {
+      return { hours: title, created: 0, completed: 0, running: 0, bootup_err: 0, infra_err: 0, expired: 0 };
+    }
     return {
       hours: title,
       created: jobs.length,
