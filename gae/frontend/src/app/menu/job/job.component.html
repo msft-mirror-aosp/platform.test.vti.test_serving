@@ -26,27 +26,27 @@
 
     <ng-container matColumnDef="completed">
       <mat-header-cell *matHeaderCellDef>Completed</mat-header-cell>
-      <mat-cell *matCellDef="let stat"> {{stat.completed}} ({{stat.created > 0 ? stat.completed/stat.created*100 : 0}})% </mat-cell>
+      <mat-cell *matCellDef="let stat"> {{stat.completed}} ({{stat.created > 0 ? (stat.completed/stat.created*100 | number:'1.0-2') : 0}})% </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="running">
       <mat-header-cell *matHeaderCellDef>Running/Ready</mat-header-cell>
-      <mat-cell *matCellDef="let stat"> {{stat.running}} ({{stat.created > 0 ? stat.running/stat.created*100 : 0}})% </mat-cell>
+      <mat-cell *matCellDef="let stat"> {{stat.running}} ({{stat.created > 0 ? (stat.running/stat.created*100 | number:'1.0-2') : 0}})% </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="bootup_err">
       <mat-header-cell *matHeaderCellDef>Boot-up Error</mat-header-cell>
-      <mat-cell *matCellDef="let stat"> {{stat.bootup_err}} ({{stat.created > 0 ? stat.bootup_err/stat.created*100 : 0}})% </mat-cell>
+      <mat-cell *matCellDef="let stat"> {{stat.bootup_err}} ({{stat.created > 0 ? (stat.bootup_err/stat.created*100 | number:'1.0-2') : 0}})% </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="infra_err">
       <mat-header-cell *matHeaderCellDef>Infra Error</mat-header-cell>
-      <mat-cell *matCellDef="let stat"> {{stat.infra_err}} ({{stat.created > 0 ? stat.infra_err/stat.created*100 : 0}})% </mat-cell>
+      <mat-cell *matCellDef="let stat"> {{stat.infra_err}} ({{stat.created > 0 ? (stat.infra_err/stat.created*100 | number:'1.0-2') : 0}})% </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="expired">
       <mat-header-cell *matHeaderCellDef>Expired</mat-header-cell>
-      <mat-cell *matCellDef="let stat"> {{stat.expired}} ({{stat.created > 0 ? stat.expired/stat.created*100 : 0}})% </mat-cell>
+      <mat-cell *matCellDef="let stat"> {{stat.expired}} ({{stat.created > 0 ? (stat.expired/stat.created*100 | number:'1.0-2') : 0}})% </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="statColumnTitles"></mat-header-row>
