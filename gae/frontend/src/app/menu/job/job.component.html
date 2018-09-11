@@ -53,6 +53,9 @@
     <mat-row *matRowDef="let row; columns: statColumnTitles;"></mat-row>
   </mat-table>
 </div>
+<div class="entity-filter">
+  <app-filter (applyFilters)="applyFilters($event)" [disabled]="loading"></app-filter>
+</div>
 <div class="mat-elevation-z2 entity-table" [ngStyle]="{'opacity': (loading) ? 0.2 : 1 }">
   <mat-table [dataSource]="dataSource" matSort matSortActive="timestamp" matSortDirection="desc">
   <!-- Index Column -->

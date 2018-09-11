@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
 import { Build } from '../../model/build';
 import { BuildService } from './build.service';
+import { FilterComponent } from '../../shared/filter/filter.component';
+import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
+
 
 /** Component that handles build menu. */
 @Component({
@@ -38,6 +41,9 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
     'signed'];
   dataSource = new MatTableDataSource<Build>();
   pageEvent: PageEvent;
+  appliedFilters: FilterItem[];
+
+  @ViewChild(FilterComponent) filterComponent: FilterComponent;
 
   constructor(private buildService: BuildService,
               public snackBar: MatSnackBar) {
@@ -45,13 +51,14 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
   }
 
   ngOnInit(): void {
+    this.filterComponent.setSelectorList(Build);
     this.getCount();
     this.getBuilds(this.pageSize, this.pageSize * this.pageIndex);
   }
 
   /** Gets a total count of builds. */
   getCount(observer = this.getDefaultCountObservable()) {
-    const filterJSON = '';
+    const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
     this.buildService.getCount(filterJSON).subscribe(observer);
   }
 
@@ -61,7 +68,7 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
    */
   getBuilds(size = 0, offset = 0) {
     this.loading = true;
-    const filterJSON = '';
+    const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
     this.buildService.getBuilds(size, offset, filterJSON, '', '')
       .subscribe(
         (response) => {
@@ -106,5 +113,13 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
     this.pageIndex = event.pageIndex;
     this.getBuilds(this.pageSize, this.pageSize * this.pageIndex);
     return event;
+  }
+
+  /** Applies a filter and get entities with it. */
+  applyFilters(filters) {
+    this.pageIndex = 0;
+    this.appliedFilters = filters;
+    this.getCount();
+    this.getBuilds(this.pageSize, this.pageSize * this.pageIndex);
   }
 }

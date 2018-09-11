@@ -16,14 +16,22 @@
 // Angular modules.
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 // Angular Material modules
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -32,12 +40,16 @@ import { AppComponent } from './app.component';
 import { BuildComponent } from './menu/build/build.component';
 import { DashboardComponent } from './menu/dashboard/dashboard.component';
 import { DeviceComponent } from './menu/device/device.component';
+import { FilterComponent } from './shared/filter/filter.component';
 import { JobComponent } from './menu/job/job.component';
 import { LabComponent } from './menu/lab/lab.component';
 import { ScheduleComponent } from './menu/schedule/schedule.component';
 
 // User modules.
 import { NavModule } from './shared/navbar/navbar';
+
+// Other dependencies.
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 
 const appRoutes: Routes = [
@@ -53,16 +65,30 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [
+    MatButtonModule,
+    MatChipsModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatSelectModule,
     MatTableModule,
     MatTabsModule,
   ],
   exports: [
+    MatButtonModule,
+    MatChipsModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatSelectModule,
     MatTableModule,
     MatTabsModule,
   ]
@@ -76,6 +102,7 @@ export class MaterialModule {}
     BuildComponent,
     DashboardComponent,
     DeviceComponent,
+    FilterComponent,
     JobComponent,
     LabComponent,
     ScheduleComponent,
@@ -83,6 +110,8 @@ export class MaterialModule {}
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
+    FlexLayoutModule,
+    FormsModule,
     HttpClientModule,
     MaterialModule,
     NavModule,

@@ -12,6 +12,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<div class="entity-filter">
+  <app-filter (applyFilters)="applyFilters($event)" [disabled]="loading"></app-filter>
+</div>
 <div class="mat-elevation-z2 entity-table" [ngStyle]="{'opacity': (loading) ? 0.2 : 1 }">
   <mat-table [dataSource]="dataSource">
     <!-- Index Column -->
