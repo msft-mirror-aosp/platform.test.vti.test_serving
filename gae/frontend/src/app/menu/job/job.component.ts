@@ -16,9 +16,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource, PageEvent } from '@angular/material';
 
+import { FilterCondition } from '../../model/filter_condition';
+import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
 import { Job } from '../../model/job';
 import { JobService } from './job.service';
+import { JobStatus, TestType } from '../../shared/vtslab_status';
+
+import * as moment from 'moment-timezone';
 
 /** Component that handles job menu. */
 @Component({
@@ -48,8 +53,19 @@ export class JobComponent extends MenuBaseClass implements OnInit {
     'test_type',
     'timestamp',
   ];
+  statColumnTitles = [
+    'hours',
+    'created',
+    'completed',
+    'running',
+    'bootup_err',
+    'infra_err',
+    'expired',
+  ];
   dataSource = new MatTableDataSource<Job>();
+  statDataSource = new MatTableDataSource();
   pageEvent: PageEvent;
+  jobStatusEnum = JobStatus;
 
   constructor(private jobService: JobService) {
     super();
@@ -57,6 +73,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
 
   ngOnInit(): void {
     this.getCount();
+    this.getStatistics();
     this.getJobs(this.pageSize, this.pageSize * this.pageIndex);
   }
 
@@ -117,5 +134,53 @@ export class JobComponent extends MenuBaseClass implements OnInit {
     this.pageIndex = event.pageIndex;
     this.getJobs(this.pageSize, this.pageSize * this.pageIndex);
     return event;
+  }
+
+  /** Gets the recent jobs and calculate statistics */
+  getStatistics() {
+    const timeFilter = new FilterItem();
+    timeFilter.key = 'timestamp';
+    timeFilter.method = FilterCondition.GreaterThan;
+    timeFilter.value = '72';
+    const timeFilterString = JSON.stringify([timeFilter]);
+    this.jobService.getJobs(0, 0, timeFilterString, '', '')
+      .subscribe(
+        (response) => {
+          const stats_72hrs = this.buildStatisticsData('72 Hours', response.jobs);
+          const jobs_24hrs = response.jobs.filter(
+            job => (moment() - moment.tz(job.timestamp, 'YYYY-MM-DDThh:mm:ss', 'UTC')) / 3600000 < 24);
+          const stats_24hrs = this.buildStatisticsData('24 Hours', jobs_24hrs);
+          this.statDataSource.data = [stats_24hrs, stats_72hrs];
+        },
+        (error) => console.log(`[${error.status}] ${error.name}`)
+      );
+  }
+
+  /** Builds statistics from given jobs list */
+  buildStatisticsData(title, jobs) {
+    return {
+      hours: title,
+      created: jobs.length,
+      completed: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Complete).length,
+      running: jobs.filter(job => job.status != null &&
+        (Number(job.status) === JobStatus.Leased || Number(job.status) === JobStatus.Ready)).length,
+      bootup_err: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Bootup_err).length,
+      infra_err: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Infra_err).length,
+      expired: jobs.filter(job => job.status != null && Number(job.status) === JobStatus.Expired).length,
+    };
+  }
+
+  /** Generates text to represent in HTML with given test type. */
+  getTestTypeText(status: number) {
+    if (status === undefined || status & TestType.Unknown) {
+      return TestType[TestType.Unknown];
+    }
+
+    const text_list = [];
+    [TestType.ToT, TestType.OTA, TestType.Signed, TestType.Manual].forEach(function (value) {
+      if (status & value) { text_list.push(TestType[value]); }
+    });
+
+    return text_list.join(', ');
   }
 }

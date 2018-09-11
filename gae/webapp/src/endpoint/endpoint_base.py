@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import inspect
 import logging
 import json
@@ -203,6 +204,19 @@ class EndpointBase(remote.Service):
                 else:
                     logging.debug("Empty repeated list cannot be queried.")
                     empty_repeated_field.append(value)
+            elif isinstance(metaclass._properties[property_key],
+                            ndb.DateTimeProperty):
+                if method == Status.FILTER_METHOD[Status.FILTER_LessThan]:
+                    query = query.filter(
+                        getattr(metaclass, property_key) < datetime.datetime.
+                        now() - datetime.timedelta(hours=int(value)))
+                elif method == Status.FILTER_METHOD[Status.FILTER_GreaterThan]:
+                    query = query.filter(
+                        getattr(metaclass, property_key) > datetime.datetime.
+                        now() - datetime.timedelta(hours=int(value)))
+                else:
+                    logging.debug("DateTimeProperty only allows <=(less than) "
+                                  "and >=(greater than) operation.")
             else:
                 if method == Status.FILTER_METHOD[Status.FILTER_EqualTo]:
                     query = query.filter(

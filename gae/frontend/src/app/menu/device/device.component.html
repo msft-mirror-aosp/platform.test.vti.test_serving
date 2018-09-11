@@ -41,13 +41,13 @@
     <!-- Status Column -->
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let device"> {{device.status}} </mat-cell>
+      <mat-cell *matCellDef="let device"> {{deviceStatusEnum[device.status]}} </mat-cell>
     </ng-container>
 
     <!-- Scheduling Status Column -->
     <ng-container matColumnDef="scheduling_status">
       <mat-header-cell *matHeaderCellDef>Scheduling Status</mat-header-cell>
-      <mat-cell *matCellDef="let device"> {{device.scheduling_status}} </mat-cell>
+      <mat-cell *matCellDef="let device"> {{schedulingStatusEnum[device.scheduling_status]}} </mat-cell>
     </ng-container>
 
     <!-- Equipment Column -->

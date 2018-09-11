@@ -4,8 +4,8 @@ threadsafe: true
 
 # [START env_vars]
 env_variables:
-  ENDPOINTS_SERVICE_NAME:
-  ENDPOINTS_SERVICE_VERSION:
+  ENDPOINTS_SERVICE_NAME: vtslab-schedule-prod.appspot.com
+  ENDPOINTS_SERVICE_VERSION: 2018-09-03r0
   SESSION_SECRET_KEY: ''
 # [END env_vars]
 
