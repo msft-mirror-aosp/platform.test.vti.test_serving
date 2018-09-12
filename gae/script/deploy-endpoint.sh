@@ -19,12 +19,10 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-if [ $1 = "prod" ]; then
-  SERVICE="vtslab-schedule-prod"
-elif [ $1 = "public" ]; then
+if [ $1 = "public" ]; then
   SERVICE="vtslab-schedule"
 else
-  SERVICE="vtslab-schedule-test"
+  SERVICE="vtslab-schedule-$1"
 fi
 
 echo "Creating OpenAPI spec files for $SERVICE.appspot.com ..."
@@ -33,6 +31,6 @@ python lib/endpoints/endpointscfg.py get_openapi_spec webapp.src.endpoint.build_
 echo "Depolying the endpoint API implementation to $SERVICE ..."
 
 gcloud endpoints services deploy buildv1openapi.json hostv1openapi.json labv1openapi.json schedulev1openapi.json jobv1openapi.json --project=$SERVICE
-gcloud endpoints configs list --service=$SERVICE
+gcloud endpoints configs list --service=$SERVICE.appspot.com
 
 echo "Deployment done!"
