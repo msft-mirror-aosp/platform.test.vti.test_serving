@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, PageEvent } from '@angular/material';
+import { MatTableDataSource, PageEvent, Sort } from '@angular/material';
 
 import { FilterCondition } from '../../model/filter_condition';
 import { FilterItem } from '../../model/filter_item';
@@ -67,11 +67,18 @@ export class JobComponent extends MenuBaseClass implements OnInit {
   pageEvent: PageEvent;
   jobStatusEnum = JobStatus;
 
+  sort = '';
+  sortDirection = '';
+
   constructor(private jobService: JobService) {
     super();
   }
 
   ngOnInit(): void {
+    // By default, job page requires list in desc order by timestamp.
+    this.sort = 'timestamp';
+    this.sortDirection = 'desc';
+
     this.getCount();
     this.getStatistics();
     this.getJobs(this.pageSize, this.pageSize * this.pageIndex);
@@ -90,7 +97,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
   getJobs(size = 0, offset = 0) {
     this.loading = true;
     const filterJSON = '';
-    this.jobService.getJobs(size, offset, filterJSON, '', '')
+    this.jobService.getJobs(size, offset, filterJSON, this.sort, this.sortDirection)
       .subscribe(
         (response) => {
           this.loading = false;
