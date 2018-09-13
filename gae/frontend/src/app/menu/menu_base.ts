@@ -17,6 +17,9 @@
 /** This class defines and/or implements the common properties and methods
  * used among menus.
  */
+import moment from 'moment-timezone';
+
+
 export abstract class MenuBaseClass {
   count = -1;
 
@@ -41,5 +44,10 @@ export abstract class MenuBaseClass {
       },
       error: (error) => console.log(`[${error.status}] ${error.name}`)
     };
+  }
+
+  getRelativeTime(timeString) {
+    return (moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').isValid() ?
+      moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').fromNow() : timeString);
   }
 }

@@ -154,13 +154,13 @@
     <!-- Timestamp Column -->
     <ng-container matColumnDef="timestamp">
       <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>
-      <mat-cell *matCellDef="let job"> {{job.timestamp}} </mat-cell>
+      <mat-cell *matCellDef="let job"> {{getRelativeTime(job.timestamp)}} </mat-cell>
     </ng-container>
 
     <!-- Heartbeat stamp Column -->
     <ng-container matColumnDef="heartbeat_stamp">
       <mat-header-cell *matHeaderCellDef>Heartbeat</mat-header-cell>
-      <mat-cell *matCellDef="let job"> {{job.heartbeat_stamp}} </mat-cell>
+      <mat-cell *matCellDef="let job"> {{getRelativeTime(job.heartbeat_stamp)}} </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="columnTitles"></mat-header-row>
