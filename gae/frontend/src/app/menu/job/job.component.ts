@@ -15,6 +15,7 @@
  */
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 import { FilterComponent } from '../../shared/filter/filter.component';
 import { FilterCondition } from '../../model/filter_condition';
@@ -33,6 +34,13 @@ import * as moment from 'moment-timezone';
   templateUrl: './job.component.html',
   providers: [ JobService ],
   styleUrls: ['./job.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('void', style({height: '0px', minHeight: '0', visibility: 'hidden'})),
+      state('*', style({height: '*', visibility: 'visible'})),
+      transition('void <=> *', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class JobComponent extends MenuBaseClass implements OnInit {
   columnTitles = [
