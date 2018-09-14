@@ -19,6 +19,39 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
+NPM_PATH=$(which npm)
+NG_PATH=$(which ng)
+if [ ! -f "${NPM_PATH}" ]; then
+  echo "Cannot find npm in your PATH."
+  echo "Please install node.js and npm to deploy frontend."
+  exit 0
+fi
+if [ ! -f "${NG_PATH}" ]; then
+  echo "Cannot find Angular CLI in your PATH."
+  echo "Please install Angular CLI to deploy frontend."
+  exit 0
+fi
+
+pushd frontend
+echo "Installing frontend dependencies..."
+npm install
+
+echo "Removing files in dist directory..."
+rm -r dist/*
+
+echo "Building frontend codes..."
+if [ $1 = "local" ]; then
+  ng build
+else
+  ng build --prod
+fi
+popd
+
+echo "Copying frontend files to webapp/static directory..."
+rm -rf webapp/static/
+mkdir webapp/static
+cp -r frontend/dist/* webapp/static/
+
 if [ $1 = "public" ]; then
   SERVICE="vtslab-schedule"
 elif [ $1 = "local" ]; then

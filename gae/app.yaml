@@ -19,12 +19,13 @@ handlers:
 - url: /_ah/api/.*
   script: webapp.src.endpoint_main.api
 
-- url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
+- url: /(.*\.(html|js|css|txt|ico))
+  static_files: webapp/static/\1
+  upload: webapp/static/(.*\.(html|js|css|txt|ico))
 
-- url: /bootstrap
-  static_dir: webapp/static/bootstrap
+- url: /((build|device|job|lab|schedule)([?&/].*)?)?
+  static_files: webapp/static/index.html
+  upload: webapp/static/index.html
 
 - url: /.*
   script: webapp.src.webapp_main.app
