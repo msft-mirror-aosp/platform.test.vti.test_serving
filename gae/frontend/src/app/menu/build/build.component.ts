@@ -31,10 +31,10 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
   columnTitles = [
     '_index',
     'artifact_type',
+    'manifest_branch',
     'build_id',
     'build_target',
     'build_type',
-    'manifest_branch',
     'signed'];
   dataSource = new MatTableDataSource<Build>();
   pageEvent: PageEvent;
