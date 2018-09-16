@@ -19,10 +19,6 @@ import os
 
 import webapp2
 
-from webapp.src.dashboard import build_list
-from webapp.src.dashboard import device_list
-from webapp.src.dashboard import job_list
-from webapp.src.dashboard import schedule_list
 from webapp.src.handlers import base
 from webapp.src.scheduler import device_heartbeat
 from webapp.src.scheduler import job_heartbeat
@@ -49,11 +45,6 @@ config['webapp2_extras.sessions'] = {
 
 app = webapp2.WSGIApplication(
     [
-        ("/", MainPage), ("/build", build_list.BuildPage),
-        ("/device", device_list.DevicePage), ("/job", job_list.JobPage),
-        ("/create_job", job_list.CreateJobPage),
-        ("/create_job_template", job_list.CreateJobTemplatePage),
-        ("/result", MainPage), ("/schedule", schedule_list.SchedulePage),
         ("/tasks/schedule", periodic.PeriodicScheduler),
         ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
         ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),

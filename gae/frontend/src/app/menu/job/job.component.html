@@ -54,8 +54,8 @@
   </mat-table>
 </div>
 <div class="mat-elevation-z2 entity-table" [ngStyle]="{'opacity': (loading) ? 0.2 : 1 }">
-  <table mat-table [dataSource]="dataSource">
-    <!-- Index Column -->
+  <mat-table [dataSource]="dataSource" matSort matSortActive="timestamp" matSortDirection="desc">
+  <!-- Index Column -->
     <ng-container matColumnDef="_index">
       <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
       <mat-cell *matCellDef="let i = index"> {{i+1+pageSize*pageIndex}} </mat-cell>
@@ -165,7 +165,7 @@
 
     <mat-header-row *matHeaderRowDef="columnTitles"></mat-header-row>
     <mat-row *matRowDef="let row; columns: columnTitles;"></mat-row>
-  </table>
+  </mat-table>
 
   <mat-paginator [length]="count"
                  [pageSize]="pageSize"
