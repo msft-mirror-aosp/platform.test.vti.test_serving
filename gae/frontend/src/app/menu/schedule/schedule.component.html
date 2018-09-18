@@ -77,7 +77,7 @@
     <!-- Timestamp Column -->
     <ng-container matColumnDef="timestamp">
       <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>
-      <mat-cell *matCellDef="let schedule"> {{schedule.timestamp}}</mat-cell>
+      <mat-cell *matCellDef="let schedule"> {{getRelativeTime(schedule.timestamp)}}</mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="columnTitles"></mat-header-row>
