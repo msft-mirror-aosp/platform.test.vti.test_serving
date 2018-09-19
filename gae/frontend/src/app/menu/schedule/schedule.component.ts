@@ -30,15 +30,15 @@ import { ScheduleService } from './schedule.service';
 export class ScheduleComponent extends MenuBaseClass implements OnInit {
   columnTitles = [
     '_index',
-    'build_target',
+    'test_name',
     'device',
+    'manifest_branch',
+    'build_target',
     'gsi_branch',
     'gsi_build_target',
-    'manifest_branch',
-    'period',
     'test_branch',
     'test_build_target',
-    'test_name',
+    'period',
     'timestamp',
   ];
   dataSource = new MatTableDataSource<Schedule>();
