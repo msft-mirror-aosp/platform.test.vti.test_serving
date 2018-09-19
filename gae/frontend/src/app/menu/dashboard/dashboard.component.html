@@ -12,4 +12,19 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-VTS Scheduler Dashboard
+<div fxLayout="row">
+  <mat-card>
+    <mat-card-title>Build</mat-card-title>
+    <mat-card-subtitle>Last updated:  {{getRelativeTime(lastBuildUpdateTime)}}</mat-card-subtitle>
+    <button mat-raised-button (click)="getLatestBuild()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-card>
+  <mat-card>
+    <mat-card-title>Schedule</mat-card-title>
+    <mat-card-subtitle>Last updated:  {{getRelativeTime(lastScheduleUpdateTime)}}</mat-card-subtitle>
+    <button mat-raised-button (click)="getLastestSchedule()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-card>
+</div>

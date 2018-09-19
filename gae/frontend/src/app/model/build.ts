@@ -21,4 +21,5 @@ export class Build {
   artifact_type: string = void 0;
   artifacts: string[] = void 0;
   signed: boolean = void 0;
+  timestamp: any = void 0;
 }
