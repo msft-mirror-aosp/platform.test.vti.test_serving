@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
 
 /** Component that handles dashboard. */
 @Component({
@@ -22,4 +23,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
+  constructor(public snackBar: MatSnackBar) {
+    this.snackBar.dismiss();
+  }
 }

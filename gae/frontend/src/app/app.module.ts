@@ -23,6 +23,7 @@ import { RouterModule, Routes } from '@angular/router';
 // Angular Material modules
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -54,12 +55,14 @@ const appRoutes: Routes = [
   imports: [
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     MatTableModule,
     MatTabsModule,
   ],
   exports: [
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     MatTableModule,
     MatTabsModule,
   ]

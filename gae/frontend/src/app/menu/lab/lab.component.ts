@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Component, OnInit } from '@angular/core';
-import {MatTableDataSource, PageEvent} from '@angular/material';
+import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
 import { Host } from '../../model/host';
 import { Lab } from '../../model/lab';
@@ -47,8 +47,9 @@ export class LabComponent extends MenuBaseClass implements OnInit {
   labCount = -1;
   labPageIndex = 0;
 
-  constructor(private labService: LabService) {
-    super();
+  constructor(private labService: LabService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
   }
 
   labDataSource = new MatTableDataSource<Lab>();
@@ -77,7 +78,7 @@ export class LabComponent extends MenuBaseClass implements OnInit {
             this.setLabs(response.labs);
           }
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 
