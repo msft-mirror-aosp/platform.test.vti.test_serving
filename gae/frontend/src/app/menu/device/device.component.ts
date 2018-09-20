@@ -31,12 +31,12 @@ import { MenuBaseClass } from '../menu_base';
 export class DeviceComponent extends MenuBaseClass implements OnInit {
   columnTitles = [
     '_index',
-    'device_equipment',
     'hostname',
     'product',
-    'scheduling_status',
     'serial',
     'status',
+    'scheduling_status',
+    'device_equipment',
   ];
   dataSource = new MatTableDataSource<Device>();
   pageEvent: PageEvent;

@@ -82,16 +82,16 @@
           <mat-cell *matCellDef="let host"> {{host.ip}} </mat-cell>
         </ng-container>
 
-        <!-- Version Column -->
-        <ng-container matColumnDef="vtslab_version">
-          <mat-header-cell *matHeaderCellDef>Version</mat-header-cell>
-          <mat-cell *matCellDef="let host"> {{host.vtslab_version}} </mat-cell>
-        </ng-container>
-
         <!-- Host Equipment Column -->
         <ng-container matColumnDef="host_equipment">
           <mat-header-cell *matHeaderCellDef>Equipment</mat-header-cell>
           <mat-cell *matCellDef="let host"> {{host.host_equipment}} </mat-cell>
+        </ng-container>
+
+        <!-- Version Column -->
+        <ng-container matColumnDef="vtslab_version">
+          <mat-header-cell *matHeaderCellDef>Version</mat-header-cell>
+          <mat-cell *matCellDef="let host"> {{host.vtslab_version}} </mat-cell>
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="hostColumnTitles"></mat-header-row>

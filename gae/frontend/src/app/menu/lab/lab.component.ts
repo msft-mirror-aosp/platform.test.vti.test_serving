@@ -31,17 +31,17 @@ import { MenuBaseClass } from '../menu_base';
 export class LabComponent extends MenuBaseClass implements OnInit {
   labColumnTitles = [
     '_index',
-    'admin',
-    'hostCount',
     'name',
     'owner',
+    'admin',
+    'hostCount',
   ];
   hostColumnTitles = [
     '_index',
-    'host_equipment',
+    'name',
     'hostname',
     'ip',
-    'name',
+    'host_equipment',
     'vtslab_version',
   ];
   labCount = -1;
