@@ -26,6 +26,13 @@ from webapp.src.scheduler import periodic
 from webapp.src.tasks import indexing
 
 
+class RedirectHandler(base.BaseHandler):
+    """Redirect handler to redirect to specific appspot version."""
+    def get(self, arg):
+        if arg:
+            return self.redirect("https://{}.appspot.com/".format(arg))
+
+
 class MainPage(base.BaseHandler):
     """Main web page request handler."""
 
@@ -49,6 +56,7 @@ app = webapp2.WSGIApplication(
         ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
         ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),
         ("/tasks/indexing([/]?.*)", indexing.CreateIndex),
+        ("/redirect/(.*)", RedirectHandler),
     ],
     config=config,
     debug=False)
