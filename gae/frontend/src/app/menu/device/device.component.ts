@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, PageEvent } from '@angular/material';
+import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
 import { Device } from '../../model/device';
 import { DeviceService } from './device.service';
@@ -43,8 +43,9 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   deviceStatusEnum = DeviceStatus;
   schedulingStatusEnum = SchedulingStatus;
 
-  constructor(private deviceService: DeviceService) {
-    super();
+  constructor(private deviceService: DeviceService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
   }
 
   ngOnInit(): void {
@@ -77,7 +78,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
             const total = length + offset;
             if (response.has_next) {
               if (length !== this.pageSize) {
-                console.log('Received unexpected number of entities.');
+                this.showSnackbar('Received unexpected number of entities.');
               } else if (this.count <= total) {
                 this.getCount();
               }
@@ -99,7 +100,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
           }
           this.dataSource.data = response.devices;
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 

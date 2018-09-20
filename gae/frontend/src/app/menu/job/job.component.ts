@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, PageEvent, Sort } from '@angular/material';
+import { MatSnackBar, MatTableDataSource, PageEvent, Sort } from '@angular/material';
 
 import { FilterCondition } from '../../model/filter_condition';
 import { FilterItem } from '../../model/filter_item';
@@ -70,8 +70,9 @@ export class JobComponent extends MenuBaseClass implements OnInit {
   sort = '';
   sortDirection = '';
 
-  constructor(private jobService: JobService) {
-    super();
+  constructor(private jobService: JobService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
   }
 
   ngOnInit(): void {
@@ -109,7 +110,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
             const total = length + offset;
             if (response.has_next) {
               if (length !== this.pageSize) {
-                console.log('Received unexpected number of entities.');
+                this.showSnackbar('Received unexpected number of entities.');
               } else if (this.count <= total) {
                 this.getCount();
               }
@@ -131,7 +132,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
           }
           this.dataSource.data = response.jobs;
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 
@@ -159,7 +160,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
           const stats_24hrs = this.buildStatisticsData('24 Hours', jobs_24hrs);
           this.statDataSource.data = [stats_24hrs, stats_72hrs];
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 

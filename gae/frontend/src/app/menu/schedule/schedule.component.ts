@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, PageEvent } from '@angular/material';
+import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
 import { MenuBaseClass } from '../menu_base';
 import { Schedule } from '../../model/schedule';
@@ -44,8 +44,9 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
   dataSource = new MatTableDataSource<Schedule>();
   pageEvent: PageEvent;
 
-  constructor(private scheduleService: ScheduleService) {
-    super();
+  constructor(private scheduleService: ScheduleService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
   }
 
   ngOnInit(): void {
@@ -78,7 +79,7 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
             const total = length + offset;
             if (response.has_next) {
               if (length !== this.pageSize) {
-                console.log('Received unexpected number of entities.');
+                this.showSnackbar('Received unexpected number of entities.');
               } else if (this.count <= total) {
                 this.getCount();
               }
@@ -100,7 +101,7 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
           }
           this.dataSource.data = response.schedules;
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 
