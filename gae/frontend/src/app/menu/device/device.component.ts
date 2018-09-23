@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, PageEvent } from '@angular/material';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
 import { Device } from '../../model/device';
 import { DeviceService } from './device.service';
 import { DeviceStatus, SchedulingStatus } from '../../shared/vtslab_status';
+import { FilterComponent } from '../../shared/filter/filter.component';
+import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
+
 
 /** Component that handles device menu. */
 @Component({
@@ -42,19 +45,24 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   pageEvent: PageEvent;
   deviceStatusEnum = DeviceStatus;
   schedulingStatusEnum = SchedulingStatus;
+  appliedFilters: FilterItem[];
 
-  constructor(private deviceService: DeviceService) {
-    super();
+  @ViewChild(FilterComponent) filterComponent: FilterComponent;
+
+  constructor(private deviceService: DeviceService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
   }
 
   ngOnInit(): void {
+    this.filterComponent.setSelectorList(Device);
     this.getCount();
     this.getDevices(this.pageSize, this.pageSize * this.pageIndex);
   }
 
   /** Gets a total count of devices. */
   getCount(observer = this.getDefaultCountObservable()) {
-    const filterJSON = '';
+    const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
     this.deviceService.getCount(filterJSON).subscribe(observer);
   }
 
@@ -64,7 +72,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
    */
   getDevices(size = 0, offset = 0) {
     this.loading = true;
-    const filterJSON = '';
+    const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
     this.deviceService.getDevices(size, offset, filterJSON, '', '')
       .subscribe(
         (response) => {
@@ -77,7 +85,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
             const total = length + offset;
             if (response.has_next) {
               if (length !== this.pageSize) {
-                console.log('Received unexpected number of entities.');
+                this.showSnackbar('Received unexpected number of entities.');
               } else if (this.count <= total) {
                 this.getCount();
               }
@@ -99,7 +107,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
           }
           this.dataSource.data = response.devices;
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 
@@ -109,5 +117,13 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
     this.pageIndex = event.pageIndex;
     this.getDevices(this.pageSize, this.pageSize * this.pageIndex);
     return event;
+  }
+
+  /** Applies a filter and get entities with it. */
+  applyFilters(filters) {
+    this.pageIndex = 0;
+    this.appliedFilters = filters;
+    this.getCount();
+    this.getDevices(this.pageSize, this.pageSize * this.pageIndex);
   }
 }

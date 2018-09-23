@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, PageEvent, Sort } from '@angular/material';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
+import { FilterComponent } from '../../shared/filter/filter.component';
 import { FilterCondition } from '../../model/filter_condition';
 import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
@@ -24,6 +25,7 @@ import { JobService } from './job.service';
 import { JobStatus, TestType } from '../../shared/vtslab_status';
 
 import * as moment from 'moment-timezone';
+
 
 /** Component that handles job menu. */
 @Component({
@@ -66,12 +68,16 @@ export class JobComponent extends MenuBaseClass implements OnInit {
   statDataSource = new MatTableDataSource();
   pageEvent: PageEvent;
   jobStatusEnum = JobStatus;
+  appliedFilters: FilterItem[];
+
+  @ViewChild(FilterComponent) filterComponent: FilterComponent;
 
   sort = '';
   sortDirection = '';
 
-  constructor(private jobService: JobService) {
-    super();
+  constructor(private jobService: JobService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
   }
 
   ngOnInit(): void {
@@ -79,6 +85,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
     this.sort = 'timestamp';
     this.sortDirection = 'desc';
 
+    this.filterComponent.setSelectorList(Job);
     this.getCount();
     this.getStatistics();
     this.getJobs(this.pageSize, this.pageSize * this.pageIndex);
@@ -86,7 +93,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
 
   /** Gets a total count of jobs. */
   getCount(observer = this.getDefaultCountObservable()) {
-    const filterJSON = '';
+    const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
     this.jobService.getCount(filterJSON).subscribe(observer);
   }
 
@@ -96,7 +103,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
    */
   getJobs(size = 0, offset = 0) {
     this.loading = true;
-    const filterJSON = '';
+    const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
     this.jobService.getJobs(size, offset, filterJSON, this.sort, this.sortDirection)
       .subscribe(
         (response) => {
@@ -109,7 +116,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
             const total = length + offset;
             if (response.has_next) {
               if (length !== this.pageSize) {
-                console.log('Received unexpected number of entities.');
+                this.showSnackbar('Received unexpected number of entities.');
               } else if (this.count <= total) {
                 this.getCount();
               }
@@ -131,7 +138,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
           }
           this.dataSource.data = response.jobs;
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 
@@ -159,7 +166,7 @@ export class JobComponent extends MenuBaseClass implements OnInit {
           const stats_24hrs = this.buildStatisticsData('24 Hours', jobs_24hrs);
           this.statDataSource.data = [stats_24hrs, stats_72hrs];
         },
-        (error) => console.log(`[${error.status}] ${error.name}`)
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
   }
 
@@ -192,5 +199,13 @@ export class JobComponent extends MenuBaseClass implements OnInit {
     });
 
     return text_list.join(', ');
+  }
+
+  /** Applies a filter and get entities with it. */
+  applyFilters(filters) {
+    this.pageIndex = 0;
+    this.appliedFilters = filters;
+    this.getCount();
+    this.getJobs(this.pageSize, this.pageSize * this.pageIndex);
   }
 }

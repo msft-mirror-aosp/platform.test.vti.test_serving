@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+#filter-wrapper {
+  position: relative;
 
-/** Component that handles dashboard. */
-@Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
-})
-export class DashboardComponent {
-  constructor(public snackBar: MatSnackBar) {
-    this.snackBar.dismiss();
+  mat-form-field {
+    margin-right: 20px;
   }
+}
+
+#row_buttons {
+  float: right;
+}
+
+.mat-stroked-button {
+  min-width: 80px;
+  min-height: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-size: 12px;
+  margin-right: 15px;
 }

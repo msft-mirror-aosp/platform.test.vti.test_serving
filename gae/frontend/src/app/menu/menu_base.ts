@@ -17,6 +17,7 @@
 /** This class defines and/or implements the common properties and methods
  * used among menus.
  */
+import { MatSnackBar } from '@angular/material';
 import moment from 'moment-timezone';
 
 
@@ -28,7 +29,8 @@ export abstract class MenuBaseClass {
   pageSize = 100;
   pageIndex = 0;
 
-  protected constructor() {
+  protected constructor(public snackBar: MatSnackBar) {
+    this.snackBar.dismiss();
   }
 
   /** Returns an Observable which handles a response of count API.
@@ -42,12 +44,18 @@ export abstract class MenuBaseClass {
           operation(response);
         }
       },
-      error: (error) => console.log(`[${error.status}] ${error.name}`)
+      error: (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
     };
   }
 
   getRelativeTime(timeString) {
     return (moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').isValid() ?
       moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').fromNow() : timeString);
+  }
+
+  /** Displays a snackbar notification. */
+  showSnackbar(message = 'Error', duration = 5000) {
+    this.loading = false;
+    this.snackBar.open(message, 'DISMISS', {duration});
   }
 }

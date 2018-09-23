@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ "$#" -ne 1 ]; then
-  echo "usage: deploy-webapp.sh prod|test|public|local"
+if [ "$#" -lt 1 ]; then
+  echo "usage: deploy-webapp.sh prod|test|public|local [deploy options]"
   exit 1
 fi
 
@@ -86,6 +86,6 @@ fi
 
 echo "Deploying the web app to $SERVICE ..."
 
-gcloud app deploy app.yaml cron.yaml index.yaml queue.yaml worker.yaml --project=$SERVICE
+gcloud app deploy app.yaml cron.yaml index.yaml queue.yaml worker.yaml --project=$SERVICE ${@:2}
 
 echo "Deployment done!"
