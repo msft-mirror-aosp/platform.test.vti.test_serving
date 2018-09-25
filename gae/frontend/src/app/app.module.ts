@@ -51,6 +51,9 @@ import { NavModule } from './shared/navbar/navbar';
 // Other dependencies.
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+// User directives for CDK (Component Development Kit).
+import { CdkDetailRowDirective } from './menu/cdk-detail-row.directive';
+
 
 const appRoutes: Routes = [
   { path: 'device', component: DeviceComponent },
@@ -100,6 +103,7 @@ export class MaterialModule {}
   declarations: [
     AppComponent,
     BuildComponent,
+    CdkDetailRowDirective,
     DashboardComponent,
     DeviceComponent,
     FilterComponent,
