@@ -114,7 +114,7 @@ class ScheduleControlInfoMessage(messages.Message):
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
-    # Next ID = 36
+    # Next ID = 38
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -161,6 +161,9 @@ class ScheduleInfoMessage(messages.Message):
     image_package_repo_base = messages.StringField(31)
     timestamp = message_types.DateTimeField(34)
     owner = messages.StringField(35, repeated=True)
+
+    suspended = messages.BooleanField(36)
+    urlsafe_key = messages.StringField(37)
 
 
 class LabModel(ndb.Model):
@@ -428,3 +431,14 @@ class CountRequestMessage(messages.Message):
 class CountResponseMessage(messages.Message):
     """A message of a count of entities to respond to /count endpoints."""
     count = messages.IntegerField(1)
+
+
+class ScheduleSuspendMessage(messages.Message):
+    """A response message to schedule endpoint API's /suspend method."""
+
+    class SingleScheduleSuspendMessage(messages.Message):
+        urlsafe_key = messages.StringField(1)
+        suspend = messages.BooleanField(2)
+
+    schedules = messages.MessageField(
+        SingleScheduleSuspendMessage, 1, repeated=True)

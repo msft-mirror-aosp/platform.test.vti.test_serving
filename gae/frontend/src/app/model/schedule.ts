@@ -59,4 +59,16 @@ export class Schedule {
   image_package_repo_base: string = void 0;
   timestamp = void 0;
   owner: string[] = void 0;
+
+  suspended: boolean = void 0;
+  urlsafe_key: string = void 0;
+}
+
+export interface ScheduleSuspendResponseWrapper {
+  schedules: ScheduleSuspendResponse[];
+}
+
+export interface ScheduleSuspendResponse {
+  urlsafe_key: string;
+  suspend: boolean;
 }

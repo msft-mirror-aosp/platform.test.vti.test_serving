@@ -21,8 +21,11 @@ from google.appengine.ext import ndb
 from webapp.src import vtslab_status as Status
 from webapp.src.endpoint import endpoint_base
 from webapp.src.proto import model
+from webapp.src.utils import email_util
 
 SCHEDULE_INFO_RESOURCE = endpoints.ResourceContainer(model.ScheduleInfoMessage)
+SCHEDULE_SUSPEND_RESOURCE = endpoints.ResourceContainer(
+    model.ScheduleSuspendMessage)
 
 
 @endpoints.api(name="schedule", version="v1")
@@ -133,6 +136,33 @@ class ScheduleInfoApi(endpoint_base.EndpointBase):
         count = self.Count(metaclass=model.ScheduleModel, filters=filters)
 
         return model.CountResponseMessage(count=count)
+
+    @endpoints.method(
+        SCHEDULE_SUSPEND_RESOURCE,
+        model.ScheduleSuspendMessage,
+        path="suspend",
+        http_method="POST",
+        name="suspend")
+    def suspend(self, request):
+        """Toggles a schedule from suspend to resume, or vice versa."""
+        schedules_to_put = []
+        schedules_to_return = []
+        for schedule in request.schedules:
+            schedule_key = ndb.key.Key(urlsafe=schedule.urlsafe_key)
+            schedule_entity = schedule_key.get()
+            if schedule.suspend:  # to suspend
+                schedule_entity.suspended = True
+            else:  # to resume
+                schedule_entity.error_count = 0
+                schedule_entity.suspended = False
+            schedules_to_put.append(schedule_entity)
+            schedules_to_return.append({"urlsafe_key": schedule.urlsafe_key,
+                                        "suspend": schedule_entity.suspended})
+            # TODO(jongmok): Minimize a number of emails by merging schedules.
+            email_util.send_schedule_suspension_notification(schedule_entity)
+
+        ndb.put_multi(schedules_to_put)
+        return model.ScheduleSuspendMessage(schedules=schedules_to_return)
 
 
 @endpoints.api(name="green_schedule_info", version="v1")

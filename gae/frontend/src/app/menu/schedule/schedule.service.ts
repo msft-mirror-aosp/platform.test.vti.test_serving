@@ -22,6 +22,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ScheduleWrapper } from '../../model/schedule_wrapper';
 import { ServiceBase } from '../../shared/servicebase';
+import { ScheduleSuspendResponse, ScheduleSuspendResponseWrapper } from '../../model/schedule';
 
 
 @Injectable()
@@ -39,6 +40,12 @@ export class ScheduleService extends ServiceBase {
                direction: string): Observable<ScheduleWrapper> {
     const url = this.url + 'get';
     return this.httpClient.post<ScheduleWrapper>(url,  {size: size, offset: offset, filter: filterInfo, sort: sort, direction: direction})
+      .pipe(catchError(this.handleError));
+  }
+
+  suspendSchedule(schedules: ScheduleSuspendResponse[]): Observable<ScheduleSuspendResponseWrapper> {
+    const url = this.url + 'suspend';
+    return this.httpClient.post<ScheduleSuspendResponseWrapper>(url, {schedules: schedules})
       .pipe(catchError(this.handleError));
   }
 }
