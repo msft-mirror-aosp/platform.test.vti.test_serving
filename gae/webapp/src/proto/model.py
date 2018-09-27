@@ -231,6 +231,7 @@ class DeviceInfoMessage(messages.Message):
     product = messages.StringField(2)
     status = messages.IntegerField(3)
     scheduling_status = messages.IntegerField(4)
+    hostname = messages.StringField(5)
 
 
 class HostInfoMessage(messages.Message):
