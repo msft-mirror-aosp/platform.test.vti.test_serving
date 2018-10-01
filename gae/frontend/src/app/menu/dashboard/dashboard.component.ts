@@ -16,6 +16,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 
+import { AppService } from '../../appservice';
 import { BuildService } from "../build/build.service";
 import { MenuBaseClass } from "../menu_base";
 import { ScheduleService } from "../schedule/schedule.service";
@@ -33,8 +34,9 @@ export class DashboardComponent extends MenuBaseClass implements OnInit {
 
   constructor(private buildService: BuildService,
               private scheduleService: ScheduleService,
-              public snackBar: MatSnackBar) {
-    super(snackBar);
+              appService: AppService,
+              snackBar: MatSnackBar) {
+    super(appService, snackBar);
   }
 
   ngOnInit(): void {
