@@ -323,6 +323,8 @@ class EndpointBase(remote.Service):
                 resource=entity, reference=message)
             for attr in assigned_attributes:
                 entity_dict[attr] = getattr(entity, attr, None)
+            if hasattr(message, "urlsafe_key"):
+                entity_dict["urlsafe_key"] = entity.key.urlsafe()
             return_list.append(entity_dict)
 
         return return_list, more

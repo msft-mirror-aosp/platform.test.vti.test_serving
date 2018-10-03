@@ -16,7 +16,7 @@
   <app-filter (applyFilters)="applyFilters($event)" [disabled]="loading"></app-filter>
 </div>
 <div class="mat-elevation-z2 entity-table" [ngStyle]="{'opacity': (loading) ? 0.2 : 1 }">
-  <table mat-table [dataSource]="dataSource">
+  <mat-table [dataSource]="dataSource" matSort matSortActive="hostname" matSortDirection="asc">
     <!-- Index Column -->
     <ng-container matColumnDef="_index">
       <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
@@ -25,7 +25,7 @@
 
     <!-- Host Name Column -->
     <ng-container matColumnDef="hostname">
-      <mat-header-cell *matHeaderCellDef>Host Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header disabled>Host Name</mat-header-cell>
       <mat-cell *matCellDef="let device"> {{device.hostname}} </mat-cell>
     </ng-container>
 
@@ -61,8 +61,7 @@
 
     <mat-header-row *matHeaderRowDef="columnTitles"></mat-header-row>
     <mat-row *matRowDef="let row; columns: columnTitles;"></mat-row>
-  </table>
-
+  </mat-table>
   <mat-paginator [length]="count"
                  [pageSize]="pageSize"
                  [pageSizeOptions]="pageSizeOptions"

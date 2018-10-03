@@ -32,6 +32,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -78,6 +79,7 @@ const appRoutes: Routes = [
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatSortModule,
     MatTableModule,
     MatTabsModule,
   ],
@@ -92,6 +94,7 @@ const appRoutes: Routes = [
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatSortModule,
     MatTableModule,
     MatTabsModule,
   ]

@@ -47,6 +47,9 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   schedulingStatusEnum = SchedulingStatus;
   appliedFilters: FilterItem[];
 
+  sort = '';
+  sortDirection = '';
+
   @ViewChild(FilterComponent) filterComponent: FilterComponent;
 
   constructor(private deviceService: DeviceService,
@@ -55,6 +58,9 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   }
 
   ngOnInit(): void {
+    this.sort = 'hostname';
+    this.sortDirection = 'asc';
+
     this.filterComponent.setSelectorList(Device);
     this.getCount();
     this.getDevices(this.pageSize, this.pageSize * this.pageIndex);
@@ -73,7 +79,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   getDevices(size = 0, offset = 0) {
     this.loading = true;
     const filterJSON = (this.appliedFilters) ? JSON.stringify(this.appliedFilters) : '';
-    this.deviceService.getDevices(size, offset, filterJSON, '', '')
+    this.deviceService.getDevices(size, offset, filterJSON, this.sort, this.sortDirection)
       .subscribe(
         (response) => {
           this.loading = false;

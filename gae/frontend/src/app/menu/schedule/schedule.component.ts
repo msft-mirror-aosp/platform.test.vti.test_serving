@@ -15,11 +15,12 @@
  */
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
+import { animate, state, style, transition, trigger } from "@angular/animations";
 
 import { FilterComponent } from '../../shared/filter/filter.component';
 import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
-import { Schedule } from '../../model/schedule';
+import { Schedule, ScheduleSuspendResponse } from '../../model/schedule';
 import { ScheduleService } from './schedule.service';
 
 
@@ -29,6 +30,13 @@ import { ScheduleService } from './schedule.service';
   templateUrl: './schedule.component.html',
   providers: [ ScheduleService ],
   styleUrls: ['./schedule.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('void', style({height: '0px', minHeight: '0', visibility: 'hidden'})),
+      state('*', style({height: '*', visibility: 'visible'})),
+      transition('void <=> *', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class ScheduleComponent extends MenuBaseClass implements OnInit {
   columnTitles = [
@@ -107,6 +115,25 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
             }
           }
           this.dataSource.data = response.schedules;
+        },
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
+      );
+  }
+
+  /** Toggles a schedule from suspend to resume, or vice versa. */
+  suspendSchedule(schedules: ScheduleSuspendResponse[]) {
+    this.scheduleService.suspendSchedule(schedules)
+      .subscribe(
+        (response) => {
+          if (response.schedules) {
+            let self = this;
+            response.schedules.forEach(function(schedule) {
+                const original = self.dataSource.data.filter(x => x.urlsafe_key === schedule.urlsafe_key);
+                if (original) {
+                  original[0].suspended = schedule.suspend;
+                }
+              })
+          }
         },
         (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
       );
