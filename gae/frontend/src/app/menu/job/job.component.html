@@ -155,8 +155,8 @@
     </ng-container>
 
     <!-- Timestamp Column -->
-    <ng-container matColumnDef="timestamp" mat-sort-header disabled>
-      <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>
+    <ng-container matColumnDef="timestamp">
+      <mat-header-cell *matHeaderCellDef mat-sort-header disabled>Timestamp</mat-header-cell>
       <mat-cell *matCellDef="let job"> {{getRelativeTime(job.timestamp)}} </mat-cell>
     </ng-container>
 
