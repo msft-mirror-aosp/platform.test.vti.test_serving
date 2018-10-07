@@ -13,17 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
+
+import { BuildService } from "../build/build.service";
+import { MenuBaseClass } from "../menu_base";
+import { ScheduleService } from "../schedule/schedule.service";
 
 /** Component that handles dashboard. */
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
+  providers: [ BuildService, ScheduleService ],
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
-  constructor(public snackBar: MatSnackBar) {
-    this.snackBar.dismiss();
+export class DashboardComponent extends MenuBaseClass implements OnInit {
+  lastBuildUpdateTime: any = '---';
+  lastScheduleUpdateTime: any = '---';
+
+  constructor(private buildService: BuildService,
+              private scheduleService: ScheduleService,
+              public snackBar: MatSnackBar) {
+    super(snackBar);
+  }
+
+  ngOnInit(): void {
+    this.getLatestBuild();
+    this.getLastestSchedule();
+  }
+
+  /** Fetches the most recently updated build and gets timestamp from it. */
+  getLatestBuild() {
+    this.lastBuildUpdateTime = '---';
+    this.buildService.getBuilds(1, 0, '', 'timestamp', 'desc')
+      .subscribe(
+        (response) => {
+          if (response.builds) {
+            this.lastBuildUpdateTime = response.builds[0].timestamp;
+          }
+        },
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
+      );
+  }
+
+  /** Fetches the most recently updated schedule and gets timestamp from it. */
+  getLastestSchedule() {
+    this.lastScheduleUpdateTime = '---';
+    this.scheduleService.getSchedules(1, 0, '', 'timestamp', 'desc')
+      .subscribe(
+        (response) => {
+          if (response.schedules) {
+            this.lastScheduleUpdateTime = response.schedules[0].timestamp;
+          }
+        },
+        (error) => this.showSnackbar(`[${error.status}] ${error.name}`)
+      );
   }
 }

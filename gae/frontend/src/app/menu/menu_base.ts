@@ -50,7 +50,7 @@ export abstract class MenuBaseClass {
 
   getRelativeTime(timeString) {
     return (moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').isValid() ?
-      moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').fromNow() : timeString);
+      moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').fromNow() : '---');
   }
 
   /** Displays a snackbar notification. */

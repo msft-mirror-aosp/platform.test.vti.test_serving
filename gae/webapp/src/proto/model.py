@@ -42,6 +42,7 @@ class BuildInfoMessage(messages.Message):
     artifact_type = messages.StringField(5)
     artifacts = messages.StringField(6, repeated=True)
     signed = messages.BooleanField(7)
+    timestamp = message_types.DateTimeField(8)
 
 
 class ScheduleControlModel(ndb.Model):
