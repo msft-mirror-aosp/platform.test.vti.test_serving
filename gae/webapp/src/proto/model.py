@@ -236,6 +236,7 @@ class DeviceInfoMessage(messages.Message):
     status = messages.IntegerField(3)
     scheduling_status = messages.IntegerField(4)
     hostname = messages.StringField(5)
+    device_equipment = messages.StringField(6, repeated=True)
 
 
 class HostInfoMessage(messages.Message):
