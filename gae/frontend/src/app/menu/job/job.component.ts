@@ -17,6 +17,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 
+import { AppService } from '../../appservice';
 import { FilterComponent } from '../../shared/filter/filter.component';
 import { FilterCondition } from '../../model/filter_condition';
 import { FilterItem } from '../../model/filter_item';
@@ -84,8 +85,9 @@ export class JobComponent extends MenuBaseClass implements OnInit {
   sortDirection = '';
 
   constructor(private jobService: JobService,
-              public snackBar: MatSnackBar) {
-    super(snackBar);
+              appService: AppService,
+              snackBar: MatSnackBar) {
+    super(appService, snackBar);
   }
 
   ngOnInit(): void {

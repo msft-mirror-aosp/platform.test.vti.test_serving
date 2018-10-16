@@ -17,6 +17,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 import { animate, state, style, transition, trigger } from "@angular/animations";
 
+import { AppService } from '../../appservice';
 import { FilterComponent } from '../../shared/filter/filter.component';
 import { FilterItem } from '../../model/filter_item';
 import { MenuBaseClass } from '../menu_base';
@@ -59,8 +60,9 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
   @ViewChild(FilterComponent) filterComponent: FilterComponent;
 
   constructor(private scheduleService: ScheduleService,
-              public snackBar: MatSnackBar) {
-    super(snackBar);
+              appService: AppService,
+              snackBar: MatSnackBar) {
+    super(appService, snackBar);
   }
 
   ngOnInit(): void {

@@ -17,4 +17,19 @@
     <app-nav-bar id="nav-bar"></app-nav-bar>
   </div>
 </header>
-<router-outlet id="router-outlet"></router-outlet>
+<mat-sidenav-container>
+  <mat-sidenav-content>
+    <router-outlet id="router-outlet"></router-outlet>
+  </mat-sidenav-content>
+  <mat-sidenav #sidenav mode="over" position="end" [(opened)]="sideNavOpened">
+    <button mat-button (click)="sidenav.toggle()">
+      <mat-icon>clear</mat-icon>
+    </button>
+    <mat-list>
+      <mat-list-item *ngFor="let property of selectedEntity">
+        <h4 id="property-name" mat-line>{{property.name}}</h4>
+        <p id="property-value" mat-line *ngFor="let each of property.value">{{each}}</p>
+      </mat-list-item>
+    </mat-list>
+  </mat-sidenav>
+</mat-sidenav-container>

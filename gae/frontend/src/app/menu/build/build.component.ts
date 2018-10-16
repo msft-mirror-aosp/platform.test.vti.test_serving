@@ -16,6 +16,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
+import { AppService } from '../../appservice';
 import { Build } from '../../model/build';
 import { BuildService } from './build.service';
 import { FilterComponent } from '../../shared/filter/filter.component';
@@ -46,8 +47,9 @@ export class BuildComponent extends MenuBaseClass implements OnInit {
   @ViewChild(FilterComponent) filterComponent: FilterComponent;
 
   constructor(private buildService: BuildService,
-              public snackBar: MatSnackBar) {
-    super(snackBar);
+              appService: AppService,
+              snackBar: MatSnackBar) {
+    super(appService, snackBar);
   }
 
   ngOnInit(): void {

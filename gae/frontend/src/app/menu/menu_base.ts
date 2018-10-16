@@ -17,6 +17,7 @@
 /** This class defines and/or implements the common properties and methods
  * used among menus.
  */
+import { AppService } from '../appservice';
 import { MatSnackBar } from '@angular/material';
 import moment from 'moment-timezone';
 
@@ -29,7 +30,9 @@ export abstract class MenuBaseClass {
   pageSize = 100;
   pageIndex = 0;
 
-  protected constructor(public snackBar: MatSnackBar) {
+  protected constructor(private appService: AppService,
+                        public snackBar: MatSnackBar) {
+    this.appService.closeSideNav();
     this.snackBar.dismiss();
   }
 
@@ -57,5 +60,10 @@ export abstract class MenuBaseClass {
   showSnackbar(message = 'Error', duration = 5000) {
     this.loading = false;
     this.snackBar.open(message, 'DISMISS', {duration});
+  }
+
+  /** Displays a side nav window and lists all properties of selected entity. */
+  onShowDetailsClicked(entity) {
+    this.appService.showDetails(entity);
   }
 }
