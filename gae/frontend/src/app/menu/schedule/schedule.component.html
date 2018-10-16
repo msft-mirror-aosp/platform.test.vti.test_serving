@@ -102,6 +102,9 @@
     <button mat-raised-button (click)="suspendSchedule([{urlsafe_key: schedule.urlsafe_key, suspend: !schedule.suspended}])">
       {{(schedule.suspended ? "Resume" : "Suspend")}}
     </button>
+    <button mat-raised-button (click)="onShowDetailsClicked(schedule)">
+      Show Details
+    </button>
   </div>
 </ng-template>
 <div class="loading-spinner" *ngIf="loading">

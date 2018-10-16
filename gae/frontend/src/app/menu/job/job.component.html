@@ -182,6 +182,9 @@
 <ng-template #job_detail let-job>
   <div class="mat-row div-expandable" [@detailExpand] style="overflow: hidden">
     <a href="{{job.infra_log_url}}" download><button mat-raised-button [disabled]="(!job.infra_log_url)">Download Infra Log</button></a>
+    <button mat-raised-button (click)="onShowDetailsClicked(job)">
+      Show Details
+    </button>
   </div>
 </ng-template>
 <div class="loading-spinner" *ngIf="loading">

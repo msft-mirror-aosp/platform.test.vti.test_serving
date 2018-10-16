@@ -16,6 +16,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
+import { AppService } from '../../appservice';
 import { Device } from '../../model/device';
 import { DeviceService } from './device.service';
 import { DeviceStatus, SchedulingStatus } from '../../shared/vtslab_status';
@@ -53,8 +54,9 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
   @ViewChild(FilterComponent) filterComponent: FilterComponent;
 
   constructor(private deviceService: DeviceService,
-              public snackBar: MatSnackBar) {
-    super(snackBar);
+              appService: AppService,
+              snackBar: MatSnackBar) {
+    super(appService, snackBar);
   }
 
   ngOnInit(): void {

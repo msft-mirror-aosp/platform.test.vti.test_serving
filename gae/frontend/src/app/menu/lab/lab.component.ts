@@ -16,6 +16,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar, MatTableDataSource, PageEvent } from '@angular/material';
 
+import { AppService } from '../../appservice';
 import { Host } from '../../model/host';
 import { Lab } from '../../model/lab';
 import { LabService } from './lab.service';
@@ -48,8 +49,9 @@ export class LabComponent extends MenuBaseClass implements OnInit {
   labPageIndex = 0;
 
   constructor(private labService: LabService,
-              public snackBar: MatSnackBar) {
-    super(snackBar);
+              appService: AppService,
+              snackBar: MatSnackBar) {
+    super(appService, snackBar);
   }
 
   labDataSource = new MatTableDataSource<Lab>();

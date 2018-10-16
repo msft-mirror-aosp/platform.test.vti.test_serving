@@ -16,10 +16,47 @@
 
 import { Component } from '@angular/core';
 
+import { AppService } from "./appservice";
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  _sideNavOpened = false;
+  get sideNavOpened(): boolean {
+    return this._sideNavOpened;
+  }
+  set sideNavOpened(value: boolean) {
+    this._sideNavOpened = value;
+    if (!value) {
+      this.selectedEntity = this.selectedEntity.slice();
+    }
+  }
+  selectedEntity: {name: string; value: any[]}[] = [];
+
+  constructor(private appService: AppService) {
+    appService.closeSideNavEmitter.subscribe(() => {this.sideNavOpened = false});
+    appService.showDetailsEmitter.subscribe(
+      (entity) => {
+        if (entity) {
+          let self = this;
+          Object.keys(entity).forEach(function(value){
+            if (value !== 'urlsafe_key') {
+              self.selectedEntity.push({
+                name: value,
+                value: (entity[value] instanceof Array) ? entity[value] : [entity[value]]
+              });
+            }
+          });
+        }
+        this.sideNavOpened = !this.sideNavOpened;
+      },
+      (error) => {
+        console.log(error);
+      }
+    )
+  }
 }
