@@ -24,6 +24,7 @@ from webapp.src.scheduler import device_heartbeat
 from webapp.src.scheduler import job_heartbeat
 from webapp.src.scheduler import periodic
 from webapp.src.tasks import indexing
+from webapp.src.tasks import removing_outdated_devices
 
 
 class RedirectHandler(base.BaseHandler):
@@ -55,6 +56,8 @@ app = webapp2.WSGIApplication(
         ("/tasks/schedule", periodic.PeriodicScheduler),
         ("/tasks/device_heartbeat", device_heartbeat.PeriodicDeviceHeartBeat),
         ("/tasks/job_heartbeat", job_heartbeat.PeriodicJobHeartBeat),
+        ("/tasks/remove_outdated_devices",
+         removing_outdated_devices.RemoveOutdatedDevices),
         ("/tasks/indexing([/]?.*)", indexing.CreateIndex),
         ("/redirect/(.*)", RedirectHandler),
     ],
