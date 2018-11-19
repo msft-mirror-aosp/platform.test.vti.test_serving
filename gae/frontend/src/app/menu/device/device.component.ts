@@ -41,6 +41,7 @@ export class DeviceComponent extends MenuBaseClass implements OnInit {
     'status',
     'scheduling_status',
     'device_equipment',
+    'timestamp',
   ];
   dataSource = new MatTableDataSource<Device>();
   pageEvent: PageEvent;

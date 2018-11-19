@@ -20,4 +20,5 @@ export class Device {
   scheduling_status: number = void 0;
   hostname: string = void 0;
   device_equipment: string[] = void 0;
+  timestamp: any = void 0;
 }
