@@ -51,6 +51,7 @@ export class ScheduleComponent extends MenuBaseClass implements OnInit {
     'test_branch',
     'test_build_target',
     'period',
+    'status',
     'timestamp',
   ];
   dataSource = new MatTableDataSource<Schedule>();
