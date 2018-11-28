@@ -93,6 +93,7 @@ indexes:
   - name: test_pab_account_id
   - name: infra_log_url
   - name: timestamp
+    direction: desc
   - name: parent_schedule
   - name: test_type
   - name: require_signed_device_build
@@ -103,3 +104,9 @@ indexes:
   - name: report_spreadsheet_id
   - name: report_persistent_url
   - name: report_reference_url
+
+- kind: JobModel
+  properties:
+  - name: hostname
+  - name: timestamp
+    direction: desc
