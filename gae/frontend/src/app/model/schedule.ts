@@ -60,6 +60,7 @@ export class Schedule {
   timestamp = void 0;
   owner: string[] = void 0;
 
+  error_count: number = void 0;
   suspended: boolean = void 0;
   urlsafe_key: string = void 0;
 }
