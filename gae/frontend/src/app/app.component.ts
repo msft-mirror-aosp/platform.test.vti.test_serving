@@ -41,6 +41,7 @@ export class AppComponent {
     appService.closeSideNavEmitter.subscribe(() => {this.sideNavOpened = false});
     appService.showDetailsEmitter.subscribe(
       (entity) => {
+        this.selectedEntity.length = 0;
         if (entity) {
           let self = this;
           Object.keys(entity).forEach(function(value){
