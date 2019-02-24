@@ -115,7 +115,7 @@ class ScheduleControlInfoMessage(messages.Message):
 
 class ScheduleInfoMessage(messages.Message):
     """A message for representing an individual schedule entry."""
-    # Next ID = 38
+    # Next ID = 39
     # schedule name for green build schedule, optional.
     name = messages.StringField(16)
     schedule_type = messages.StringField(19)
@@ -165,6 +165,7 @@ class ScheduleInfoMessage(messages.Message):
 
     suspended = messages.BooleanField(36)
     urlsafe_key = messages.StringField(37)
+    error_count = messages.IntegerField(38)
 
 
 class LabModel(ndb.Model):

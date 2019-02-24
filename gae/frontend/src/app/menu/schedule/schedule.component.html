@@ -77,6 +77,15 @@
       <mat-cell *matCellDef="let schedule"> {{schedule.period}}</mat-cell>
     </ng-container>
 
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+      <mat-cell *matCellDef="let schedule"
+                [ngStyle]="{color: (schedule.suspended || isExpired(schedule.timestamp)) ? '#FF0000' : '#000000'}">
+        {{schedule.suspended ? "Suspended" : (isExpired(schedule.timestamp) ? "Expired" : "Active")}}
+      </mat-cell>
+    </ng-container>
+
     <!-- Timestamp Column -->
     <ng-container matColumnDef="timestamp">
       <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>

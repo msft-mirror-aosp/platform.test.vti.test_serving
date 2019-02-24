@@ -56,6 +56,16 @@ export abstract class MenuBaseClass {
       moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC').fromNow() : '---');
   }
 
+  /** Checks whether timeString is expired from current time. */
+  isExpired(timeString, hours=72) {
+    let currentTime = moment.tz(timeString, 'YYYY-MM-DDThh:mm:ss', 'UTC');
+    if (!currentTime.isValid()) { return false; }
+
+    let diff = moment().diff(currentTime);
+    let duration = moment.duration(diff);
+    return duration.asHours() > hours;
+  }
+
   /** Displays a snackbar notification. */
   showSnackbar(message = 'Error', duration = 5000) {
     this.loading = false;
